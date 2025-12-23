@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ["super-admin", "school-admin", "teacher"], default: "school-admin" },
   schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
   phone: { type: String },
+  classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }], // الفصول المرتبطة بالمعلم
+  subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }], // المواد المرتبطة بالمعلم
   createdAt: { type: Date, default: Date.now },
 });
 

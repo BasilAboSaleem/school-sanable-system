@@ -122,3 +122,36 @@ await Class.findByIdAndUpdate(classId, { $push: { sections: newSection._id } });
     return res.json({ errors: { general: "حدث خطأ أثناء إضافة الشعبة" } });
   }
 };
+
+exports.listSectionsByClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+
+    // تأكد أن الفصل تابع لنفس المدرسة
+    const classData = await Class.findOne({
+      _id: classId,
+      schoolId: req.user.schoolId
+    });
+
+    if (!classData) {
+      req.flash("error", "الفصل غير موجود");
+      return res.redirect("/school-admin/classes");
+    }
+
+    const sections = await Section.find({ classId })
+      .populate("classId", "name")
+      .populate("teacherId", "name")
+      .sort({ createdAt: -1 });
+
+    res.render("dashboard/school-admin/class-sections", {
+      title: `شعب فصل ${classData.name}`,
+      classData,
+      sections
+    });
+
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب الشعب");
+    res.redirect("/school-admin/classes");
+  }
+};

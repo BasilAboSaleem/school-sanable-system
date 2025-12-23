@@ -68,7 +68,7 @@
                         <td><%= cls.sections.length %></td>
                         <td>
                           <a href="/school-admin/classes/edit/<%= cls._id %>" class="btn btn-sm btn-warning">تعديل</a>
-                          <a href="/school-admin/sections?classId=<%= cls._id %>" class="btn btn-sm btn-info">عرض الشعب</a>
+                          <a href="/school-admin/classes/<%= cls._id %>/sections" class="btn btn-sm btn-info">عرض الشعب</a>
                         </td>
                       </tr>
                     <% }) %>

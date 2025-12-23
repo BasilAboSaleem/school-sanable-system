@@ -11,5 +11,5 @@ router.get("/classes", schoolAdminController.listClasses);
 // Routes for Section Management
 router.get("/sections/create", schoolAdminController.renderCreateSectionForm);
 router.post("/sections/create", schoolAdminController.createSection);
-
+router.get("/classes/:classId/sections", schoolAdminController.listSectionsByClass);
 module.exports = router;

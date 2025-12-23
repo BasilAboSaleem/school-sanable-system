@@ -65,6 +65,7 @@ app.use((req, res, next) => {
 // --------- Routes ----------
 const indexRoutes = require("./app/routes/index");
 const authRoutes = require("./app/routes/auth");
+const superAdminRoutes = require("./app/routes/superAdmin");
 
 // Public Routes
 app.use("/auth", authRoutes);
@@ -77,6 +78,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/", indexRoutes);
+app.use("/super-admin", superAdminRoutes);
 
 // Health Check
 app.get("/api/health", (req, res) => {

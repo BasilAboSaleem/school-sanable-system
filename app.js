@@ -22,7 +22,7 @@ const app = express();
 
 // --------- View Engine Setup ----------
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "app/views"));
+app.set("views", path.join(__dirname, "views"));
 
 // --------- Database Connection ----------
 connectDB();
@@ -57,6 +57,8 @@ app.use(
 );
 
 // --------- Routes ----------
+const indexRoutes = require("./app/routes/index");
+app.use("/", indexRoutes);
 /*
 const authRoutes = require("./app/routes/auth.routes");
 const schoolRoutes = require("./app/routes/school.routes");

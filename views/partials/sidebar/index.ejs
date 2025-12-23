@@ -7,15 +7,16 @@
   </header>
 
   <% if (user?.role === 'super-admin') { %>
-    <%- include('./super-admin') %>
+    <%- include('./super-admin.ejs') %>
   <% } %>
 
   <% if (user?.role === 'school-admin') { %>
-    <%- include('./school-admin') %>
+    <%- include('./school-admin.ejs') %>
   <% } %>
 
   <% if (user?.role === 'teacher') { %>
-    <%- include('./teacher') %>
+    <%- include('./teacher.ejs') %>
   <% } %>
+ 
 
 </div>

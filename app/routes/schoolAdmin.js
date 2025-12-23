@@ -2,7 +2,13 @@ const express = require("express");
 const router = express.Router();
 const schoolAdminController = require("../controllers/schoolAdmin");
 
+// Routes for Class Management
 router.get("/classes/create", schoolAdminController.renderCreateClassForm);
 router.post("/classes/create", schoolAdminController.createClass);
- 
+
+
+// Routes for Section Management
+router.get("/sections/create", schoolAdminController.renderCreateSectionForm);
+router.post("/sections/create", schoolAdminController.createSection);
+
 module.exports = router;

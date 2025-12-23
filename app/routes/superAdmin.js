@@ -3,5 +3,6 @@ const router = express.Router();
 const superAdminController = require("../controllers/superAdmin");
 
 router.get("/schools/add", superAdminController.getAddSchool);
+router.post("/schools/add", superAdminController.postAddSchool);
 
 module.exports = router;

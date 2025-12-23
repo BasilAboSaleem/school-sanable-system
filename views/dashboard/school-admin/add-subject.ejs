@@ -1,0 +1,133 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+    <%- include('../../partials/header.ejs') %>
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../partials/sidebar/index.ejs') %>
+    </div>
+
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
+
+        <!-- breadcrumb -->
+        <div class="row m-1 pb-4 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header">
+              <div class="row align-items-end">
+                <div class="col-lg-8">
+                  <h3 class="lite-text">إضافة مادة جديدة</h3>
+                  <span class="lite-text text-gray">أدخل اسم المادة الجديدة للمدرسة</span>
+                </div>
+                <div class="col-lg-4">
+                  <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active">إضافة مادة</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- الفورم لإضافة مادة -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade h-100">
+              <div class="card-header">
+                إضافة مادة جديدة
+              </div>
+              <div class="card-body">
+
+                <form id="addSubjectForm" action="/school-admin/subjects/create" method="POST" class="text-right">
+                  <div class="form-group">
+                    <label>اسم المادة *</label>
+                    <input type="text" name="name" id="subjectNameInput" required class="form-control">
+                    <small class="text-danger" id="nameError"></small>
+                  </div>
+
+                  <div class="form-group">
+                    <label>رمز المادة</label>
+                    <input type="text" name="code" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>الحالة</label>
+                    <select name="status" class="form-control">
+                      <option value="active">نشط</option>
+                      <option value="inactive">غير نشط</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" class="btn btn-success">إضافة المادة</button>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <%- include('../../partials/scripts.ejs') %>
+
+<script>
+const subjectNameInput = document.getElementById('subjectNameInput');
+const nameError = document.getElementById('nameError');
+
+// AJAX للتحقق من الاسم الفريد عند الخروج من الحقل
+subjectNameInput.addEventListener('blur', async () => {
+  const name = subjectNameInput.value.trim();
+  if(!name) return;
+  
+  const res = await fetch('/school-admin/subjects/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ name, checkField: 'name' })
+  });
+  const data = await res.json();
+  nameError.textContent = data.error || '';
+});
+
+// إرسال الفورم
+document.getElementById('addSubjectForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  nameError.textContent = '';
+
+  if(!subjectNameInput.value.trim()){
+    nameError.textContent = "اسم المادة مطلوب";
+    return;
+  }
+
+  const formData = {
+    name: subjectNameInput.value,
+    code: document.querySelector('input[name="code"]').value,
+    status: document.querySelector('select[name="status"]').value
+  };
+
+  const res = await fetch('/school-admin/subjects/create', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(formData)
+  });
+  const data = await res.json();
+
+  if(data.errors){
+    if(data.errors.name) nameError.textContent = data.errors.name;
+    if(data.errors.general) alert(data.errors.general);
+  } else if(data.success){
+    alert(data.success);
+    window.location.href="/school-admin/subjects";
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+<%- include('../../partials/header.ejs') %>
+
+<div id="dw-s1" class="bmd-layout-drawer bg-faded">
+  <%- include('../../partials/sidebar/index.ejs') %>
+</div>
+
+<main class="bmd-layout-content">
+<div class="container-fluid">
+
+  <!-- breadcrumb -->
+  <div class="row m-1 pb-4 mb-3">
+    <div class="col-12 p-2">
+      <div class="page-header breadcrumb-header">
+        <div class="row align-items-end">
+          <div class="col-lg-8">
+            <h3 class="lite-text">جميع المواد</h3>
+            <span class="lite-text text-gray">عرض كل المواد في المدرسة</span>
+          </div>
+          <div class="col-lg-4 text-left">
+            <a href="/school-admin/subjects/create" class="btn btn-success">
+              <i class="fas fa-plus"></i> إضافة مادة
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- جدول المواد -->
+  <div class="row m-1">
+    <div class="col-12 p-2">
+      <div class="card shade h-100">
+        <div class="card-body">
+
+          <!-- Flash messages -->
+          <% if (locals.success && locals.success.length > 0) { %>
+            <div class="alert alert-success"><%= success %></div>
+          <% } %>
+          <% if (locals.error && locals.error.length > 0) { %>
+            <div class="alert alert-danger"><%= error %></div>
+          <% } %>
+
+          <table class="table table-bordered table-hover text-center">
+            <thead class="thead-light">
+              <tr>
+                <th>#</th>
+                <th>اسم المادة</th>
+                <th>عدد المعلمين</th>
+                <th>الحالة</th>
+                <th>العمليات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if(subjects.length === 0){ %>
+                <tr><td colspan="5">لا توجد مواد مضافة</td></tr>
+              <% } %>
+
+              <% subjects.forEach((subj, index) => { %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><%= subj.name %></td>
+                  <td><%= subj.teachersCount %></td>
+                  <td><%= subj.status === 'active' ? 'نشط' : 'غير نشط' %></td>
+                  <td>
+                    <a href="/school-admin/subjects/<%= subj._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+</body>
+</html>

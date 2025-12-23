@@ -1,0 +1,109 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+<%- include('../../partials/header.ejs') %>
+<div id="dw-s1" class="bmd-layout-drawer bg-faded">
+  <%- include('../../partials/sidebar/index.ejs') %>
+</div>
+
+<main class="bmd-layout-content">
+<div class="container-fluid">
+
+<!-- breadcrumb -->
+<div class="row m-1 pb-4 mb-3">
+  <div class="col-12 p-2">
+    <div class="page-header breadcrumb-header">
+      <div class="row align-items-end">
+        <div class="col-lg-8">
+          <h3 class="lite-text">تعديل المادة</h3>
+          <span class="lite-text text-gray">تعديل اسم وحالة المادة</span>
+        </div>
+        <div class="col-lg-4 text-left">
+          <a href="/school-admin/subjects" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> العودة
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row m-1">
+<div class="col-12 p-2">
+<div class="card shade h-100">
+<div class="card-header">
+  تعديل المادة
+</div>
+<div class="card-body">
+
+<form id="editSubjectForm" class="text-right">
+  <div class="form-group">
+    <label>اسم المادة *</label>
+    <input type="text" name="name" id="subjectNameInput" required class="form-control" value="<%= subject.name %>">
+    <small class="text-danger" id="nameError"></small>
+  </div>
+
+  <div class="form-group">
+    <label>الحالة</label>
+    <select name="status" class="form-control">
+      <option value="active" <%= subject.status==='active' ? 'selected' : '' %>>نشط</option>
+      <option value="inactive" <%= subject.status==='inactive' ? 'selected' : '' %>>غير نشط</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-success">حفظ التعديلات</button>
+</form>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+const subjectNameInput = document.getElementById('subjectNameInput');
+const nameError = document.getElementById('nameError');
+
+document.getElementById('editSubjectForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  nameError.textContent = '';
+
+  if(!subjectNameInput.value.trim()){
+    nameError.textContent = "اسم المادة مطلوب";
+    return;
+  }
+
+  const formData = {
+    name: subjectNameInput.value,
+    status: document.querySelector('select[name="status"]').value
+  };
+
+  const res = await fetch(window.location.pathname, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(formData)
+  });
+
+  const data = await res.json();
+  if(data.errors){
+    if(data.errors.name) nameError.textContent = data.errors.name;
+    if(data.errors.general) alert(data.errors.general);
+  } else if(data.success){
+    alert(data.success);
+    window.location.href = data.redirect;
+  }
+});
+</script>
+
+</body>
+</html>

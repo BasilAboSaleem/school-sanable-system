@@ -5,6 +5,7 @@ const schoolAdminController = require("../controllers/schoolAdmin");
 // Routes for Class Management
 router.get("/classes/create", schoolAdminController.renderCreateClassForm);
 router.post("/classes/create", schoolAdminController.createClass);
+router.get("/classes", schoolAdminController.listClasses);
 
 
 // Routes for Section Management

@@ -41,13 +41,28 @@ exports.createClass = async (req, res) => {
     });
 
     await newClass.save();
+     req.flash("success", "تم إضافة الفصل بنجاح");
+    return res.json({
+  success: "تم إضافة الفصل بنجاح",
+  redirect: "/school-admin/classes"
+});
 
-    req.flash("success", "تم إضافة الفصل بنجاح");
-    return res.redirect("/school-admin/classes");
+   
 
   } catch(err){
     console.error(err);
     return res.json({ errors: { general: "حدث خطأ أثناء إضافة الفصل" } });
+  }
+};
+
+exports.listClasses = async (req, res) => {
+  try {
+    const classes = await Class.find({ schoolId: req.user.schoolId }).populate('sections').sort({ createdAt: -1 });
+    res.render("dashboard/school-admin/all-classes", { title: "جميع الفصول", classes });
+  } catch(err){
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب الفصول");
+    res.redirect("/school-admin");
   }
 };
 
@@ -94,7 +109,7 @@ exports.createSection = async (req, res) => {
     });
 
     await newSection.save();
-    console.log(newSection);
+await Class.findByIdAndUpdate(classId, { $push: { sections: newSection._id } });
 
     req.flash("success", "تم إضافة الشعبة بنجاح");
     return res.json({

@@ -4,6 +4,7 @@ const classSchema = new mongoose.Schema({
   name: { type: String, required: true },
   schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School", required: true },
   sections: [{ type: mongoose.Schema.Types.ObjectId, ref: "Section" }], // الشعب
+  status: { type: String, enum: ['active','inactive'], default: 'active' },
   createdAt: { type: Date, default: Date.now },
 });
 

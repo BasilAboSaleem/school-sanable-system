@@ -7,15 +7,12 @@
 
   <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
 
-    <!-- الهيدر -->
     <%- include('../../partials/header.ejs') %>
 
-    <!-- السايدبار -->
     <div id="dw-s1" class="bmd-layout-drawer bg-faded">
       <%- include('../../partials/sidebar/index.ejs') %>
     </div>
 
-    <!-- المين كونتينت -->
     <main class="bmd-layout-content">
       <div class="container-fluid">
 
@@ -43,19 +40,6 @@
           </div>
         </div>
 
-        <% if (error && error.length > 0) { %>
-          <div class="row m-1 mb-2">
-            <div class="col-12 p-2">
-              <div class="alert alert-danger alert-shade alert-dismissible fade show" role="alert">
-                <%= error[0] %>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        <% } %>
-
         <!-- الفورم متعدد الخطوات -->
         <div class="row m-1">
           <div class="col-12 p-2">
@@ -66,12 +50,12 @@
               <div class="card-body">
 
                 <form id="addSchoolForm" action="/super-admin/schools/add" method="POST" class="text-right">
-
                   <!-- Step 1: بيانات المدرسة -->
                   <div class="form-step" id="step1">
                     <div class="form-group">
                       <label>اسم المدرسة *</label>
-                      <input type="text" name="name" required class="form-control">
+                      <input type="text" name="name" id="nameInput" required class="form-control">
+                      <small class="text-danger" id="nameError"></small>
                     </div>
                     <div class="form-group">
                       <label>العنوان</label>
@@ -87,7 +71,8 @@
                     </div>
                     <div class="form-group">
                       <label>كود المدرسة *</label>
-                      <input type="text" name="code" required class="form-control">
+                      <input type="text" name="code" id="schoolCode" required class="form-control">
+                      <small class="text-danger" id="codeError"></small>
                     </div>
                     <div class="form-group">
                       <label>الحالة</label>
@@ -96,22 +81,25 @@
                         <option value="inactive">غير نشطة</option>
                       </select>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn">التالي</button>
                   </div>
 
                   <!-- Step 2: بيانات مدير المدرسة -->
                   <div class="form-step" id="step2" style="display:none;">
                     <div class="form-group">
                       <label>اسم مدير المدرسة *</label>
-                      <input type="text" name="adminName" required class="form-control">
+                      <input type="text" name="adminName" id="adminNameInput" required class="form-control">
+                      <small class="text-danger" id="adminNameError"></small>
                     </div>
                     <div class="form-group">
                       <label>البريد الإلكتروني *</label>
-                      <input type="email" name="adminEmail" required class="form-control">
+                      <input type="email" name="adminEmail" id="adminEmail" required class="form-control">
+                      <small class="text-danger" id="emailError"></small>
                     </div>
                     <div class="form-group">
                       <label>كلمة المرور *</label>
-                      <input type="password" name="adminPassword" required class="form-control">
+                      <input type="password" name="adminPassword" id="adminPassword" required class="form-control">
+                      <small class="text-danger" id="passwordError"></small>
                     </div>
                     <button type="button" class="btn btn-secondary" onclick="prevStep()">السابق</button>
                     <button type="submit" class="btn btn-success">إضافة المدرسة</button>
@@ -132,36 +120,140 @@
   <%- include('../../partials/scripts.ejs') %>
 
 <script>
-  function nextStep() {
-    // جلب كل الحقول المطلوبة في step1
-    const requiredFields = document.querySelectorAll('#step1 [required]');
-    let valid = true;
+const codeInput = document.getElementById('schoolCode');
+const emailInput = document.getElementById('adminEmail');
+const passwordInput = document.getElementById('adminPassword');
+const nameInput = document.getElementById('nameInput');
+const adminNameInput = document.getElementById('adminNameInput');
 
-    requiredFields.forEach(field => {
-      if (!field.value.trim()) {
-        valid = false;
-        field.classList.add('is-invalid'); // نضيف إطار أحمر للحقل
-      } else {
-        field.classList.remove('is-invalid');
-      }
+const codeError = document.getElementById('codeError');
+const emailError = document.getElementById('emailError');
+const passwordError = document.getElementById('passwordError');
+const nameError = document.getElementById('nameError');
+const adminNameError = document.getElementById('adminNameError');
+
+const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+// AJAX للتحقق من كود المدرسة
+codeInput.addEventListener('blur', async () => {
+  const res = await fetch('/super-admin/schools/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ code: codeInput.value, checkField: 'code' })
+  });
+  const data = await res.json();
+  codeError.textContent = data.error || '';
+});
+
+// AJAX للتحقق من إيميل المدير
+emailInput.addEventListener('blur', async () => {
+  const res = await fetch('/super-admin/schools/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ adminEmail: emailInput.value, checkField: 'adminEmail' })
+  });
+  const data = await res.json();
+  emailError.textContent = data.error || '';
+});
+
+// تحقق كلمة المرور مباشر
+passwordInput.addEventListener('input', async () => {
+  const res = await fetch('/super-admin/schools/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ adminPassword: passwordInput.value, checkField: 'adminPassword' })
+  });
+  const data = await res.json();
+  passwordError.textContent = data.error || '';
+});
+
+// Step 1 next button
+document.getElementById('nextBtn').addEventListener('click', async () => {
+  nameError.textContent = '';
+  codeError.textContent = '';
+  let valid = true;
+
+  if(!nameInput.value.trim()){ valid=false; nameError.textContent="اسم المدرسة مطلوب"; }
+  if(!codeInput.value.trim()){ valid=false; codeError.textContent="كود المدرسة مطلوب"; }
+
+  // تحقق الكود عبر الكنترولر
+  if(codeInput.value.trim()){
+    const res = await fetch('/super-admin/schools/add', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ code: codeInput.value, checkField: 'code' })
     });
-
-    if (!valid) {
-      alert('الرجاء ملء جميع الحقول المطلوبة قبل الانتقال للخطوة التالية.');
-      return;
-    }
-
-    // إذا كل شيء صحيح، انتقل للخطوة الثانية
-    document.getElementById('step1').style.display = 'none';
-    document.getElementById('step2').style.display = 'block';
+    const data = await res.json();
+    if(data.error){ codeError.textContent = data.error; valid=false; }
   }
 
-  function prevStep() {
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('step1').style.display = 'block';
+  if(!valid) return;
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+});
+
+// Step 2 previous
+function prevStep(){ document.getElementById('step2').style.display='none'; document.getElementById('step1').style.display='block'; }
+
+// Step 2 submit
+document.getElementById('addSchoolForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  // تنظيف الأخطاء
+  adminNameError.textContent='';
+  emailError.textContent='';
+  passwordError.textContent='';
+
+  let valid = true;
+  if(!adminNameInput.value.trim()){ adminNameError.textContent="اسم المدير مطلوب"; valid=false; }
+  if(!strongPasswordRegex.test(passwordInput.value)){ passwordError.textContent="كلمة المرور غير قوية"; valid=false; }
+
+  // تحقق البريد الإلكتروني
+  if(emailInput.value.trim()){
+    const res = await fetch('/super-admin/schools/add', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ adminEmail: emailInput.value, checkField: 'adminEmail' })
+    });
+    const data = await res.json();
+    if(data.error){ emailError.textContent=data.error; valid=false; }
   }
+
+  if(!valid) return;
+
+  // إرسال الفورم النهائي
+  const formData = {
+    name: nameInput.value,
+    address: document.querySelector('input[name="address"]').value,
+    phone: document.querySelector('input[name="phone"]').value,
+    email: document.querySelector('input[name="email"]').value,
+    code: codeInput.value,
+    status: document.querySelector('select[name="status"]').value,
+    adminName: adminNameInput.value,
+    adminEmail: emailInput.value,
+    adminPassword: passwordInput.value
+  };
+
+  const res = await fetch('/super-admin/schools/add', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(formData)
+  });
+  const data = await res.json();
+
+  if(data.errors){
+    if(data.errors.adminName) adminNameError.textContent=data.errors.adminName;
+    if(data.errors.adminEmail) emailError.textContent=data.errors.adminEmail;
+    if(data.errors.adminPassword) passwordError.textContent=data.errors.adminPassword;
+    if(data.errors.name) nameError.textContent=data.errors.name;
+    if(data.errors.code) codeError.textContent=data.errors.code;
+    if(data.errors.general) alert(data.errors.general);
+  } else if(data.success){
+    alert(data.success);
+    window.location.href="/super-admin/schools";
+  }
+});
 </script>
-
 
 </body>
 </html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- breadcrumb -->
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <h3 class="lite-text">تعديل الفصل</h3>
+                <span class="lite-text text-gray">تعديل بيانات الفصل</span>
+              </div>
+              <div class="col-lg-4 text-left">
+                <a href="/school-admin/classes" class="btn btn-secondary">
+                  <i class="fas fa-arrow-left"></i> العودة للفصول
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- فورم تعديل الفصل -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-header">تعديل الفصل</div>
+            <div class="card-body">
+
+              <form id="editClassForm" action="/school-admin/classes/<%= cls._id %>/edit" method="POST" class="text-right">
+                <div class="form-group">
+                  <label>اسم الفصل *</label>
+                  <input type="text" name="name" id="classNameInput" required class="form-control" value="<%= cls.name %>">
+                  <small class="text-danger" id="nameError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>الحالة</label>
+                  <select name="status" class="form-control">
+                    <option value="active" <%= cls.status === 'active' ? 'selected' : '' %>>نشط</option>
+                    <option value="inactive" <%= cls.status === 'inactive' ? 'selected' : '' %>>غير نشط</option>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">حفظ التعديلات</button>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+const classNameInput = document.getElementById('classNameInput');
+const nameError = document.getElementById('nameError');
+
+// AJAX للتحقق من الاسم الفريد عند الخروج من الحقل
+classNameInput.addEventListener('blur', async () => {
+  const name = classNameInput.value.trim();
+  if(!name) return;
+  
+  const res = await fetch(`/school-admin/classes/<%= cls._id %>/edit`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ name, checkField: 'name' })
+  });
+  const data = await res.json();
+  nameError.textContent = data.error || '';
+});
+
+// إرسال الفورم
+document.getElementById('editClassForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  nameError.textContent = '';
+
+  if(!classNameInput.value.trim()){
+    nameError.textContent = "اسم الفصل مطلوب";
+    return;
+  }
+
+  const formData = {
+    name: classNameInput.value,
+    status: document.querySelector('select[name="status"]').value
+  };
+
+  const res = await fetch(`/school-admin/classes/<%= cls._id %>/edit`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(formData)
+  });
+
+  const data = await res.json();
+
+  if(data.errors){
+    if(data.errors.name) nameError.textContent = data.errors.name;
+    if(data.errors.general) alert(data.errors.general);
+  } else if(!data.errors){
+    alert("تم تعديل الفصل بنجاح");
+    window.location.href="/school-admin/classes";
+  }
+});
+</script>
+
+</body>
+</html>

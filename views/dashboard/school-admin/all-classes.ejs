@@ -49,6 +49,19 @@
                 <a href="/school-admin/classes/create" class="btn btn-primary btn-sm float-left">إضافة فصل جديد</a>
               </div>
               <div class="card-body">
+                <!-- Flash messages -->
+<% if (locals.success && locals.success.length > 0) { %>
+  <div class="alert alert-success">
+    <%= success %>
+  </div>
+<% } %>
+
+<% if (locals.error && locals.error.length > 0) { %>
+  <div class="alert alert-danger">
+    <%= error %>
+  </div>
+<% } %>
+
                 <table class="table table-bordered table-hover">
                   <thead>
                     <tr>
@@ -67,7 +80,7 @@
                         <td><%= cls.status === 'active' ? 'نشط' : 'غير نشط' %></td>
                         <td><%= cls.sections.length %></td>
                         <td>
-                          <a href="/school-admin/classes/edit/<%= cls._id %>" class="btn btn-sm btn-warning">تعديل</a>
+<a href="/school-admin/classes/<%= cls._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
                           <a href="/school-admin/classes/<%= cls._id %>/sections" class="btn btn-sm btn-info">عرض الشعب</a>
                         </td>
                       </tr>

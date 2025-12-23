@@ -1,0 +1,90 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+    <%- include('../../partials/header.ejs') %>
+
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../partials/sidebar/index.ejs') %>
+    </div>
+
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
+
+        <!-- breadcrumb -->
+        <div class="row m-1 pb-4 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header">
+              <div class="row align-items-end">
+                <div class="col-lg-8">
+                  <div class="page-header-title text-left-rtl">
+                    <div class="d-inline">
+                      <h3 class="lite-text">جميع الفصول</h3>
+                      <span class="lite-text text-gray">عرض كل الفصول الموجودة في المدرسة</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active">الفصول</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- جدول عرض الفصول -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade h-100">
+              <div class="card-header">
+                قائمة الفصول
+                <a href="/school-admin/classes/create" class="btn btn-primary btn-sm float-left">إضافة فصل جديد</a>
+              </div>
+              <div class="card-body">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>اسم الفصل</th>
+                      <th>الحالة</th>
+                      <th>عدد الشعب</th>
+                      <th>العمليات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% classes.forEach((cls, index) => { %>
+                      <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= cls.name %></td>
+                        <td><%= cls.status === 'active' ? 'نشط' : 'غير نشط' %></td>
+                        <td><%= cls.sections.length %></td>
+                        <td>
+                          <a href="/school-admin/classes/edit/<%= cls._id %>" class="btn btn-sm btn-warning">تعديل</a>
+                          <a href="/school-admin/sections?classId=<%= cls._id %>" class="btn btn-sm btn-info">عرض الشعب</a>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <%- include('../../partials/scripts.ejs') %>
+
+</body>
+</html>

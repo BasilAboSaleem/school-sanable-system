@@ -28,7 +28,7 @@
                   <div class="page-header-title text-left-rtl">
                     <div class="d-inline">
                       <h3 class="lite-text">إضافة مدرسة جديدة</h3>
-                      <span class="lite-text text-gray">أدخل بيانات المدرسة الجديدة</span>
+                      <span class="lite-text text-gray">أدخل بيانات المدرسة الجديدة والمدير</span>
                     </div>
                   </div>
                 </div>
@@ -43,65 +43,79 @@
           </div>
         </div>
 
-<% if (error && error.length > 0) { %>
-  <div class="row m-1 mb-2">
-    <div class="col-12 p-2">
-      <div class="alert alert-danger alert-shade alert-dismissible fade show" role="alert">
-        <%= error[0] %>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-    </div>
-  </div>
-<% } %>
+        <% if (error && error.length > 0) { %>
+          <div class="row m-1 mb-2">
+            <div class="col-12 p-2">
+              <div class="alert alert-danger alert-shade alert-dismissible fade show" role="alert">
+                <%= error[0] %>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        <% } %>
 
-
-        <!-- الفورم -->
+        <!-- الفورم متعدد الخطوات -->
         <div class="row m-1">
           <div class="col-12 p-2">
             <div class="card shade h-100">
               <div class="card-header">
-                بيانات المدرسة
+                إضافة مدرسة وبيانات مدير المدرسة
               </div>
               <div class="card-body">
 
-                <form action="/super-admin/schools/add" method="POST" class="text-right">
+                <form id="addSchoolForm" action="/super-admin/schools/add" method="POST" class="text-right">
 
-                  <div class="form-group">
-                    <label>اسم المدرسة *</label>
-                    <input type="text" name="name" required class="form-control">
+                  <!-- Step 1: بيانات المدرسة -->
+                  <div class="form-step" id="step1">
+                    <div class="form-group">
+                      <label>اسم المدرسة *</label>
+                      <input type="text" name="name" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>العنوان</label>
+                      <input type="text" name="address" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>الهاتف</label>
+                      <input type="text" name="phone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>البريد الإلكتروني</label>
+                      <input type="email" name="email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>كود المدرسة *</label>
+                      <input type="text" name="code" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>الحالة</label>
+                      <select name="status" class="form-control">
+                        <option value="active">نشطة</option>
+                        <option value="inactive">غير نشطة</option>
+                      </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
                   </div>
 
-                  <div class="form-group">
-                    <label>العنوان</label>
-                    <input type="text" name="address" class="form-control">
+                  <!-- Step 2: بيانات مدير المدرسة -->
+                  <div class="form-step" id="step2" style="display:none;">
+                    <div class="form-group">
+                      <label>اسم مدير المدرسة *</label>
+                      <input type="text" name="adminName" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>البريد الإلكتروني *</label>
+                      <input type="email" name="adminEmail" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>كلمة المرور *</label>
+                      <input type="password" name="adminPassword" required class="form-control">
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">السابق</button>
+                    <button type="submit" class="btn btn-success">إضافة المدرسة</button>
                   </div>
-
-                  <div class="form-group">
-                    <label>الهاتف</label>
-                    <input type="text" name="phone" class="form-control">
-                  </div>
-
-                  <div class="form-group">
-                    <label>البريد الإلكتروني</label>
-                    <input type="email" name="email" class="form-control">
-                  </div>
-
-                  <div class="form-group">
-                    <label>كود المدرسة *</label>
-                    <input type="text" name="code" required class="form-control">
-                  </div>
-
-                  <div class="form-group">
-                    <label>الحالة</label>
-                    <select name="status" class="form-control">
-                      <option value="active">نشطة</option>
-                      <option value="inactive">غير نشطة</option>
-                    </select>
-                  </div>
-
-                  <button type="submit" class="btn btn-primary">إضافة المدرسة</button>
 
                 </form>
 
@@ -116,6 +130,38 @@
   </div>
 
   <%- include('../../partials/scripts.ejs') %>
+
+<script>
+  function nextStep() {
+    // جلب كل الحقول المطلوبة في step1
+    const requiredFields = document.querySelectorAll('#step1 [required]');
+    let valid = true;
+
+    requiredFields.forEach(field => {
+      if (!field.value.trim()) {
+        valid = false;
+        field.classList.add('is-invalid'); // نضيف إطار أحمر للحقل
+      } else {
+        field.classList.remove('is-invalid');
+      }
+    });
+
+    if (!valid) {
+      alert('الرجاء ملء جميع الحقول المطلوبة قبل الانتقال للخطوة التالية.');
+      return;
+    }
+
+    // إذا كل شيء صحيح، انتقل للخطوة الثانية
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+  }
+
+  function prevStep() {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+  }
+</script>
+
 
 </body>
 </html>

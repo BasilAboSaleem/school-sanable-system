@@ -18,40 +18,42 @@
 
 <body class="rtl">
 
-  <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="card p-4 shadow" style="width: 400px;">
-      <div class="text-center mb-3">
-        <img src="/svg/logo.svg" alt="شعار المؤسسة" height="100">
-        <h4 class="mt-2">مرحبا بك في لوحة التحكم</h4>
-        <hr>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+  <div class="card p-4 shadow" style="width: 400px;">
+
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-danger">
+        <%= error[0] %>
       </div>
+    <% } %>
 
-      <form action="/auth/login" method="POST">
-        <div class="form-group">
-          <label for="email">البريد الإلكتروني</label>
-          <input type="email" name="email" class="form-control" id="email" placeholder="أدخل بريدك الإلكتروني"
-            required>
-        </div>
-
-        <div class="form-group">
-          <label for="password">كلمة المرور</label>
-          <input type="password" name="password" class="form-control" id="password" placeholder="أدخل كلمة المرور"
-            required>
-        </div>
-
-        <div class="form-check mb-3">
-          <input type="checkbox" class="form-check-input" id="remember" name="remember">
-          <label class="form-check-label" for="remember">تذكرني</label>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block">تسجيل الدخول</button>
-      </form>
-
-      <div class="text-center mt-3">
-        <small>جميع الحقوق محفوظة © المؤسسة</small>
-      </div>
+    <div class="text-center mb-3">
+      <img src="/svg/logo.svg" alt="شعار المؤسسة" height="100">
+      <h4 class="mt-2">مرحبا بك في لوحة التحكم</h4>
+      <hr>
     </div>
+
+    <form action="/auth/login" method="POST">
+      <div class="form-group">
+        <label for="email">البريد الإلكتروني</label>
+        <input type="email" name="email" class="form-control" id="email" placeholder="أدخل بريدك الإلكتروني" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">كلمة المرور</label>
+        <input type="password" name="password" class="form-control" id="password" placeholder="أدخل كلمة المرور" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">تسجيل الدخول</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <small>جميع الحقوق محفوظة © المؤسسة</small>
+    </div>
+
   </div>
+</div>
+
 
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" crossorigin="anonymous">

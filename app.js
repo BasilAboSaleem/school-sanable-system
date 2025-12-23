@@ -64,7 +64,10 @@ app.use((req, res, next) => {
 
 // --------- Routes ----------
 const indexRoutes = require("./app/routes/index");
+const authRoutes = require("./app/routes/auth");
+
 app.use("/", indexRoutes);
+app.use("/auth", authRoutes);
 /*
 const authRoutes = require("./app/routes/auth.routes");
 const schoolRoutes = require("./app/routes/school.routes");

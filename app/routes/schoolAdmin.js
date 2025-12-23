@@ -17,7 +17,11 @@ router.post("/sections/create", schoolAdminController.createSection);
 router.get("/classes/:classId/sections", schoolAdminController.listSectionsByClass);
 
 // Routes for Teacher Management
-//router.get('/teachers/create', schoolAdminController.renderCreateTeacherForm);
+router.get("/teachers/create", schoolAdminController.renderCreateTeacherForm);
+router.post("/teachers/create", schoolAdminController.createTeacher);
+router.get("/teachers", schoolAdminController.listTeachers);
+router.get("/teachers/:id/edit", schoolAdminController.renderEditTeacherForm);
+router.post("/teachers/:id/edit", schoolAdminController.updateTeacher);
 
 
 // Routes for Subject Management

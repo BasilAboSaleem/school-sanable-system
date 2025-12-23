@@ -1,0 +1,101 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- Breadcrumb -->
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <h3 class="lite-text">جميع المدرسين</h3>
+                <span class="lite-text text-gray">عرض كل المدرسين في المدرسة</span>
+              </div>
+              <div class="col-lg-4 text-left">
+                <a href="/school-admin/teachers/create" class="btn btn-success">
+                  <i class="fas fa-plus"></i> إضافة مدرس
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      <% if (flash && flash.success) { %>
+        <div class="alert alert-success"><%= flash.success %></div>
+      <% } %>
+      <% if (flash && flash.error) { %>
+        <div class="alert alert-danger"><%= flash.error %></div>
+      <% } %>
+
+      <!-- Table -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-body">
+              <table class="table table-bordered table-hover text-center">
+                <thead class="thead-light">
+                  <tr>
+                    <th>#</th>
+                    <th>الاسم</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الفصول</th>
+                    <th>المواد</th>
+                    <th>الهاتف</th>
+                    <th>الحالة</th>
+                    <th>العمليات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <% if(teachers.length === 0){ %>
+                  <tr><td colspan="8">لا يوجد مدرسين مضافين</td></tr>
+                <% } %>
+                <% teachers.forEach((teacher, index) => { %>
+                  <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= teacher.name %></td>
+                    <td><%= teacher.email %></td>
+                    <td>
+                      <% teacher.classes.forEach(cls => { %>
+                        <span class="badge badge-info"><%= cls.name %></span>
+                      <% }) %>
+                    </td>
+                    <td>
+                      <% teacher.subjects.forEach(sub => { %>
+                        <span class="badge badge-success"><%= sub.name %></span>
+                      <% }) %>
+                    </td>
+                    <td><%= teacher.phone || '—' %></td>
+                    <td><%= teacher.status === 'active' ? 'نشط' : 'غير نشط' %></td>
+                    <td>
+                      <a href="/school-admin/teachers/<%= teacher._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                      <a href="/school-admin/teachers/<%= teacher._id %>/delete" class="btn btn-sm btn-danger">حذف</a>
+                    </td>
+                  </tr>
+                <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+</body>
+</html>

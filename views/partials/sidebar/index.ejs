@@ -1,0 +1,21 @@
+<div class="container-fluid side-bar-container">
+
+  <header class="pb-0">
+    <a class="navbar-brand">
+      <object class="side-logo" data="/svg/logo-8.svg" type="image/svg+xml"></object>
+    </a>
+  </header>
+
+  <% if (user?.role === 'super-admin') { %>
+    <%- include('./super-admin') %>
+  <% } %>
+
+  <% if (user?.role === 'school-admin') { %>
+    <%- include('./school-admin') %>
+  <% } %>
+
+  <% if (user?.role === 'teacher') { %>
+    <%- include('./teacher') %>
+  <% } %>
+
+</div>

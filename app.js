@@ -55,6 +55,12 @@ app.use(
     message: "Too many requests, please slow down.",
   })
 );
+// Make user available in templates
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
+
 
 // --------- Routes ----------
 const indexRoutes = require("./app/routes/index");

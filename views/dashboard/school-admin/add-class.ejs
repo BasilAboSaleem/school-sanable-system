@@ -1,0 +1,135 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+    <%- include('../../partials/header.ejs') %>
+
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../partials/sidebar/index.ejs') %>
+    </div>
+
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
+
+        <!-- breadcrumb -->
+        <div class="row m-1 pb-4 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header">
+              <div class="row align-items-end">
+                <div class="col-lg-8">
+                  <div class="page-header-title text-left-rtl">
+                    <div class="d-inline">
+                      <h3 class="lite-text">إضافة فصل جديد</h3>
+                      <span class="lite-text text-gray">أدخل اسم الفصل الجديد للمدرسة</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active">إضافة فصل</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- الفورم لإضافة فصل -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade h-100">
+              <div class="card-header">
+                إضافة فصل جديد
+              </div>
+              <div class="card-body">
+
+                <form id="addClassForm" action="/school-admin/classes/create" method="POST" class="text-right">
+                  <div class="form-group">
+                    <label>اسم الفصل *</label>
+                    <input type="text" name="name" id="classNameInput" required class="form-control">
+                    <small class="text-danger" id="nameError"></small>
+                  </div>
+
+                  <div class="form-group">
+                    <label>الحالة</label>
+                    <select name="status" class="form-control">
+                      <option value="active">نشط</option>
+                      <option value="inactive">غير نشط</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" class="btn btn-success">إضافة الفصل</button>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <%- include('../../partials/scripts.ejs') %>
+
+<script>
+const classNameInput = document.getElementById('classNameInput');
+const nameError = document.getElementById('nameError');
+
+// AJAX للتحقق من الاسم الفريد عند الخروج من الحقل
+classNameInput.addEventListener('blur', async () => {
+  const name = classNameInput.value.trim();
+  if(!name) return;
+  
+  const res = await fetch('/school-admin/classes/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ name, checkField: 'name' })
+  });
+  const data = await res.json();
+  nameError.textContent = data.error || '';
+});
+
+// إرسال الفورم
+document.getElementById('addClassForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  nameError.textContent = '';
+
+  if(!classNameInput.value.trim()){
+    nameError.textContent = "اسم الفصل مطلوب";
+    return;
+  }
+
+  // إرسال البيانات النهائية
+  const formData = {
+    name: classNameInput.value,
+    status: document.querySelector('select[name="status"]').value
+  };
+
+  const res = await fetch('/school-admin/classes/create', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(formData)
+  });
+  const data = await res.json();
+
+  if(data.errors){
+    if(data.errors.name) nameError.textContent=data.errors.name;
+    if(data.errors.general) alert(data.errors.general);
+  } else if(data.success){
+    alert(data.success);
+    window.location.href="/school-admin/classes";
+  }
+});
+</script>
+
+</body>
+</html>

@@ -41,6 +41,17 @@ module.exports = async function (req, res, next) {
       };
       return next();
     }
+    // Teacher
+if (user.role === "teacher") {
+  req.user = {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: "teacher",
+    schoolId: user.schoolId,
+  };
+  return next();
+}
 
     // Any other role → unauthorized
     return handleUnauthorized(req, res);

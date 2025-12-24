@@ -1,11 +1,12 @@
 <p class="side-comment">النظام</p>
 
 <li class="side a-collapse short">
-  <a href="/dashboard" class="side-item">
+  <a href="/super-admin/dashboard" class="side-item">
     <i class="fas fa-tachometer-alt mr-1"></i> لوحة التحكم
   </a>
 </li>
 
+<!-- ================= المدارس ================= -->
 <ul class="side a-collapse">
   <a class="ul-text">
     <i class="fas fa-school mr-1"></i> المدارس
@@ -13,24 +14,108 @@
   </a>
   <div class="side-item-container">
     <li class="side-item">
-      <a href="/schools">
+      <a href="/super-admin/schools">
         <i class="fas fa-angle-right mr-2"></i> جميع المدارس
       </a>
     </li>
     <li class="side-item">
       <a href="/super-admin/schools/add">
-        <i class="fas fa-angle-right mr-2"></i> اضافة مدرسة جديدة
+        <i class="fas fa-angle-right mr-2"></i> إضافة مدرسة جديدة
       </a>
     </li>
   </div>
 </ul>
 
+<!-- ================= المدراء ================= -->
 <ul class="side a-collapse">
   <a class="ul-text">
     <i class="fas fa-users-cog mr-1"></i> المدراء
     <i class="fas fa-chevron-down arrow"></i>
   </a>
   <div class="side-item-container">
-    <li class="side-item"><a href="/admins">مدراء المدارس</a></li>
+    <li class="side-item">
+      <a href="/super-admin/school-admins">
+        <i class="fas fa-angle-right mr-2"></i> مدراء المدارس
+      </a>
+    </li>
+  </div>
+</ul>
+
+<!-- ================= الموردين ================= -->
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-truck mr-1"></i> الموردين
+    <i class="fas fa-chevron-down arrow"></i>
+  </a>
+  <div class="side-item-container">
+    <li class="side-item">
+      <a href="/super-admin/suppliers">
+        <i class="fas fa-angle-right mr-2"></i> جميع الموردين
+      </a>
+    </li>
+    <li class="side-item">
+      <a href="/super-admin/suppliers/create">
+        <i class="fas fa-angle-right mr-2"></i> إضافة مورد
+      </a>
+    </li>
+  </div>
+</ul>
+
+<!-- ================= الواردات ================= -->
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-arrow-down mr-1"></i> الواردات
+    <i class="fas fa-chevron-down arrow"></i>
+  </a>
+  <div class="side-item-container">
+    <li class="side-item">
+      <a href="/super-admin/incomes">
+        <i class="fas fa-angle-right mr-2"></i> جميع الواردات
+      </a>
+    </li>
+    <li class="side-item">
+      <a href="/super-admin/incomes/create">
+        <i class="fas fa-angle-right mr-2"></i> إضافة وارد جديد
+      </a>
+    </li>
+  </div>
+</ul>
+
+<!-- ================= الصادرات ================= -->
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-arrow-up mr-1"></i> الصادرات
+    <i class="fas fa-chevron-down arrow"></i>
+  </a>
+
+  <div class="side-item-container">
+    <li class="side-item">
+      <a href="/super-admin/expenses">
+        <i class="fas fa-angle-right mr-2"></i>
+        صادرات المؤسسة
+      </a>
+    </li>
+
+    <li class="side-item">
+      <a href="/super-admin/school-expenses">
+        <i class="fas fa-angle-right mr-2"></i>
+        صادرات المدارس
+      </a>
+    </li>
+  </div>
+</ul>
+
+<!-- ================= المتابعة المالية ================= -->
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-chart-line mr-1"></i> التقارير المالية
+    <i class="fas fa-chevron-down arrow"></i>
+  </a>
+  <div class="side-item-container">
+    <li class="side-item">
+      <a href="/super-admin/dashboard-financials">
+        <i class="fas fa-angle-right mr-2"></i> لوحة المتابعة المالية
+      </a>
+    </li>
   </div>
 </ul>

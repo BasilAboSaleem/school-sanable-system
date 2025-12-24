@@ -1,0 +1,65 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+    <%- include('../../partials/header.ejs') %>
+
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../partials/sidebar/index.ejs') %>
+    </div>
+
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
+
+        <!-- Breadcrumb -->
+        <div class="row m-1 pb-4 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header">
+              <div class="row align-items-end">
+                <div class="col-lg-8">
+                  <h3 class="lite-text">بيانات المدرسة: <%= school.name %></h3>
+                  <span class="lite-text text-gray">عرض كل التفاصيل الخاصة بالمدرسة</span>
+                </div>
+                <div class="col-lg-4 text-left">
+                  <a href="/super-admin/schools" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> العودة لجميع المدارس
+                  </a>
+                  <a href="/super-admin/schools/<%= school._id %>/edit" class="btn btn-warning">
+                    تعديل المدرسة
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- School Info -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade">
+              <div class="card-header">
+                معلومات المدرسة
+              </div>
+              <div class="card-body">
+                <p><strong>اسم المدرسة:</strong> <%= school.name %></p>
+                <p><strong>كود المدرسة:</strong> <%= school.code %></p>
+                <p><strong>البريد الإلكتروني:</strong> <%= school.email || '—' %></p>
+                <p><strong>الهاتف:</strong> <%= school.phone || '—' %></p>
+                <p><strong>العنوان:</strong> <%= school.address || '—' %></p>
+                <p><strong>ملاحظات:</strong> <%= school.notes || '—' %></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <%- include('../../partials/scripts.ejs') %>
+</body>
+</html>

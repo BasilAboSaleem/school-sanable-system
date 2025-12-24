@@ -1,0 +1,162 @@
+<%- include('../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+      <h3>لوحة متابعة المالية للسوبر أدمن</h3>
+
+      <!-- الموردين -->
+      <div class="card shade mb-4">
+        <div class="card-header">
+          الموردين
+        </div>
+        <div class="card-body">
+          <input type="text" id="searchSuppliers" placeholder="ابحث باسم المورد" class="form-control mb-2">
+          <table class="table table-bordered table-hover text-center mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>الاسم</th>
+                <th>البريد الإلكتروني</th>
+                <th>الهاتف</th>
+                <th>العنوان</th>
+                <th>الملاحظات</th>
+                <th>العمليات</th>
+              </tr>
+            </thead>
+            <tbody id="suppliersTableBody">
+              <% suppliers.forEach((sup, i) => { %>
+                <tr>
+                  <td><%= i+1 %></td>
+                  <td class="name"><%= sup.name %></td>
+                  <td><%= sup.email || '—' %></td>
+                  <td><%= sup.phone || '—' %></td>
+                  <td><%= sup.address || '—' %></td>
+                  <td><%= sup.notes || '—' %></td>
+                  <td>
+                    <a href="/school-admin/suppliers/<%= sup._id %>/view" class="btn btn-secondary btn-sm">عرض</a>
+                    <a href="/school-admin/suppliers/<%= sup._id %>/edit" class="btn btn-warning btn-sm">تعديل</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- الواردات -->
+      <div class="card shade mb-4">
+        <div class="card-header">
+          الواردات
+        </div>
+        <div class="card-body">
+          <input type="text" id="searchIncomes" placeholder="ابحث باسم المورد أو المدرسة" class="form-control mb-2">
+          <table class="table table-bordered table-hover text-center mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المورد</th>
+                <th>المدرسة</th>
+                <th>المبلغ</th>
+                <th>الوصف</th>
+                <th>العمليات</th>
+              </tr>
+            </thead>
+            <tbody id="incomesTableBody">
+              <% incomes.forEach((inc, i) => { %>
+                <tr>
+                  <td><%= i+1 %></td>
+                  <td class="supplierName"><%= inc.supplierId.name %></td>
+                  <td class="schoolName"><%= inc.schoolId.name %></td>
+                  <td><%= inc.amount %></td>
+                  <td><%= inc.description || '—' %></td>
+                  <td>
+                    <a href="/school-admin/incomes/<%= inc._id %>/view" class="btn btn-secondary btn-sm">عرض</a>
+                    <a href="/school-admin/incomes/<%= inc._id %>/edit" class="btn btn-warning btn-sm">تعديل</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- الصادرات -->
+      <div class="card shade mb-4">
+        <div class="card-header">
+          الصادرات
+        </div>
+        <div class="card-body">
+          <input type="text" id="searchExpenses" placeholder="ابحث باسم المدرسة أو الفئة" class="form-control mb-2">
+          <table class="table table-bordered table-hover text-center mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المدرسة</th>
+                <th>المبلغ</th>
+                <th>الفئة</th>
+                <th>الوصف</th>
+                <th>العمليات</th>
+              </tr>
+            </thead>
+            <tbody id="expensesTableBody">
+              <% expenses.forEach((exp, i) => { %>
+                <tr>
+                  <td><%= i+1 %></td>
+                  <td class="schoolName"><%= exp.schoolId.name %></td>
+                  <td><%= exp.amount %></td>
+                  <td class="category"><%= exp.category || '—' %></td>
+                  <td><%= exp.description || '—' %></td>
+                  <td>
+                    <a href="/super-admin/expenses/<%= exp._id %>/view" class="btn btn-secondary btn-sm">عرض</a>
+                    <a href="/super-admin/expenses/<%= exp._id %>/edit" class="btn btn-warning btn-sm">تعديل</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+// بحث الموردين
+document.getElementById('searchSuppliers').addEventListener('input', e => {
+  const filter = e.target.value.toLowerCase();
+  document.querySelectorAll('#suppliersTableBody tr').forEach(row => {
+    const name = row.querySelector('.name')?.textContent.toLowerCase() || '';
+    row.style.display = name.includes(filter) ? '' : 'none';
+  });
+});
+
+// بحث الواردات
+document.getElementById('searchIncomes').addEventListener('input', e => {
+  const filter = e.target.value.toLowerCase();
+  document.querySelectorAll('#incomesTableBody tr').forEach(row => {
+    const supplierName = row.querySelector('.supplierName')?.textContent.toLowerCase() || '';
+    const schoolName = row.querySelector('.schoolName')?.textContent.toLowerCase() || '';
+    row.style.display = (supplierName.includes(filter) || schoolName.includes(filter)) ? '' : 'none';
+  });
+});
+
+// بحث الصادرات
+document.getElementById('searchExpenses').addEventListener('input', e => {
+  const filter = e.target.value.toLowerCase();
+  document.querySelectorAll('#expensesTableBody tr').forEach(row => {
+    const schoolName = row.querySelector('.schoolName')?.textContent.toLowerCase() || '';
+    const category = row.querySelector('.category')?.textContent.toLowerCase() || '';
+    row.style.display = (schoolName.includes(filter) || category.includes(filter)) ? '' : 'none';
+  });
+});
+</script>
+</body>

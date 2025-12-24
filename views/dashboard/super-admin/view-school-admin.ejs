@@ -1,0 +1,52 @@
+<%- include('../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <h3 class="lite-text">بيانات المدير: <%= admin.name %></h3>
+                <span class="lite-text text-gray">عرض جميع التفاصيل الخاصة بالمدير</span>
+              </div>
+              <div class="col-lg-4 text-left">
+                <a href="/super-admin/school-admins" class="btn btn-secondary">
+                  <i class="fas fa-arrow-left"></i> العودة لجميع المدراء
+                </a>
+                <a href="/super-admin/school-admins/<%= admin._id %>/edit" class="btn btn-warning">
+                  تعديل المدير
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-header">معلومات المدير</div>
+            <div class="card-body">
+              <p><strong>الاسم:</strong> <%= admin.name %></p>
+              <p><strong>البريد الإلكتروني:</strong> <%= admin.email %></p>
+              <p><strong>الهاتف:</strong> <%= admin.phone || '—' %></p>
+              <p><strong>المدرسة:</strong> <%= admin.schoolId ? admin.schoolId.name : '—' %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../../partials/scripts.ejs') %>
+</body>
+</html>

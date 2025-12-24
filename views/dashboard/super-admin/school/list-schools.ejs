@@ -1,0 +1,87 @@
+<%- include('../../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <h3 class="lite-text">جميع المدارس</h3>
+                <span class="lite-text text-gray">عرض جميع المدارس في النظام</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="row m-1 mb-2">
+        <div class="col-12">
+          <input type="text" id="searchInput" placeholder="ابحث باسم المدرسة أو الكود" class="form-control">
+        </div>
+      </div>
+
+      <!-- Schools Table -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-body p-0">
+              <table class="table table-bordered table-hover text-center mb-0">
+                <thead class="thead-light">
+                  <tr>
+                    <th>#</th>
+                    <th>الاسم</th>
+                    <th>الكود</th>
+                    <th>الهاتف</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>العمليات</th>
+                  </tr>
+                </thead>
+                <tbody id="schoolsTableBody">
+                  <% if (schools.length === 0) { %>
+                    <tr><td colspan="6">لا توجد مدارس مضافة</td></tr>
+                  <% } %>
+                  <% schools.forEach((school, index) => { %>
+                    <tr>
+                      <td><%= index + 1 %></td>
+                      <td class="name"><%= school.name %></td>
+                      <td class="code"><%= school.code %></td>
+                      <td><%= school.phone || '—' %></td>
+                      <td><%= school.email || '—' %></td>
+                      <td>
+                        <a href="/super-admin/schools/<%= school._id %>/view" class="btn btn-secondary btn-sm">عرض</a>
+                        <a href="/super-admin/schools/<%= school._id %>/edit" class="btn btn-warning btn-sm">تعديل</a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+<script>
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', () => {
+  const filter = searchInput.value.toLowerCase();
+  const rows = document.querySelectorAll('#schoolsTableBody tr');
+  rows.forEach(row => {
+    const name = row.querySelector('.name')?.textContent.toLowerCase() || '';
+    const code = row.querySelector('.code')?.textContent.toLowerCase() || '';
+    row.style.display = (name.includes(filter) || code.includes(filter)) ? '' : 'none';
+  });
+});
+</script>
+</body>

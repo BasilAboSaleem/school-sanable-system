@@ -1,0 +1,58 @@
+<%- include('../../../partials/head.ejs') %>
+<body class="rtl">
+
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- Breadcrumb -->
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <h3 class="lite-text">بيانات الوارد: <%= income._id %></h3>
+                <span class="lite-text text-gray">عرض جميع التفاصيل الخاصة بالوارد</span>
+              </div>
+              <div class="col-lg-4 text-left">
+                <a href="/school-admin/incomes" class="btn btn-secondary">
+                  <i class="fas fa-arrow-left"></i> العودة للواردات
+                </a>
+                <a href="/school-admin/incomes/<%= income._id %>/edit" class="btn btn-warning">
+                  تعديل الوارد
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Income Info -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-header">
+              معلومات الوارد
+            </div>
+            <div class="card-body">
+              <p><strong>المورد:</strong> <%= income.supplierId?.name || '—' %></p>
+              <p><strong>المبلغ:</strong> <%= income.amount %></p>
+              <p><strong>الوصف:</strong> <%= income.description || '—' %></p>
+              <p><strong>تاريخ التسجيل:</strong> <%= income.createdAt.toLocaleDateString() %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+</body>
+</html>

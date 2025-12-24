@@ -1,0 +1,113 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+    <%- include('../../../partials/header.ejs') %>
+
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../../partials/sidebar/index.ejs') %>
+    </div>
+
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
+
+        <!-- breadcrumb -->
+        <div class="row m-1 pb-4 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header">
+              <div class="row align-items-end">
+                <div class="col-lg-8">
+                  <div class="page-header-title text-left-rtl">
+                    <div class="d-inline">
+                      <h3 class="lite-text">بيانات الطالب</h3>
+                      <span class="lite-text text-gray">عرض جميع بيانات الطالب</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <a href="/school-admin/students" class="btn btn-secondary float-left">
+                    <i class="fas fa-arrow-left"></i> العودة للطلاب
+                  </a>
+                  <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active">بيانات الطالب</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- بيانات الطالب -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade h-100">
+              <div class="card-header">
+                معلومات الطالب
+              </div>
+              <div class="card-body">
+                <table class="table table-bordered">
+                  <tbody>
+                    <tr>
+                      <th>الاسم الكامل</th>
+                      <td><%= student.fullName %></td>
+                    </tr>
+                    <tr>
+                      <th>تاريخ الميلاد</th>
+                      <td><%= student.dateOfBirth ? student.dateOfBirth.toLocaleDateString() : '—' %></td>
+                    </tr>
+                    <tr>
+                      <th>الفصل</th>
+                      <td><%= student.classId ? student.classId.name : '—' %></td>
+                    </tr>
+                    <tr>
+                      <th>الشعبة</th>
+                      <td><%= student.sectionId ? student.sectionId.name : '—' %></td>
+                    </tr>
+                    <tr>
+                      <th>الجنس</th>
+                      <td><%= student.gender || '—' %></td>
+                    </tr>
+                    <tr>
+                      <th>رقم ولي الأمر</th>
+                      <td><%= student.phoneOfParents || '—' %></td>
+                    </tr>
+                    <tr>
+                      <th>العنوان</th>
+                      <td><%= student.address || '—' %></td>
+                    </tr>
+                    <tr>
+                      <th>الفئة</th>
+                      <td><%= student.grade || '—' %></td>
+                    </tr>
+                    <tr>
+                      <th>تاريخ الإضافة</th>
+                      <td><%= student.createdAt.toLocaleDateString() %></td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="mt-3">
+                  <a href="/school-admin/students/<%= student._id %>/edit" class="btn btn-warning">تعديل الطالب</a>
+                  <a href="/school-admin/students" class="btn btn-secondary">عودة للطلاب</a>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <%- include('../../../partials/scripts.ejs') %>
+
+</body>
+</html>

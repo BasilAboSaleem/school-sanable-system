@@ -1,0 +1,121 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+    <%- include('../../../partials/header.ejs') %>
+
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../../partials/sidebar/index.ejs') %>
+    </div>
+
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
+
+        <!-- Breadcrumb -->
+        <div class="row m-1 pb-4 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header">
+              <div class="row align-items-end">
+                <div class="col-lg-8">
+                  <h3 class="lite-text">بيانات المورد: <%= supplier.name %></h3>
+                  <span class="lite-text text-gray">عرض جميع التفاصيل والإيرادات</span>
+                </div>
+                <div class="col-lg-4 text-left">
+                  <a href="/school-admin/suppliers" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> العودة للموردين
+                  </a>
+                  <a href="/school-admin/suppliers/<%= supplier._id %>/edit" class="btn btn-warning">
+                    تعديل المورد
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supplier Info -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade">
+              <div class="card-header">
+                معلومات المورد
+              </div>
+              <div class="card-body">
+                <p><strong>البريد الإلكتروني:</strong> <%= supplier.email || '—' %></p>
+                <p><strong>الهاتف:</strong> <%= supplier.phone || '—' %></p>
+                <p><strong>العنوان:</strong> <%= supplier.address || '—' %></p>
+                <p><strong>ملاحظات:</strong> <%= supplier.notes || '—' %></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Income -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade">
+              <div class="card-body">
+                <p><strong>إجمالي الإيرادات المسجلة:</strong> <%= incomes.reduce((sum, inc) => sum + inc.amount, 0) %></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Incomes Table -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade">
+              <div class="card-header">
+                الإيرادات المسجلة من المورد
+              </div>
+              <div class="card-body p-0">
+                <table class="table table-bordered table-hover text-center mb-0">
+                  <thead class="thead-light">
+                    <tr>
+                      <th>#</th>
+                      <th>المبلغ</th>
+                      <th>الوصف</th>
+                      <th>تاريخ التسجيل</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (incomes.length === 0) { %>
+                      <tr><td colspan="4">لا توجد إيرادات مسجلة</td></tr>
+                    <% } %>
+                    <% incomes.forEach((inc, index) => { %>
+                      <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= inc.amount %></td>
+                        <td><%= inc.description || '—' %></td>
+                        <td><%= inc.createdAt.toLocaleDateString() %></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="row m-1">
+          <div class="col-12 p-2 text-left">
+            <a href="/school-admin/suppliers" class="btn btn-secondary">
+              <i class="fas fa-arrow-left"></i> العودة لجميع الموردين
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <%- include('../../../partials/scripts.ejs') %>
+
+</body>
+</html>

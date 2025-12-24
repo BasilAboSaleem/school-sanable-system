@@ -1,67 +1,62 @@
 const express = require("express");
 const router = express.Router();
-const superAdminController = require("../controllers/superAdmin");
+const superAdminController = require("../controllers/superAdmin/superAdmin");
 
-router.get("/schools/add", superAdminController.getAddSchool);
-router.post("/schools/add", superAdminController.postAddSchool);
+router.get("/schools/add", superAdminController.School.getAddSchool);
+router.post("/schools/add", superAdminController.School.postAddSchool);
 
 // عرض جميع المدارس
-router.get("/schools", superAdminController.listSchools);
-
+router.get("/schools", superAdminController.School.listSchools);
 // عرض مدرسة واحدة
-router.get("/schools/:id/view", superAdminController.viewSchool);
+router.get("/schools/:id/view", superAdminController.School.viewSchool);
 
 // تعديل مدرسة
-router.get("/schools/:id/edit", superAdminController.editSchoolForm);
-router.post("/schools/:id/edit", superAdminController.updateSchool);
+router.get("/schools/:id/edit", superAdminController.School.editSchoolForm);
+router.post("/schools/:id/edit", superAdminController.School.updateSchool);
 
 // List all school admins
-router.get('/school-admins', superAdminController.listSchoolAdmins);
-
+router.get('/school-admins', superAdminController.schoolAdmins.listSchoolAdmins);
 // View a school admin
-router.get('/school-admins/:id/view', superAdminController.viewSchoolAdmin);
+router.get('/school-admins/:id/view', superAdminController.schoolAdmins.viewSchoolAdmin);
 
 // Edit a school admin
-router.get('/school-admins/:id/edit', superAdminController.editSchoolAdminForm);
-router.post('/school-admins/:id/edit', superAdminController.updateSchoolAdmin);
-
+router.get('/school-admins/:id/edit', superAdminController.schoolAdmins.editSchoolAdminForm);
+router.post('/school-admins/:id/edit', superAdminController.schoolAdmins.updateSchoolAdmin);
 // عرض جميع الواردات
-router.get("/incomes", superAdminController.listIncomes);
+router.get("/incomes", superAdminController.Income.listIncomes);
 
 // صفحة إضافة وارد جديد (يمكن أن يكون المورد جديد)
-router.get("/incomes/create", superAdminController.renderAddIncome);
-router.post("/incomes/create", superAdminController.createIncome);
+router.get("/incomes/create", superAdminController.Income.renderAddIncome);
+router.post("/incomes/create", superAdminController.Income.createIncome);
 
 // صفحة عرض وارد لتوزيعه
-router.get("/incomes/:id/view", superAdminController.viewIncomeDetails);
-
+router.get("/incomes/:id/view", superAdminController.Income.viewIncomeDetails);
 // توزيع وارد على المدارس
-router.post("/incomes/:id/distribute", superAdminController.distributeIncome);
+router.post("/incomes/:id/distribute", superAdminController.Income.distributeIncome);
 
 // تعديل وارد
-router.get("/incomes/:id/edit", superAdminController.renderEditIncome);
-router.post("/incomes/:id/edit", superAdminController.updateIncome);
+router.get("/incomes/:id/edit", superAdminController.Income.renderEditIncome);
+router.post("/incomes/:id/edit", superAdminController.Income.updateIncome);
 
 
 // عرض كل الصادرات
-router.get("/expenses", superAdminController.listExpenses);
+router.get("/expenses", superAdminController.Expense.listExpenses);
 
 // صفحة إضافة صادر جديد
-router.get("/expenses/create", superAdminController.renderAddExpense);
-router.post("/expenses/create", superAdminController.createExpense);
-
+router.get("/expenses/create", superAdminController.Expense.renderAddExpense);
+router.post("/expenses/create", superAdminController.Expense.createExpense);
 // صفحة عرض صادر
-router.get("/expenses/:id/view", superAdminController.viewExpenseDetails);
+router.get("/expenses/:id/view", superAdminController.Expense.viewExpenseDetails);
 // صادرات المدارس (تقارير)
 router.get(
   "/school-expenses",
-  superAdminController.listSchoolExpenses
+  superAdminController.Expense.listSchoolExpenses
 );
 
 // تعديل صادر
-router.get("/expenses/:id/edit", superAdminController.renderEditExpense);
-router.post("/expenses/:id/edit", superAdminController.updateExpense);
+router.get("/expenses/:id/edit", superAdminController.Expense.renderEditExpense);
+router.post("/expenses/:id/edit", superAdminController.Expense.updateExpense);
 
-router.get("/dashboard-financials", superAdminController.dashboardFinancials);
+router.get("/dashboard-financials", superAdminController.dashboardFinancials.dashboardFinancials);
 
 module.exports = router;

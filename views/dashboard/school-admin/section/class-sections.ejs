@@ -1,0 +1,93 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+<%- include('../../../partials/header.ejs') %>
+
+<div id="dw-s1" class="bmd-layout-drawer bg-faded">
+  <%- include('../../../partials/sidebar/index.ejs') %>
+</div>
+
+<main class="bmd-layout-content">
+<div class="container-fluid">
+
+<!-- breadcrumb -->
+<div class="row m-1 pb-4 mb-3">
+  <div class="col-12 p-2">
+    <div class="page-header breadcrumb-header">
+      <div class="row align-items-end">
+        <div class="col-lg-8">
+<h3 class="lite-text">شعب فصل <%= classData.name %></h3>
+<span class="lite-text text-gray">عرض جميع الشعب التابعة لهذا الفصل</span>
+        </div>
+        <div class="col-lg-4 text-left">
+          <a href="/school-admin/sections/create" class="btn btn-success">
+            <i class="fas fa-plus"></i> إضافة شعبة
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- table -->
+<div class="row m-1">
+<div class="col-12 p-2">
+<div class="card shade h-100">
+<div class="card-body">
+
+<table class="table table-bordered table-hover text-center">
+  <thead class="thead-light">
+    <tr>
+      <th>#</th>
+      <th>اسم الشعبة</th>
+      <th>الفصل</th>
+      <th>عدد الطلاب</th>
+      <th>المعلم</th>
+      <th>العمليات</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if(sections.length === 0){ %>
+    <tr>
+      <td colspan="6">لا توجد شعب مضافة</td>
+    </tr>
+  <% } %>
+
+  <% sections.forEach((section, index) => { %>
+    <tr>
+      <td><%= index + 1 %></td>
+      <td><%= section.name %></td>
+      <td><%= section.classId.name %></td>
+      <td><%= section.students.length %></td>
+      <td>
+        <%= section.teacherId ? section.teacherId.name : "—" %>
+      </td>
+      <td>
+        <a href="/school-admin/sections/<%= section._id %>" class="btn btn-sm btn-info">
+          عرض
+        </a>
+        <a href="/school-admin/sections/<%= section._id %>/edit" class="btn btn-sm btn-warning">
+          تعديل
+        </a>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+</body>
+</html>

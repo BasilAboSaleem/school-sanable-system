@@ -1,0 +1,63 @@
+<%- include('../../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+      <h3>إضافة وارد جديد</h3>
+
+      <form id="addIncomeForm" class="text-right">
+        <div class="form-group">
+          <label>اسم المورد *</label>
+          <input type="text" name="supplierName" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>البريد الإلكتروني</label>
+          <input type="email" name="email" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>الهاتف</label>
+          <input type="text" name="phone" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>العنوان</label>
+          <input type="text" name="address" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>ملاحظات</label>
+          <textarea name="notes" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <label>المبلغ *</label>
+          <input type="number" name="amount" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>الوصف</label>
+          <textarea name="description" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">إضافة الوارد</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<script>
+document.getElementById('addIncomeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = Object.fromEntries(new FormData(e.target).entries());
+  const res = await fetch('/super-admin/incomes/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(formData)
+  });
+  const data = await res.json();
+  if(data.success) window.location.href = data.redirect;
+  if(data.errors) alert(data.errors.general);
+});
+</script>
+</body>

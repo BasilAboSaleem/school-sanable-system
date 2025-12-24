@@ -1,0 +1,116 @@
+<%- include('../../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <h3 class="lite-text">تعديل المدير: <%= admin.name %></h3>
+              </div>
+              <div class="col-lg-4 text-left">
+                <a href="/super-admin/school-admins" class="btn btn-secondary">
+                  <i class="fas fa-arrow-left"></i> العودة لجميع المدراء
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-body">
+              <form id="editAdminForm" action="/super-admin/school-admins/<%= admin._id %>/edit" method="POST">
+                <div class="form-group">
+                  <label>الاسم *</label>
+                  <input type="text" name="name" value="<%= admin.name %>" required class="form-control">
+                  <small class="text-danger" id="nameError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>البريد الإلكتروني *</label>
+                  <input type="email" name="email" value="<%= admin.email %>" required class="form-control">
+                  <small class="text-danger" id="emailError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>الهاتف</label>
+                  <input type="text" name="phone" value="<%= admin.phone %>" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label>المدرسة</label>
+                  <select name="schoolId" class="form-control">
+                    <option value="">اختر المدرسة</option>
+                    <% schools.forEach(school => { %>
+                      <option value="<%= school._id %>" <%= admin.schoolId && admin.schoolId.toString() === school._id.toString() ? 'selected' : '' %>><%= school.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">تحديث المدير</button>
+                <a href="/super-admin/school-admins" class="btn btn-secondary">إلغاء</a>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<script>
+const form = document.getElementById('editAdminForm');
+const nameError = document.getElementById('nameError');
+const emailError = document.getElementById('emailError');
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  nameError.textContent = '';
+  emailError.textContent = '';
+
+  const formData = {
+    name: form.name.value,
+    email: form.email.value,
+    phone: form.phone.value,
+    schoolId: form.schoolId.value
+  };
+
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+    if (data.errors) {
+      if (data.errors.name) nameError.textContent = data.errors.name;
+      if (data.errors.email) emailError.textContent = data.errors.email;
+      if (data.errors.general) alert(data.errors.general);
+    } else if (data.success) {
+      alert(data.success);
+      if (data.redirect) window.location.href = data.redirect;
+    }
+  } catch (err) {
+    alert('حدث خطأ أثناء تحديث البيانات');
+    console.error(err);
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<%- include('../../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../../partials/header.ejs') %>
+
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <h3 class="mb-3">صادرات المدارس</h3>
+      <span class="text-muted d-block mb-3">
+        جميع المصروفات التي أنشأتها المدارس
+      </span>
+
+      <input type="text" id="searchInput"
+        placeholder="ابحث باسم المدرسة أو الفئة"
+        class="form-control mb-3">
+
+      <table class="table table-bordered table-hover text-center">
+        <thead class="thead-light">
+          <tr>
+            <th>#</th>
+            <th>المدرسة</th>
+            <th>المبلغ</th>
+            <th>الفئة</th>
+            <th>الوصف</th>
+            <th>التاريخ</th>
+          </tr>
+        </thead>
+
+        <tbody id="expensesTableBody">
+          <% if (expenses.length === 0) { %>
+            <tr><td colspan="6">لا توجد بيانات</td></tr>
+          <% } %>
+
+          <% expenses.forEach((exp, index) => { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td class="schoolName"><%= exp.schoolId?.name %></td>
+              <td><%= exp.amount %></td>
+              <td class="category"><%= exp.category || '—' %></td>
+              <td><%= exp.description || '—' %></td>
+              <td><%= exp.createdAt.toLocaleDateString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<script>
+document.getElementById('searchInput').addEventListener('input', e => {
+  const filter = e.target.value.toLowerCase();
+  document.querySelectorAll('#expensesTableBody tr').forEach(row => {
+    const school = row.querySelector('.schoolName')?.textContent.toLowerCase() || '';
+    const category = row.querySelector('.category')?.textContent.toLowerCase() || '';
+    row.style.display =
+      school.includes(filter) || category.includes(filter) ? '' : 'none';
+  });
+});
+</script>
+</body>

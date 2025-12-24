@@ -43,5 +43,15 @@ router.get("/students/:id", schoolAdminController.viewStudentDetails);
 router.get("/students/:id/edit", schoolAdminController.renderEditStudentForm);
 router.post("/students/:id/edit", schoolAdminController.updateStudent);
 
+// Routes for Employee Management
+router.get("/employees", schoolAdminController.listEmployees);
+router.get("/employees/create", schoolAdminController.renderAddEmployeeForm);
+router.post("/employees/create", schoolAdminController.createEmployee);
+
+router.get("/employees/:id/edit", schoolAdminController.renderEditEmployeeForm);
+router.post("/employees/:id/edit", schoolAdminController.updateEmployee);
+
+router.get("/employees/:id/delete", schoolAdminController.deleteEmployee);
+
 
 module.exports = router; 

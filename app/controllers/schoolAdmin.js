@@ -3,6 +3,7 @@ const Section = require('../models/Section');
 const Subject = require("../models/Subject");
 const User = require("../models/User");
 const Student = require("../models/Student");
+const Employee = require("../models/Employee");
 
 
 exports.renderCreateClassForm = (req, res) => {
@@ -650,5 +651,99 @@ exports.updateStudent = async (req, res) => {
     console.error(err);
     req.flash('error', 'حدث خطأ أثناء تحديث بيانات الطالب');
     res.redirect('/school-admin/students');
+  }
+};
+
+exports.renderAddEmployeeForm = (req, res) => {
+  res.render("dashboard/school-admin/add-employee");
+};
+
+exports.createEmployee = async (req, res) => {
+  try {
+    const { name, email, phone, jobTitle, address, salary } = req.body;
+    const newEmployee = new Employee({
+      name,
+      email,
+      phone,
+      jobTitle,
+      address,
+      salary,
+      schoolId: req.user.schoolId
+    });
+    await newEmployee.save();
+    req.flash("success", "تم إضافة الموظف بنجاح");
+    res.redirect("/school-admin/employees");
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء إضافة الموظف");
+    res.redirect("/school-admin/employees");
+  }
+};
+
+// عرض كل الموظفين
+exports.listEmployees = async (req, res) => {
+  try {
+    const employees = await Employee.find({ schoolId: req.user.schoolId }).sort({ createdAt: -1 });
+    res.render("dashboard/school-admin/employees", { employees });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب بيانات الموظفين");
+    res.redirect("/dashboard");
+  }
+};
+
+// صفحة تعديل الموظف
+exports.renderEditEmployeeForm = async (req, res) => {
+  try {
+    const employee = await Employee.findById(req.params.id);
+    if (!employee) {
+      req.flash("error", "الموظف غير موجود");
+      return res.redirect("/school-admin/employees");
+    }
+    res.render("dashboard/school-admin/edit-employee", { employee });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب بيانات الموظف");
+    res.redirect("/school-admin/employees");
+  }
+};
+
+// تحديث بيانات الموظف
+exports.updateEmployee = async (req, res) => {
+  try {
+    const { name, email, phone, jobTitle, address, salary } = req.body;
+    const employee = await Employee.findById(req.params.id);
+    if (!employee) {
+      req.flash("error", "الموظف غير موجود");
+      return res.redirect("/school-admin/employees");
+    }
+
+    employee.name = name || employee.name;
+    employee.email = email || employee.email;
+    employee.phone = phone || employee.phone;
+    employee.jobTitle = jobTitle || employee.jobTitle;
+    employee.address = address || employee.address;
+    if (salary !== undefined) employee.salary = salary;
+
+    await employee.save();
+    req.flash("success", "تم تحديث بيانات الموظف بنجاح");
+    res.redirect("/school-admin/employees");
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء تحديث بيانات الموظف");
+    res.redirect("/school-admin/employees");
+  }
+};
+
+// حذف موظف
+exports.deleteEmployee = async (req, res) => {
+  try {
+    await Employee.findByIdAndDelete(req.params.id);
+    req.flash("success", "تم حذف الموظف بنجاح");
+    res.redirect("/school-admin/employees");
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء حذف الموظف");
+    res.redirect("/school-admin/employees");
   }
 };

@@ -32,20 +32,32 @@
         </div>
       </div>
 
+      <!-- 🔍 Search -->
+      <div class="row m-1 mb-3">
+        <div class="col-md-6">
+          <input
+            type="text"
+            id="teacherSearch"
+            class="form-control"
+            placeholder="ابحث بالاسم أو الفصل أو المادة..."
+          >
+        </div>
+      </div>
+
       <!-- Flash Messages -->
-      <% if (flash && flash.success) { %>
-        <div class="alert alert-success"><%= flash.success %></div>
-      <% } %>
-      <% if (flash && flash.error) { %>
-        <div class="alert alert-danger"><%= flash.error %></div>
-      <% } %>
+     <% if (locals.error && locals.error.length > 0) { %>
+  <div class="alert alert-danger"><%= locals.error %></div>
+<% } %>
+<% if (locals.success && locals.success.length > 0) { %>
+  <div class="alert alert-success"><%= locals.success %></div>
+<% } %>
 
       <!-- Table -->
       <div class="row m-1">
         <div class="col-12 p-2">
           <div class="card shade h-100">
             <div class="card-body">
-              <table class="table table-bordered table-hover text-center">
+              <table class="table table-bordered table-hover text-center" id="teachersTable">
                 <thead class="thead-light">
                   <tr>
                     <th>#</th>
@@ -62,8 +74,13 @@
                 <% if(teachers.length === 0){ %>
                   <tr><td colspan="8">لا يوجد مدرسين مضافين</td></tr>
                 <% } %>
+
                 <% teachers.forEach((teacher, index) => { %>
-                  <tr>
+                  <tr
+                    data-name="<%= teacher.name.toLowerCase() %>"
+                    data-classes="<%= teacher.classes.map(c => c.name).join(' ').toLowerCase() %>"
+                    data-subjects="<%= teacher.subjects.map(s => s.name).join(' ').toLowerCase() %>"
+                  >
                     <td><%= index + 1 %></td>
                     <td><%= teacher.name %></td>
                     <td><%= teacher.email %></td>
@@ -97,5 +114,27 @@
 </div>
 
 <%- include('../../partials/scripts.ejs') %>
+
+<!-- 🔍 Search Script -->
+<script>
+  document.getElementById('teacherSearch').addEventListener('keyup', function () {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#teachersTable tbody tr');
+
+    rows.forEach(row => {
+      const name = row.dataset.name || '';
+      const classes = row.dataset.classes || '';
+      const subjects = row.dataset.subjects || '';
+
+      const match =
+        name.includes(searchValue) ||
+        classes.includes(searchValue) ||
+        subjects.includes(searchValue);
+
+      row.style.display = match ? '' : 'none';
+    });
+  });
+</script>
+
 </body>
 </html>

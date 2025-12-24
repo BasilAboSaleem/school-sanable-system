@@ -1,0 +1,104 @@
+<%- include('../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <h3 class="lite-text">جميع الموظفين</h3>
+          <a href="/school-admin/employees/create" class="btn btn-success float-left">إضافة موظف</a>
+        </div>
+      </div>
+   <!-- Flash Messages -->
+   <% if (locals.error && locals.error.length > 0) { %>
+  <div class="alert alert-danger"><%= locals.error %></div>
+<% } %>
+<% if (locals.success && locals.success.length > 0) { %>
+  <div class="alert alert-success"><%= locals.success %></div>
+<% } %>
+
+      <!-- خانة البحث -->
+      <div class="row m-1 mb-3">
+        <div class="col-12">
+          <input type="text" id="employeeSearch" class="form-control" placeholder="ابحث بالاسم، المسمى الوظيفي أو الهاتف...">
+        </div>
+      </div>
+
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-body">
+              <table class="table table-bordered table-hover text-center" id="employeesTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>الاسم</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الهاتف</th>
+                    <th>المسمى الوظيفي</th>
+                    <th>العنوان</th>
+                    <th>الراتب</th>
+                    <th>العمليات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if(employees.length === 0){ %>
+                    <tr><td colspan="8">لا يوجد موظفين مضافين</td></tr>
+                  <% } %>
+                  <% employees.forEach((emp, index) => { %>
+                    <tr>
+                      <td><%= index + 1 %></td>
+                      <td><%= emp.name %></td>
+                      <td><%= emp.email || '—' %></td>
+                      <td><%= emp.phone || '—' %></td>
+                      <td><%= emp.jobTitle || '—' %></td>
+                      <td><%= emp.address || '—' %></td>
+                      <td><%= emp.salary || '—' %></td>
+                      <td>
+                        <a href="/school-admin/employees/<%= emp._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                        <a href="/school-admin/employees/<%= emp._id %>/delete" class="btn btn-sm btn-danger">حذف</a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+  const searchInput = document.getElementById('employeeSearch');
+  const table = document.getElementById('employeesTable').getElementsByTagName('tbody')[0];
+
+  searchInput.addEventListener('keyup', function() {
+    const filter = searchInput.value.toLowerCase();
+    const rows = table.getElementsByTagName('tr');
+
+    Array.from(rows).forEach(row => {
+      const cells = row.getElementsByTagName('td');
+      const name = cells[1].innerText.toLowerCase();
+      const jobTitle = cells[4].innerText.toLowerCase();
+      const phone = cells[3].innerText.toLowerCase();
+
+      if(name.includes(filter) || jobTitle.includes(filter) || phone.includes(filter)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

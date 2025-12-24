@@ -6,6 +6,7 @@ const Student = require("../models/Student");
 const Employee = require("../models/Employee");
 const Supplier = require("../models/Supplier");
 const Income = require("../models/Income");
+const Expense = require("../models/Expense");
 
 
 
@@ -1023,5 +1024,91 @@ exports.deleteIncome = async (req, res) => {
     console.error(err);
     req.flash("error", "Failed to delete income");
     res.redirect("/school-admin/incomes");
+  }
+};
+
+// عرض كل الصادرات
+exports.listExpenses = async (req, res) => {
+  try {
+    const expenses = await Expense.find({ schoolId: req.user.schoolId }).sort({ createdAt: -1 });
+    res.render("dashboard/school-admin/expenses", { expenses });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب الصادرات");
+    res.redirect("/dashboard");
+  }
+};
+
+// صفحة إضافة صادر جديد
+exports.renderAddExpenseForm = (req, res) => {
+  res.render("dashboard/school-admin/add-expense");
+};
+
+// إنشاء صادر جديد
+exports.createExpense = async (req, res) => {
+  try {
+    const { amount, category, description } = req.body;
+    const expense = new Expense({
+      amount,
+      category,
+      description,
+      schoolId: req.user.schoolId,
+    });
+    await expense.save();
+    req.flash("success", "تم إضافة الصادر بنجاح");
+    res.json({ success: "تم إضافة الصادر بنجاح", redirect: "/school-admin/expenses" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ errors: { general: "حدث خطأ أثناء إضافة الصادر" } });
+  }
+};
+
+// صفحة تعديل الصادر
+exports.renderEditExpenseForm = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) {
+      req.flash("error", "الصادر غير موجود");
+      return res.redirect("/school-admin/expenses");
+    }
+    res.render("dashboard/school-admin/edit-expense", { expense });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب بيانات الصادر");
+    res.redirect("/school-admin/expenses");
+  }
+};
+
+// تحديث الصادر
+exports.updateExpense = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) return res.status(404).json({ errors: { general: "الصادر غير موجود" } });
+
+    expense.amount = req.body.amount || expense.amount;
+    expense.category = req.body.category || expense.category;
+    expense.description = req.body.description || expense.description;
+
+    await expense.save();
+    res.json({ success: "تم تحديث الصادر بنجاح", redirect: "/school-admin/expenses" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ errors: { general: "حدث خطأ أثناء تحديث الصادر" } });
+  }
+};
+
+// عرض تفاصيل الصادر
+exports.viewExpense = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) {
+      req.flash("error", "الصادر غير موجود");
+      return res.redirect("/school-admin/expenses");
+    }
+    res.render("dashboard/school-admin/view-expense", { expense });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب بيانات الصادر");
+    res.redirect("/school-admin/expenses");
   }
 };

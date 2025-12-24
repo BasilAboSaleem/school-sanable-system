@@ -72,5 +72,22 @@ router.post("/incomes/:id/edit", schoolAdminController.updateIncome);
 router.get("/incomes/:id/view", schoolAdminController.viewIncomeDetails);
 router.get("/incomes/:id/delete", schoolAdminController.deleteIncome);
 
+// صفحة عرض كل الصادرات
+router.get("/expenses", schoolAdminController.listExpenses);
+
+// صفحة إضافة صادر
+router.get("/expenses/create", schoolAdminController.renderAddExpenseForm);
+
+// إنشاء صادر جديد (AJAX)
+router.post("/expenses/create", schoolAdminController.createExpense);
+
+// صفحة تعديل الصادر
+router.get("/expenses/:id/edit", schoolAdminController.renderEditExpenseForm);
+
+// تحديث الصادر (AJAX)
+router.post("/expenses/:id/edit", schoolAdminController.updateExpense);
+
+// صفحة عرض تفاصيل الصادر
+router.get("/expenses/:id/view", schoolAdminController.viewExpense);
 
 module.exports = router; 

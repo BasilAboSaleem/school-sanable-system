@@ -54,4 +54,14 @@ router.post("/employees/:id/edit", schoolAdminController.updateEmployee);
 router.get("/employees/:id/delete", schoolAdminController.deleteEmployee);
 
 
+// الموردين
+router.get("/suppliers", schoolAdminController.listSuppliers);
+router.get("/suppliers/create", schoolAdminController.renderAddSupplierForm);
+router.post("/suppliers/create", schoolAdminController.createSupplier);
+router.get("/suppliers/:id/edit", schoolAdminController.renderEditSupplierForm);
+router.post("/suppliers/:id/edit", schoolAdminController.updateSupplier);
+router.get("/suppliers/:id/delete", schoolAdminController.deleteSupplier);
+router.get("/suppliers/:id/view", schoolAdminController.viewSupplierDetails);
+
+
 module.exports = router; 

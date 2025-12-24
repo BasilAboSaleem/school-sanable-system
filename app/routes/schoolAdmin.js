@@ -63,5 +63,14 @@ router.post("/suppliers/:id/edit", schoolAdminController.updateSupplier);
 router.get("/suppliers/:id/delete", schoolAdminController.deleteSupplier);
 router.get("/suppliers/:id/view", schoolAdminController.viewSupplierDetails);
 
+// Incomes
+router.get("/incomes", schoolAdminController.listIncomes);
+router.get("/incomes/create", schoolAdminController.renderAddIncomeForm);
+router.post("/incomes/create", schoolAdminController.addIncome);
+router.get("/incomes/:id/edit", schoolAdminController.renderEditIncomeForm);
+router.post("/incomes/:id/edit", schoolAdminController.updateIncome);
+router.get("/incomes/:id/view", schoolAdminController.viewIncomeDetails);
+router.get("/incomes/:id/delete", schoolAdminController.deleteIncome);
+
 
 module.exports = router; 

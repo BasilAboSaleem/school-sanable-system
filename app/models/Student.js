@@ -5,9 +5,13 @@ const studentSchema = new mongoose.Schema({
   phoneOfParents: { type: String },
   address: { type: String },
   dateOfBirth: { type: Date },
-  grade: { type: String },
   gender: { type: String, enum: ["Male", "Female"] },
-  schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
+  schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School", required: true },
+  classId: { type: mongoose.Schema.Types.ObjectId, ref: "Class", required: true },
+  sectionId: { type: mongoose.Schema.Types.ObjectId, ref: "Section", required: true },
+  grade: {type : String },
+  status: { type: String, enum: ["active", "inactive"], default: "active" },
+  
   createdAt: { type: Date, default: Date.now },
 });
 

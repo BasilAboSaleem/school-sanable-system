@@ -1,0 +1,159 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../partials/header.ejs') %>
+
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- breadcrumb -->
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <div class="page-header-title text-left-rtl">
+                  <div class="d-inline">
+                    <h3 class="lite-text">جميع الطلاب</h3>
+                    <span class="lite-text text-gray">عرض جميع الطلاب في المدرسة</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <a href="/school-admin/students/create" class="btn btn-success float-left">
+                  <i class="fas fa-plus"></i> إضافة طالب
+                </a>
+                <ol class="breadcrumb float-sm-right">
+                  <li class="breadcrumb-item">
+                    <a href="/dashboard"><i class="fas fa-home"></i></a>
+                  </li>
+                  <li class="breadcrumb-item active">الطلاب</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      <% if (locals.success && locals.success.length > 0) { %>
+        <div class="alert alert-success"><%= locals.success %></div>
+      <% } %>
+      <% if (locals.error && locals.error.length > 0) { %>
+        <div class="alert alert-danger"><%= locals.error %></div>
+      <% } %>
+
+      <!-- جدول عرض الطلاب -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-header">
+              قائمة الطلاب
+            </div>
+
+            <div class="card-body">
+
+              <!-- 🔍 بحث فوري -->
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <input
+                    type="text"
+                    id="studentSearch"
+                    class="form-control"
+                    placeholder="ابحث باسم الطالب أو الفصل أو الشعبة..."
+                  >
+                </div>
+              </div>
+
+              <table class="table table-bordered table-hover text-center">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>الاسم الكامل</th>
+                    <th>الفصل</th>
+                    <th>الشعبة</th>
+                    <th>رقم ولي الأمر</th>
+                    <th>الجنس</th>
+                    <th>العمليات</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <% if (students.length === 0) { %>
+                    <tr>
+                      <td colspan="7">لا يوجد طلاب مضافين</td>
+                    </tr>
+                  <% } %>
+
+                  <% students.forEach((student, index) => { %>
+                    <tr
+                      data-name="<%= student.fullName.toLowerCase() %>"
+                      data-class="<%= student.classId ? student.classId.name.toLowerCase() : '' %>"
+                      data-section="<%= student.sectionId ? student.sectionId.name.toLowerCase() : '' %>"
+                    >
+                      <td><%= index + 1 %></td>
+                      <td><%= student.fullName %></td>
+                      <td><%= student.classId ? student.classId.name : '—' %></td>
+                      <td><%= student.sectionId ? student.sectionId.name : '—' %></td>
+                      <td><%= student.phoneOfParents || '—' %></td>
+                      <td><%= student.gender || '—' %></td>
+                      <td>
+                        <a href="/school-admin/students/<%= student._id %>" class="btn btn-sm btn-info">
+                          عرض
+                        </a>
+                        <a href="/school-admin/students/<%= student._id %>/edit" class="btn btn-sm btn-warning">
+                          تعديل
+                        </a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<!-- 🧠 JavaScript البحث -->
+<script>
+  const searchInput = document.getElementById('studentSearch');
+  const rows = document.querySelectorAll('tbody tr');
+
+  searchInput.addEventListener('keyup', () => {
+    const value = searchInput.value.toLowerCase().trim();
+
+    rows.forEach(row => {
+      const name = row.dataset.name || '';
+      const className = row.dataset.class || '';
+      const section = row.dataset.section || '';
+
+      const match =
+        name.includes(value) ||
+        className.includes(value) ||
+        section.includes(value);
+
+      row.style.display = match ? '' : 'none';
+    });
+  });
+</script>
+
+</body>
+</html>

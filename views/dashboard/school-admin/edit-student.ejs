@@ -1,0 +1,155 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+    <%- include('../../partials/header.ejs') %>
+
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../partials/sidebar/index.ejs') %>
+    </div>
+
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
+
+        <!-- breadcrumb -->
+        <div class="row m-1 pb-4 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header">
+              <div class="row align-items-end">
+                <div class="col-lg-8">
+                  <div class="page-header-title text-left-rtl">
+                    <div class="d-inline">
+                      <h3 class="lite-text">تعديل بيانات الطالب</h3>
+                      <span class="lite-text text-gray">تعديل معلومات الطالب الحالية</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <a href="/school-admin/students" class="btn btn-secondary float-left">
+                    <i class="fas fa-arrow-left"></i> العودة للطلاب
+                  </a>
+                  <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active">تعديل الطالب</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- الفورم لتعديل الطالب -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade h-100">
+              <div class="card-header">
+                تعديل بيانات الطالب
+              </div>
+              <div class="card-body">
+
+             
+
+                <form id="editStudentForm" action="/school-admin/students/<%= student._id %>/edit" method="POST" class="text-right">
+                  
+                  <div class="form-group">
+                    <label>الاسم الكامل *</label>
+                    <input type="text" name="fullName" value="<%= student.fullName %>" required class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>تاريخ الميلاد</label>
+                    <input type="date" name="dateOfBirth" value="<%= student.dateOfBirth ? student.dateOfBirth.toISOString().substring(0,10) : '' %>" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>الجنس</label>
+                    <select name="gender" class="form-control">
+                      <option value="Male" <%= student.gender === 'Male' ? 'selected' : '' %>>ذكر</option>
+                      <option value="Female" <%= student.gender === 'Female' ? 'selected' : '' %>>أنثى</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>الفصل</label>
+                    <select name="classId" id="classSelect" class="form-control">
+
+                      <option value="">اختر الفصل</option>
+                      <% classes.forEach(cls => { %>
+                        <option value="<%= cls._id %>" <%= student.classId && student.classId._id.toString() === cls._id.toString() ? 'selected' : '' %>><%= cls.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>الشعبة</label>
+                    <select name="sectionId" id="sectionSelect" class="form-control">
+
+                      <option value="">اختر الشعبة</option>
+                      <% sections.forEach(sec => { %>
+                        <option value="<%= sec._id %>" <%= student.sectionId && student.sectionId._id.toString() === sec._id.toString() ? 'selected' : '' %>><%= sec.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>رقم ولي الأمر</label>
+                    <input type="text" name="phoneOfParents" value="<%= student.phoneOfParents %>" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" name="address" value="<%= student.address %>" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>الفئة</label>
+                    <input type="text" name="grade" value="<%= student.grade %>" class="form-control">
+                  </div>
+
+                  <button type="submit" class="btn btn-success">تحديث الطالب</button>
+                  <a href="/school-admin/students" class="btn btn-secondary">إلغاء</a>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <%- include('../../partials/scripts.ejs') %>
+<script>
+const classSelect = document.querySelector('select[name="classId"]');
+const sectionSelect = document.querySelector('select[name="sectionId"]');
+
+classSelect.addEventListener('change', async () => {
+  const classId = classSelect.value;
+
+  sectionSelect.innerHTML = '<option value="">اختر الشعبة</option>';
+
+  if (!classId) return;
+
+  const res = await fetch(`/school-admin/classes/${classId}/sections/json`);
+  const sections = await res.json();
+
+  sections.forEach(sec => {
+    const option = document.createElement('option');
+    option.value = sec._id;
+    option.textContent = sec.name;
+    sectionSelect.appendChild(option);
+  });
+});
+</script>
+
+
+
+</body>
+</html>

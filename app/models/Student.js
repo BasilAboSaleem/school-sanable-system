@@ -11,6 +11,11 @@ const studentSchema = new mongoose.Schema({
   sectionId: { type: mongoose.Schema.Types.ObjectId, ref: "Section", required: true },
   grade: {type : String },
   status: { type: String, enum: ["active", "inactive"], default: "active" },
+  createdFrom: {
+  type: String,
+  enum: ["excel", "manual"],
+  default: "manual"
+},
   
   createdAt: { type: Date, default: Date.now },
 });

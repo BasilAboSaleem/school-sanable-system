@@ -6,8 +6,11 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ["super-admin", "school-admin", "teacher"], default: "school-admin" },
-  schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
+role: {
+  type: String,
+  enum: ["super-admin", "school-admin", "teacher", "attendance"],
+  default: "school-admin"
+},  schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
   phone: { type: String },
   classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }], // الفصول المرتبطة بالمعلم
   subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }], // المواد المرتبطة بالمعلم

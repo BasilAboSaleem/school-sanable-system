@@ -20,11 +20,42 @@ exports.renderCreateStudentForm = async (req, res) => {
 
 // Handle create student POST
 exports.createStudent = async (req, res) => {
-  const { fullName, phoneOfParents, address, dateOfBirth, gender, classId, sectionId, status } = req.body;
+  const {
+    fullName,
+    phoneOfParents,
+    address,
+    dateOfBirth,
+    gender,
+    classId,
+    sectionId,
+    status
+  } = req.body;
+
   try {
-    if(!fullName || !fullName.trim()) return res.json({ errors: { fullName: "اسم الطالب مطلوب" } });
-    if(!classId) return res.json({ errors: { classId: "يجب اختيار الفصل" } });
-    if(!sectionId) return res.json({ errors: { sectionId: "يجب اختيار الشعبة" } });
+    if (!fullName || !fullName.trim())
+      return res.json({ errors: { fullName: "اسم الطالب مطلوب" } });
+
+    if (!classId)
+      return res.json({ errors: { classId: "يجب اختيار الفصل" } });
+
+    if (!sectionId)
+      return res.json({ errors: { sectionId: "يجب اختيار الشعبة" } });
+
+    // تحقق أن الفصل تابع للمدرسة
+    const cls = await Class.findOne({
+      _id: classId,
+      schoolId: req.user.schoolId
+    });
+    if (!cls)
+      return res.json({ errors: { classId: "الفصل غير صالح" } });
+
+    // تحقق أن الشعبة تابعة للفصل
+    const section = await Section.findOne({
+      _id: sectionId,
+      classId: classId
+    });
+    if (!section)
+      return res.json({ errors: { sectionId: "الشعبة غير تابعة لهذا الفصل" } });
 
     const newStudent = new Student({
       fullName: fullName.trim(),
@@ -35,16 +66,25 @@ exports.createStudent = async (req, res) => {
       schoolId: req.user.schoolId,
       classId,
       sectionId,
-      status: status || 'active'
+      status: ["active", "inactive"].includes(status) ? status : "active",
+      createdFrom: "manual"
     });
 
     await newStudent.save();
-    return res.json({ success: "تم إضافة الطالب بنجاح", redirect: "/school-admin/students" });
-  } catch(err) {
+
+    return res.json({
+      success: "تم إضافة الطالب بنجاح",
+      redirect: "/school-admin/students"
+    });
+
+  } catch (err) {
     console.error(err);
-    return res.json({ errors: { general: "حدث خطأ أثناء إضافة الطالب" } });
+    return res.json({
+      errors: { general: "حدث خطأ أثناء إضافة الطالب" }
+    });
   }
 };
+
 
 exports.listStudents = async (req, res) => {
   try {
@@ -105,39 +145,45 @@ exports.renderEditStudentForm = async (req, res) => {
 
 exports.updateStudent = async (req, res) => {
   try {
-    const student = await Student.findById(req.params.id);
+    const student = await Student.findOne({
+      _id: req.params.id,
+      schoolId: req.user.schoolId
+    });
+
     if (!student) {
-      req.flash('error', 'الطالب غير موجود');
-      return res.redirect('/school-admin/students');
+      req.flash("error", "الطالب غير موجود");
+      return res.redirect("/school-admin/students");
     }
 
-    // تحديث الحقول النصية والباقية كما هي
     student.fullName = req.body.fullName || student.fullName;
     student.dateOfBirth = req.body.dateOfBirth || student.dateOfBirth;
     student.gender = req.body.gender || student.gender;
     student.phoneOfParents = req.body.phoneOfParents || student.phoneOfParents;
     student.address = req.body.address || student.address;
-    //student.grade = req.body.grade || student.grade;
-    if (req.body.grade !== undefined) {
-  student.grade = req.body.grade;
-}
 
-    // تحديث الفصول والشعب فقط إذا تم اختيارها
-    if (req.body.classId && req.body.classId.trim() !== "") {
-      student.classId = req.body.classId;
+    if (req.body.classId) {
+      const cls = await Class.findOne({
+        _id: req.body.classId,
+        schoolId: req.user.schoolId
+      });
+      if (cls) student.classId = cls._id;
     }
 
-    if (req.body.sectionId && req.body.sectionId.trim() !== "") {
-      student.sectionId = req.body.sectionId;
+    if (req.body.sectionId) {
+      const section = await Section.findOne({
+        _id: req.body.sectionId,
+        classId: student.classId
+      });
+      if (section) student.sectionId = section._id;
     }
 
     await student.save();
 
-    req.flash('success', 'تم تحديث بيانات الطالب بنجاح');
+    req.flash("success", "تم تحديث بيانات الطالب بنجاح");
     res.redirect(`/school-admin/students/${student._id}`);
   } catch (err) {
     console.error(err);
-    req.flash('error', 'حدث خطأ أثناء تحديث بيانات الطالب');
-    res.redirect('/school-admin/students');
+    req.flash("error", "حدث خطأ أثناء تحديث بيانات الطالب");
+    res.redirect("/school-admin/students");
   }
 };

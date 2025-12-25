@@ -5,6 +5,7 @@ const sectionSchema = new mongoose.Schema({
   classId: { type: mongoose.Schema.Types.ObjectId, ref: "Class", required: true },
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }],
   teacherId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // المعلم المسؤول عن الشعبة
+  students: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }],
   createdAt: { type: Date, default: Date.now },
 });
 

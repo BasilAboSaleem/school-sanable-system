@@ -88,4 +88,15 @@ router.post("/expenses/:id/edit", schoolAdminController.Expense.updateExpense);
 // صفحة عرض تفاصيل الصادر
 router.get("/expenses/:id/view", schoolAdminController.Expense.viewExpense);
 
-module.exports = router; 
+router.get(
+  "/attendance-users/create",
+  schoolAdminController.Attendance.renderCreateAttendanceUser
+);
+
+
+router.post(
+  "/attendance-users/create",
+  schoolAdminController.Attendance.createAttendanceUser
+);
+
+module.exports = router;   

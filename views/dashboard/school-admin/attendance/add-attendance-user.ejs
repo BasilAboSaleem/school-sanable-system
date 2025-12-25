@@ -1,0 +1,146 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../../partials/header.ejs') %>
+
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <h3 class="lite-text">إضافة موظف حضور وغياب</h3>
+                <span class="lite-text text-gray">إدخال بيانات موظف الحضور</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-header">إضافة موظف جديد</div>
+            <div class="card-body">
+
+              <form id="addAttendanceUserForm">
+
+                <div class="form-group">
+                  <label>الاسم *</label>
+                  <input type="text" name="name" class="form-control">
+                  <small class="text-danger" id="nameError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>البريد الإلكتروني *</label>
+                  <input type="email" name="email" class="form-control">
+                  <small class="text-danger" id="emailError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>كلمة المرور *</label>
+                  <input type="password" name="password" class="form-control">
+                  <small class="text-danger" id="passwordError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>رقم الهاتف</label>
+                  <input type="text" name="phone" class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-success">إضافة الموظف</button>
+
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<script>
+const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+const form = document.getElementById("addAttendanceUserForm");
+const nameInput = form.querySelector("input[name='name']");
+const emailInput = form.querySelector("input[name='email']");
+const passwordInput = form.querySelector("input[name='password']");
+const phoneInput = form.querySelector("input[name='phone']");
+
+const nameError = document.getElementById("nameError");
+const emailError = document.getElementById("emailError");
+const passwordError = document.getElementById("passwordError");
+
+// submit
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  // مسح الأخطاء السابقة
+  nameError.textContent = "";
+  emailError.textContent = "";
+  passwordError.textContent = "";
+
+  // التحقق المحلي قبل إرسال البيانات
+  let hasError = false;
+  const nameVal = nameInput.value.trim();
+  const emailVal = emailInput.value.trim();
+  const passwordVal = passwordInput.value;
+
+  if(!nameVal){ nameError.textContent = "اسم الموظف مطلوب"; hasError = true; }
+  if(!emailVal){ emailError.textContent = "البريد الإلكتروني مطلوب"; hasError = true; }
+  if(!passwordVal){ passwordError.textContent = "كلمة المرور مطلوبة"; hasError = true; }
+  if(passwordVal && !strongPasswordRegex.test(passwordVal)){
+    passwordError.textContent = "كلمة المرور يجب أن تحتوي أحرف كبيرة وصغيرة، رقم، رمز خاص، و8 أحرف على الأقل";
+    hasError = true;
+  }
+
+  if(hasError) return;
+
+  // إرسال البيانات للسيرفر
+  const res = await fetch("/school-admin/attendance-users/create", {
+    method:"POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: nameVal, email: emailVal, password: passwordVal, phone: phoneInput.value.trim() })
+  });
+
+  const data = await res.json();
+
+  // عرض الأخطاء القادمة من السيرفر
+  if(data.errors){
+    if(data.errors.name) nameError.textContent = data.errors.name;
+    if(data.errors.email) emailError.textContent = data.errors.email;
+    if(data.errors.password) passwordError.textContent = data.errors.password;
+    if(data.errors.general && !data.errors.name && !data.errors.email && !data.errors.password){
+      alert(data.errors.general);
+    }
+    return;
+  }
+
+  if(data.success){
+    alert(data.success);
+    window.location.href = data.redirect;
+  }
+
+});
+</script>
+
+</body>
+</html>

@@ -49,6 +49,9 @@ if (user.role === "teacher") {
     email: user.email,
     role: "teacher",
     schoolId: user.schoolId,
+    sections: user.sections,
+    classes: user.classes,
+    subjects: user.subjects,
   };
   return next();
 }
@@ -60,6 +63,7 @@ if (user.role === "teacher") {
         email: user.email,
         role: "attendance",
         schoolId: user.schoolId,
+  
       };
       return next();
     }

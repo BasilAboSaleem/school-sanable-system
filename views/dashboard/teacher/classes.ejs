@@ -12,7 +12,7 @@
   <main class="bmd-layout-content">
     <div class="container-fluid">
 
-      <!-- breadcrumb -->
+      <!-- Breadcrumb -->
       <div class="row m-1 pb-4 mb-3">
         <div class="col-12 p-2">
           <div class="page-header breadcrumb-header">
@@ -90,10 +90,10 @@
                       <td><%= cls.name %></td>
                       <td>
                         <% if (cls.sections.length === 0) { %>
-                          —
+                          — 
                         <% } else { %>
                           <% cls.sections.forEach(sec => { %>
-                            <span class="badge badge-info"><%= sec.name %></span>
+                            <span class="badge badge-info"><%= cls.name %> - <%= sec.name %></span>
                           <% }) %>
                         <% } %>
                       </td>

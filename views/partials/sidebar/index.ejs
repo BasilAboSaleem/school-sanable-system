@@ -17,6 +17,8 @@
   <% if (user?.role === 'teacher') { %>
     <%- include('./teacher.ejs') %>
   <% } %>
- 
+  <% if (user?.role === 'attendance') { %>
+    <%- include('./attendance.ejs') %>
+  <% } %>
 
 </div>

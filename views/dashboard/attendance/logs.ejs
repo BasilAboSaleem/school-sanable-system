@@ -1,0 +1,273 @@
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+<main class="bmd-layout-content">
+<div class="container-fluid mt-3">
+
+  <h3>سجلات الحضور والغياب</h3>
+
+  <!-- الفلترة -->
+  <div class="row mb-3">
+    <div class="col-md-2">
+      <label>اختر الفصل</label>
+      <select id="classSelect" class="form-control">
+        <option value="">-- اختر الفصل --</option>
+        <% classes.forEach(c => { %>
+          <option value="<%= c._id %>"><%= c.name %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <label>اختر الشعبة</label>
+      <select id="sectionSelect" class="form-control" disabled>
+        <option value="">-- اختر الشعبة --</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <label>اختر التاريخ</label>
+      <input type="date" id="dateSelect" class="form-control">
+    </div>
+
+    <div class="col-md-2">
+      <label>اسم الطالب</label>
+      <input type="text" id="studentName" class="form-control" placeholder="بحث باسم الطالب">
+    </div>
+
+    <div class="col-md-2">
+      <label>الحالة</label>
+      <select id="statusSelect" class="form-control">
+        <option value="">الكل</option>
+        <option value="present">حاضر</option>
+        <option value="absent">غائب</option>
+        <option value="late">متأخر</option>
+        <option value="excused">مأذون</option>
+      </select>
+    </div>
+
+    <div class="col-md-2 align-self-end">
+      <button id="filterBtn" class="btn btn-primary">عرض</button>
+      <button id="exportBtn" class="btn btn-success">تصدير CSV</button>
+      <button id="printBtn" class="btn btn-secondary">طباعة</button>
+    </div>
+  </div>
+
+  <!-- جدول السجلات -->
+  <div id="logsContainer">
+    <table class="table table-bordered text-center" id="logsTableMain">
+      <thead class="thead-light">
+        <tr>
+          <th>الاسم</th>
+          <th>الفصل</th>
+          <th>الشعبة</th>
+          <th>الحالة</th>
+          <th>سبب الغياب / التأخير</th>
+          <th>ملاحظات</th>
+          <th>تاريخ التسجيل</th>
+          <th>مسجل البيانات</th>
+        </tr>
+      </thead>
+      <tbody id="logsTable"></tbody>
+    </table>
+  </div>
+
+</div>
+</main>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+const classSelect = document.getElementById('classSelect');
+const sectionSelect = document.getElementById('sectionSelect');
+const dateSelect = document.getElementById('dateSelect');
+const studentName = document.getElementById('studentName');
+const statusSelect = document.getElementById('statusSelect');
+const filterBtn = document.getElementById('filterBtn');
+const logsTable = document.getElementById('logsTable');
+
+let logsData = [];
+
+/* =======================
+   تحويل الحالة + الألوان
+======================= */
+const statusMap = {
+  present: "حاضر",
+  absent: "غائب",
+  late: "متأخر",
+  excused: "مأذون"
+};
+
+function getStatusBadge(status) {
+  const colorMap = {
+    present: "success",
+    absent: "danger",
+    late: "warning",
+    excused: "info"
+  };
+
+  return `
+    <span class="badge badge-${colorMap[status] || 'secondary'} p-2">
+      ${statusMap[status] || status}
+    </span>
+  `;
+}
+
+/* =======================
+   جلب الشعب
+======================= */
+classSelect.addEventListener('change', async () => {
+  const classId = classSelect.value;
+  sectionSelect.innerHTML = '<option value="">-- اختر الشعبة --</option>';
+  if (!classId) return sectionSelect.disabled = true;
+
+  const res = await fetch(`/attendance/sections/${classId}`);
+  const sections = await res.json();
+
+  sections.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s._id;
+    opt.textContent = s.name;
+    sectionSelect.appendChild(opt);
+  });
+
+  sectionSelect.disabled = false;
+});
+
+/* =======================
+   جلب السجلات
+======================= */
+filterBtn.addEventListener('click', async () => {
+  const classId = classSelect.value;
+  const sectionId = sectionSelect.value;
+  const date = dateSelect.value;
+
+  if (!classId || !sectionId || !date) {
+    return alert("اختر الفصل والشعبة والتاريخ أولاً");
+  }
+
+  const res = await fetch('/attendance/logs/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ classId, sectionId, date })
+  });
+
+  logsData = await res.json();
+  displayLogs();
+});
+
+/* =======================
+   عرض السجلات
+======================= */
+function displayLogs() {
+  const nameFilter = studentName.value.trim().toLowerCase();
+  const statusFilter = statusSelect.value;
+
+  let filtered = logsData;
+
+  if (nameFilter) {
+    filtered = filtered.filter(l =>
+      l.studentId?.fullName?.toLowerCase().includes(nameFilter)
+    );
+  }
+
+  if (statusFilter) {
+    filtered = filtered.filter(l => l.status === statusFilter);
+  }
+
+  logsTable.innerHTML = '';
+
+  if (!filtered.length) {
+    logsTable.innerHTML = `
+      <tr>
+        <td colspan="8" class="text-muted">لا توجد سجلات مطابقة</td>
+      </tr>
+    `;
+    return;
+  }
+
+  filtered.forEach(l => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${l.studentId?.fullName || '-'}</td>
+      <td>${l.classId?.name || '-'}</td>
+      <td>${l.sectionId?.name || '-'}</td>
+      <td>${getStatusBadge(l.status)}</td>
+      <td>${l.reason || '-'}</td>
+      <td>${l.notes || '-'}</td>
+      <td>${new Date(l.recordedAt).toLocaleDateString('ar-EG')}</td>
+      <td>${l.recordedBy?.name || '-'}</td>
+    `;
+    logsTable.appendChild(tr);
+  });
+}
+
+/* =======================
+   تصدير CSV
+======================= */
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (!logsData.length) {
+    alert("لا توجد بيانات للتصدير");
+    return;
+  }
+
+  const excelData = logsData.map(l => ({
+    "الاسم": l.studentId?.fullName || '',
+    "الفصل": l.classId?.name || '',
+    "الشعبة": l.sectionId?.name || '',
+    "الحالة": statusMap[l.status] || l.status,
+    "سبب الغياب / التأخير": l.reason || '',
+    "ملاحظات": l.notes || '',
+    "تاريخ التسجيل": new Date(l.recordedAt).toLocaleDateString('ar-EG'),
+    "مسجل البيانات": l.recordedBy?.name || ''
+  }));
+
+  // إنشاء Sheet
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+  // ضبط عرض الأعمدة تلقائي
+  worksheet['!cols'] = [
+    { wch: 20 },
+    { wch: 15 },
+    { wch: 10 },
+    { wch: 12 },
+    { wch: 25 },
+    { wch: 20 },
+    { wch: 15 },
+    { wch: 20 }
+  ];
+
+  // إنشاء Workbook
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "سجلات الحضور");
+
+  // حفظ الملف
+  XLSX.writeFile(workbook, "attendance_logs.xlsx");
+});
+
+/* =======================
+   طباعة
+======================= */
+document.getElementById('printBtn').addEventListener('click', () => {
+  const win = window.open('', '', 'width=900,height=700');
+  win.document.write('<html><head><title>طباعة</title></head><body>');
+  win.document.write(document.getElementById('logsContainer').innerHTML);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.print();
+});
+
+studentName.addEventListener('input', displayLogs);
+statusSelect.addEventListener('change', displayLogs);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+
+</body>
+</html>

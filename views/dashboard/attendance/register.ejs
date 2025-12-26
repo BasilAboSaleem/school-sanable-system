@@ -1,0 +1,176 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+<body class="rtl">
+<main class="bmd-layout-content">
+<div class="container-fluid mt-3">
+
+  <h3>تسجيل الحضور اليومي</h3>
+
+  <!-- اختيار الفصل -->
+  <div class="form-group">
+    <label>اختر الفصل</label>
+    <select id="classSelect" class="form-control">
+      <option value="">-- اختر الفصل --</option>
+      <% classes.forEach(c => { %>
+        <option value="<%= c._id %>"><%= c.name %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <!-- اختيار الشعبة -->
+  <div class="form-group">
+    <label>اختر الشعبة</label>
+    <select id="sectionSelect" class="form-control" disabled>
+      <option value="">-- اختر الشعبة --</option>
+    </select>
+  </div>
+
+  <!-- جدول الطلاب -->
+  <div id="studentsContainer" style="display:none;">
+    <table class="table table-bordered text-center">
+      <thead>
+        <tr>
+          <th>الاسم</th>
+          <th>الحالة</th>
+          <th>سبب الغياب/التأخير</th>
+          <th>ملاحظات</th>
+        </tr>
+      </thead>
+      <tbody id="studentsTable">
+        <!-- يتم تعبئته عبر AJAX -->
+      </tbody>
+    </table>
+    <button id="saveAttendanceBtn" class="btn btn-success">حفظ الحضور</button>
+  </div>
+
+</div>
+
+</div>
+</main>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+const classSelect = document.getElementById('classSelect');
+const sectionSelect = document.getElementById('sectionSelect');
+const studentsContainer = document.getElementById('studentsContainer');
+const studentsTable = document.getElementById('studentsTable');
+
+let currentClassId = '';
+let currentSectionId = '';
+let studentsData = [];
+
+// جلب الشعب عند اختيار الفصل
+classSelect.addEventListener('change', async () => {
+  currentClassId = classSelect.value;
+  sectionSelect.innerHTML = '<option value="">-- اختر الشعبة --</option>';
+  studentsContainer.style.display = 'none';
+  if (!currentClassId) return sectionSelect.disabled = true;
+
+  try {
+    const res = await fetch(`/attendance/sections/${currentClassId}`);
+    const sections = await res.json();
+
+    sections.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s._id;
+      opt.textContent = s.name;
+      sectionSelect.appendChild(opt);
+    });
+
+    sectionSelect.disabled = false;
+  } catch (err) {
+    console.error("حدث خطأ أثناء جلب الشعب:", err);
+    alert("فشل جلب الشعب، حاول مرة أخرى");
+  }
+});
+
+// جلب الطلاب عند اختيار الشعبة
+sectionSelect.addEventListener('change', async () => {
+  currentSectionId = sectionSelect.value;
+  if (!currentSectionId) return studentsContainer.style.display = 'none';
+
+  try {
+    const res = await fetch(`/attendance/students/${currentSectionId}`);
+    studentsData = await res.json();
+
+    studentsTable.innerHTML = '';
+    studentsData.forEach(student => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${student.fullName}</td>
+        <td>
+          <select class="form-control statusSelect">
+            <option value="present">حاضر</option>
+            <option value="absent">غائب</option>
+            <option value="late">متأخر</option>
+            <option value="excused">مأذون</option>
+          </select>
+        </td>
+        <td><input type="text" class="form-control reasonInput" disabled placeholder="أدخل السبب"></td>
+        <td><input type="text" class="form-control notesInput" placeholder="ملاحظات"></td>
+      `;
+      studentsTable.appendChild(tr);
+
+      const statusSelect = tr.querySelector('.statusSelect');
+      const reasonInput = tr.querySelector('.reasonInput');
+
+      statusSelect.addEventListener('change', () => {
+        reasonInput.disabled = statusSelect.value === 'present';
+        if (reasonInput.disabled) reasonInput.value = '';
+      });
+    });
+
+    studentsContainer.style.display = 'block';
+  } catch (err) {
+    console.error("حدث خطأ أثناء جلب الطلاب:", err);
+    alert("فشل جلب الطلاب، حاول مرة أخرى");
+  }
+});
+
+// حفظ الحضور عبر AJAX
+document.getElementById('saveAttendanceBtn').addEventListener('click', async () => {
+  if (!currentClassId || !currentSectionId) return alert("اختر الفصل والشعبة أولاً");
+
+  const attendances = studentsData.map((student, i) => ({
+    studentId: student._id,
+    classId: currentClassId,
+    sectionId: currentSectionId,
+    status: studentsTable.rows[i].querySelector('.statusSelect').value,
+    reason: studentsTable.rows[i].querySelector('.reasonInput').value,
+    notes: studentsTable.rows[i].querySelector('.notesInput').value
+  }));
+
+  try {
+    const res = await fetch('/attendance/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ attendances, date: new Date() })
+    });
+
+    const data = await res.json();
+    if (data.error) return alert(data.error);
+    alert(data.success);
+
+    sectionSelect.value = '';
+    studentsContainer.style.display = 'none';
+  } catch (err) {
+    console.error("حدث خطأ أثناء حفظ الحضور:", err);
+    alert("فشل حفظ الحضور، حاول مرة أخرى");
+  }
+});
+</script>
+
+
+
+</body>
+</html>

@@ -52,6 +52,17 @@ if (user.role === "teacher") {
   };
   return next();
 }
+    // Attendance User
+    if (user.role === "attendance") {
+      req.user = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: "attendance",
+        schoolId: user.schoolId,
+      };
+      return next();
+    }
 
     // Any other role → unauthorized
     return handleUnauthorized(req, res);

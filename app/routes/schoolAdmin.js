@@ -99,4 +99,21 @@ router.post(
   schoolAdminController.Attendance.createAttendanceUser
 );
 
+router.get('/attendance-users', schoolAdminController.Attendance.listAttendanceUsers);
+
+router.get(
+  '/attendance-users/:id/delete',
+  schoolAdminController.Attendance.deleteAttendanceUser
+);
+
+router.get(
+  '/attendance-users/:id/edit',
+  schoolAdminController.Attendance.renderEditForm
+);
+
+router.post(
+  '/attendance-users/:id/edit',
+  schoolAdminController.Attendance.updateAttendanceUser
+);
+
 module.exports = router;   

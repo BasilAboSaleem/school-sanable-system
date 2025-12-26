@@ -30,6 +30,14 @@ const attendanceSchema = new mongoose.Schema({
     enum: ["present", "absent", "late", "excused"],
     default: "present"
   },
+  reason: { // سبب الغياب أو التأخير
+    type: String,
+    default: ""
+  },
+  notes: { // ملاحظات إضافية
+    type: String,
+    default: ""
+  },
   recordedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -41,7 +49,7 @@ const attendanceSchema = new mongoose.Schema({
   }
 });
 
-// منع التكرار
+// منع تكرار نفس الطالب لنفس اليوم
 attendanceSchema.index(
   { studentId: 1, date: 1 },
   { unique: true }

@@ -1,0 +1,119 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- Breadcrumb -->
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <h3 class="lite-text">جميع موظفي الحضور والغياب</h3>
+                <span class="lite-text text-gray">عرض كل موظفي الحضور في المدرسة</span>
+              </div>
+              <div class="col-lg-4 text-left">
+                <a href="/school-admin/attendance-users/create" class="btn btn-success">
+                  <i class="fas fa-plus"></i> إضافة موظف حضور
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔍 Search -->
+      <div class="row m-1 mb-3">
+        <div class="col-md-6">
+          <input
+            type="text"
+            id="attendanceUserSearch"
+            class="form-control"
+            placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+          >
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      <% if (locals.error && locals.error.length > 0) { %>
+        <div class="alert alert-danger"><%= locals.error %></div>
+      <% } %>
+      <% if (locals.success && locals.success.length > 0) { %>
+        <div class="alert alert-success"><%= locals.success %></div>
+      <% } %>
+
+      <!-- Table -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-body">
+              <table class="table table-bordered table-hover text-center" id="attendanceUsersTable">
+                <thead class="thead-light">
+                  <tr>
+                    <th>#</th>
+                    <th>الاسم</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الهاتف</th>
+                    <th>الحالة</th>
+                    <th>العمليات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <% if(attendanceUsers.length === 0){ %>
+                  <tr><td colspan="6">لا يوجد موظفين مضافين</td></tr>
+                <% } %>
+
+                <% attendanceUsers.forEach((user, index) => { %>
+                  <tr data-name="<%= user.name.toLowerCase() %>" data-email="<%= user.email.toLowerCase() %>">
+                    <td><%= index + 1 %></td>
+                    <td><%= user.name %></td>
+                    <td><%= user.email %></td>
+                    <td><%= user.phone || '—' %></td>
+                    <td><%= user.status === 'active' ? 'نشط' : 'غير نشط' %></td>
+                    <td>
+                      <a href="/school-admin/attendance-users/<%= user._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                      <a href="/school-admin/attendance-users/<%= user._id %>/delete" class="btn btn-sm btn-danger">حذف</a>
+                    </td>
+                  </tr>
+                <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<!-- 🔍 Search Script -->
+<script>
+  document.getElementById('attendanceUserSearch').addEventListener('keyup', function () {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#attendanceUsersTable tbody tr');
+
+    rows.forEach(row => {
+      const name = row.dataset.name || '';
+      const email = row.dataset.email || '';
+
+      const match = name.includes(searchValue) || email.includes(searchValue);
+      row.style.display = match ? '' : 'none';
+    });
+  });
+</script>
+
+</body>
+</html>

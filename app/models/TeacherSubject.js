@@ -1,8 +1,14 @@
 const mongoose = require("mongoose");
 
-const examSchema = new mongoose.Schema({
-  title: {
-    type: String,
+const teacherSubjectSchema = new mongoose.Schema({
+  teacherId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  subjectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
     required: true
   },
   classId: {
@@ -15,23 +21,6 @@ const examSchema = new mongoose.Schema({
     ref: "Section",
     required: true
   },
-  subjectId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Subject",
-    required: true
-  },
-  teacherId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  },
-  examDate: {
-    type: Date,
-    required: true
-  },
-  fileUrl: {
-    type: String // ملف الامتحان (PDF / DOCX)
-  },
   schoolId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "School",
@@ -39,4 +28,10 @@ const examSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model("Exam", examSchema);
+// منع تكرار نفس التكليف
+teacherSubjectSchema.index(
+  { teacherId: 1, subjectId: 1, sectionId: 1 },
+  { unique: true }
+);
+
+module.exports = mongoose.model("TeacherSubject", teacherSubjectSchema);

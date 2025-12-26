@@ -68,6 +68,7 @@ const authRoutes = require("./app/routes/auth");
 const superAdminRoutes = require("./app/routes/superAdmin");
 const schoolAdminRoutes = require("./app/routes/schoolAdmin");
 const attendanceRoutes = require("./app/routes/attendance");
+const teacherRoutes = require("./app/routes/teacher");
 
 // Public Routes
 app.use("/auth", authRoutes);
@@ -83,6 +84,7 @@ app.use("/", indexRoutes);
 app.use("/super-admin", superAdminRoutes);
 app.use("/school-admin", schoolAdminRoutes);
 app.use("/attendance", attendanceRoutes);
+app.use("/teacher", teacherRoutes);
 
 // Health Check
 app.get("/api/health", (req, res) => {

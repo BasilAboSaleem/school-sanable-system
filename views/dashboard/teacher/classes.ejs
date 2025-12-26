@@ -1,0 +1,132 @@
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- breadcrumb -->
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header">
+            <div class="row align-items-end">
+              <div class="col-lg-8">
+                <div class="page-header-title text-left-rtl">
+                  <div class="d-inline">
+                    <h3 class="lite-text">فصولي وشعبي</h3>
+                    <span class="lite-text text-gray">عرض جميع الفصول والشعب التي تدرّسها</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <ol class="breadcrumb float-sm-right">
+                  <li class="breadcrumb-item">
+                    <a href="/teacher/dashboard"><i class="fas fa-home"></i></a>
+                  </li>
+                  <li class="breadcrumb-item active">الفصول والشعب</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      <% if (locals.success && locals.success.length > 0) { %>
+        <div class="alert alert-success"><%= locals.success %></div>
+      <% } %>
+      <% if (locals.error && locals.error.length > 0) { %>
+        <div class="alert alert-danger"><%= locals.error %></div>
+      <% } %>
+
+      <!-- جدول عرض الفصول والشعب -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-header">
+              قائمة الفصول والشعب
+            </div>
+
+            <div class="card-body">
+
+              <!-- 🔍 بحث فوري -->
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <input
+                    type="text"
+                    id="classSearch"
+                    class="form-control"
+                    placeholder="ابحث باسم الفصل أو الشعبة..."
+                  >
+                </div>
+              </div>
+
+              <table class="table table-bordered table-hover text-center">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>الفصل</th>
+                    <th>الشعب</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <% if (classes.length === 0) { %>
+                    <tr>
+                      <td colspan="3">لا يوجد فصول مرتبطة بك</td>
+                    </tr>
+                  <% } %>
+
+                  <% classes.forEach((cls, index) => { %>
+                    <tr data-class="<%= cls.name.toLowerCase() %>">
+                      <td><%= index + 1 %></td>
+                      <td><%= cls.name %></td>
+                      <td>
+                        <% if (cls.sections.length === 0) { %>
+                          —
+                        <% } else { %>
+                          <% cls.sections.forEach(sec => { %>
+                            <span class="badge badge-info"><%= sec.name %></span>
+                          <% }) %>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+  const searchInput = document.getElementById('classSearch');
+  const rows = document.querySelectorAll('tbody tr');
+
+  searchInput.addEventListener('keyup', () => {
+    const value = searchInput.value.toLowerCase().trim();
+
+    rows.forEach(row => {
+      const className = row.dataset.class || '';
+      const match = className.includes(value);
+      row.style.display = match ? '' : 'none';
+    });
+  });
+</script>
+
+</body>
+</html>

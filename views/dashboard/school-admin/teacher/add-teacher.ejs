@@ -80,14 +80,23 @@
                     <input type="text" name="phone" class="form-control">
                   </div>
 
+                <select name="classes[]" id="classesSelect" class="form-control" multiple>
+  <% classes.forEach(cls => { %>
+    <option value="<%= cls._id %>" data-sections='<%= JSON.stringify(cls.sections.map(s => ({ id: s._id, name: s.name }))) %>'>
+      <%= cls.name %>
+    </option>
+  <% }) %>
+</select>
+
+
                   <div class="form-group">
-                    <label>الفصول</label>
-                    <select name="classes[]" class="form-control" multiple>
-                      <% classes.forEach(cls => { %>
-                        <option value="<%= cls._id %>"><%= cls.name %></option>
-                      <% }) %>
-                    </select>
-                  </div>
+ <div class="form-group">
+  <label>الشعب</label>
+  <select name="sections[]" id="sectionsSelect" class="form-control" multiple>
+    <!-- سيتم ملؤه بالـ JS -->
+  </select>
+</div>
+
 
                   <div class="form-group">
                     <label>المواد</label>
@@ -121,70 +130,147 @@
 
   <%- include('../../../partials/scripts.ejs') %>
 
-  <script>
-    const teacherNameInput = document.getElementById('teacherNameInput');
-    const nameError = document.getElementById('nameError');
-    const teacherEmailInput = document.getElementById('teacherEmailInput');
-    const emailError = document.getElementById('emailError');
+<script>
+  const teacherNameInput = document.getElementById('teacherNameInput');
+  const nameError = document.getElementById('nameError');
+  const teacherEmailInput = document.getElementById('teacherEmailInput');
+  const emailError = document.getElementById('emailError');
+  const teacherPasswordInput = document.getElementById('teacherPasswordInput');
+  const passwordError = document.getElementById('passwordError');
+  const classesSelect = document.querySelector('select[name="classes[]"]');
+  const sectionsSelect = document.querySelector('select[name="sections[]"]');
 
-    // AJAX للتحقق من البريد الإلكتروني الفريد عند الخروج من الحقل
-    teacherEmailInput.addEventListener('blur', async () => {
-      const email = teacherEmailInput.value.trim();
-      if(!email) return;
-      
-      const res = await fetch('/school-admin/teachers/create', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email, checkField: 'email' })
-      });
-      const data = await res.json();
-      emailError.textContent = data.error || '';
-    });
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-    // إرسال الفورم
-    document.getElementById('addTeacherForm').addEventListener('submit', async e => {
-      e.preventDefault();
+  // جميع الشعب لكل فصل مخزنة في HTML عن طريق data
+  const classSections = {};
+  <% classes.forEach(cls => { %>
+    classSections["<%= cls._id %>"] = [
+      <% cls.sections.forEach(sec => { %>
+        { id: "<%= sec._id %>", name: "<%= cls.name %> - <%= sec.name %>" },
+      <% }) %>
+    ];
+  <% }) %>
 
-      nameError.textContent = '';
-      emailError.textContent = '';
-      
-      if(!teacherNameInput.value.trim()){
-        nameError.textContent = "الاسم مطلوب";
-        return;
-      }
-
-      if(!teacherEmailInput.value.trim()){
-        emailError.textContent = "البريد الإلكتروني مطلوب";
-        return;
-      }
-
-      const formData = {
-        name: teacherNameInput.value,
-        email: teacherEmailInput.value,
-        password: document.getElementById('teacherPasswordInput').value,
-        phone: document.querySelector('input[name="phone"]').value,
-        classes: Array.from(document.querySelector('select[name="classes[]"]').selectedOptions).map(o => o.value),
-        subjects: Array.from(document.querySelector('select[name="subjects[]"]').selectedOptions).map(o => o.value),
-        status: document.querySelector('select[name="status"]').value
-      };
-
-      const res = await fetch('/school-admin/teachers/create', {
-        method: 'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-
-      if(data.errors){
-        if(data.errors.name) nameError.textContent = data.errors.name;
-        if(data.errors.email) emailError.textContent = data.errors.email;
-        if(data.errors.general) alert(data.errors.general);
-      } else if(data.success){
-        alert(data.success);
-        window.location.href="/school-admin/teachers";
+  // تحديث قائمة الشعب عند اختيار الفصول
+  function updateSections() {
+    const selectedClasses = Array.from(classesSelect.selectedOptions).map(o => o.value);
+    sectionsSelect.innerHTML = '';
+    selectedClasses.forEach(classId => {
+      if(classSections[classId]) {
+        classSections[classId].forEach(sec => {
+          const option = document.createElement('option');
+          option.value = sec.id;
+          option.textContent = sec.name;
+          sectionsSelect.appendChild(option);
+        });
       }
     });
-  </script>
+  }
+
+  classesSelect.addEventListener('change', updateSections);
+
+  // التحقق من البريد عند الخروج
+  teacherEmailInput.addEventListener('blur', async () => {
+    const email = teacherEmailInput.value.trim();
+    if(!email) return;
+    const res = await fetch('/school-admin/teachers/create', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, checkField: 'email' })
+    });
+    const data = await res.json();
+    emailError.textContent = data.error || '';
+  });
+
+  // التحقق من كلمة المرور عند الخروج
+  teacherPasswordInput.addEventListener('blur', () => {
+    const password = teacherPasswordInput.value.trim();
+    if(!password) {
+      passwordError.textContent = "كلمة المرور مطلوبة";
+    } else if(!strongPasswordRegex.test(password)) {
+      passwordError.textContent = "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز خاص";
+    } else {
+      passwordError.textContent = "";
+    }
+  });
+
+  // إرسال الفورم
+  document.getElementById('addTeacherForm').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    // تنظيف الأخطاء
+    nameError.textContent = '';
+    emailError.textContent = '';
+    passwordError.textContent = '';
+
+    const name = teacherNameInput.value.trim();
+    const email = teacherEmailInput.value.trim();
+    const password = teacherPasswordInput.value.trim();
+
+    let hasError = false;
+
+    if(!name){ nameError.textContent = "الاسم مطلوب"; hasError = true; }
+    if(!email){ emailError.textContent = "البريد الإلكتروني مطلوب"; hasError = true; }
+
+    // تحقق كلمة المرور
+    if(!password){ passwordError.textContent = "كلمة المرور مطلوبة"; hasError = true; }
+    else if(!strongPasswordRegex.test(password)){
+      passwordError.textContent = "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز خاص";
+      hasError = true;
+    }
+
+    if(hasError) return;
+
+    // تحقق البريد الإلكتروني قبل الإرسال
+    const emailCheckRes = await fetch('/school-admin/teachers/create', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, checkField: 'email' })
+    });
+    const emailData = await emailCheckRes.json();
+    if(emailData.error){
+      emailError.textContent = emailData.error;
+      return;
+    }
+
+    // إرسال البيانات للسيرفر
+    const formData = {
+      name,
+      email,
+      password,
+      phone: document.querySelector('input[name="phone"]').value,
+      classes: Array.from(classesSelect.selectedOptions).map(o => o.value),
+      sections: Array.from(sectionsSelect.selectedOptions).map(o => o.value),
+      subjects: Array.from(document.querySelector('select[name="subjects[]"]').selectedOptions).map(o => o.value),
+      status: document.querySelector('select[name="status"]').value
+    };
+
+    const res = await fetch('/school-admin/teachers/create', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+    if(data.errors){
+      if(data.errors.name) nameError.textContent = data.errors.name;
+      if(data.errors.email) emailError.textContent = data.errors.email;
+      if(data.errors.password) passwordError.textContent = data.errors.password;
+      if(data.errors.general) alert(data.errors.general);
+    } else if(data.success){
+      alert(data.success);
+      window.location.href="/school-admin/teachers";
+    }
+  });
+
+  // تهيئة الشعب عند تحميل الصفحة (اختياري)
+  updateSections();
+</script>
+
+
+
+
 
 </body>
 </html>

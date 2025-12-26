@@ -6,9 +6,7 @@
 <body class="rtl">
 
   <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
-
     <%- include('../../../partials/header.ejs') %>
-
     <div id="dw-s1" class="bmd-layout-drawer bg-faded">
       <%- include('../../../partials/sidebar/index.ejs') %>
     </div>
@@ -16,7 +14,6 @@
     <main class="bmd-layout-content">
       <div class="container-fluid">
 
-        <!-- breadcrumb -->
         <div class="row m-1 pb-4 mb-3">
           <div class="col-12 p-2">
             <div class="page-header breadcrumb-header">
@@ -40,21 +37,17 @@
         <div class="row m-1">
           <div class="col-12 p-2">
             <div class="card shade h-100">
-              <div class="card-header">
-                تعديل بيانات المدرس
-              </div>
+              <div class="card-header">تعديل بيانات المدرس</div>
               <div class="card-body">
 
-              <% if (locals.error && locals.error.length > 0) { %>
-  <div class="alert alert-danger"><%= error %></div>
-<% } %>
+                <% if (locals.error && locals.error.length > 0) { %>
+                  <div class="alert alert-danger"><%= error %></div>
+                <% } %>
+                <% if (locals.success && locals.success.length > 0) { %>
+                  <div class="alert alert-success"><%= success %></div>
+                <% } %>
 
-<% if (locals.success && locals.success.length > 0) { %>
-  <div class="alert alert-success"><%= success %></div>
-<% } %>
-
-
-                <form id="editTeacherForm" action="/school-admin/teachers/<%= teacher._id %>/edit" method="POST" class="text-right">
+                <form id="editTeacherForm" class="text-right">
                   <div class="form-group">
                     <label>الاسم الكامل *</label>
                     <input type="text" name="name" id="teacherNameInput" required class="form-control" value="<%= teacher.name %>">
@@ -80,27 +73,32 @@
 
                   <div class="form-group">
                     <label>الفصول</label>
-                    <select name="classes[]" class="form-control" multiple>
+                    <select name="classes[]" class="form-control" multiple id="classesSelect">
                       <% classes.forEach(cls => { %>
-                        <option value="<%= cls._id %>" <%= teacher.classes.includes(cls._id) ? "selected" : "" %>><%= cls.name %></option>
+                        <option value="<%= cls._id %>" <%= teacher.classes.map(c=>c._id.toString()).includes(cls._id.toString()) ? "selected" : "" %>><%= cls.name %></option>
                       <% }) %>
                     </select>
                   </div>
 
                   <div class="form-group">
+                    <label>الشعب</label>
+                    <select name="sections[]" class="form-control" multiple id="sectionsSelect"></select>
+                  </div>
+
+                  <div class="form-group">
                     <label>المواد</label>
-                    <select name="subjects[]" class="form-control" multiple>
+                    <select name="subjects[]" class="form-control" multiple id="subjectsSelect">
                       <% subjects.forEach(sub => { %>
-                        <option value="<%= sub._id %>" <%= teacher.subjects.includes(sub._id) ? "selected" : "" %>><%= sub.name %></option>
+                        <option value="<%= sub._id %>" <%= teacher.subjects.map(s=>s._id.toString()).includes(sub._id.toString()) ? "selected" : "" %>><%= sub.name %></option>
                       <% }) %>
                     </select>
                   </div>
 
                   <div class="form-group">
                     <label>الحالة</label>
-                    <select name="status" class="form-control">
-                      <option value="active" <%= teacher.status === 'active' ? 'selected' : '' %>>نشط</option>
-                      <option value="inactive" <%= teacher.status === 'inactive' ? 'selected' : '' %>>غير نشط</option>
+                    <select name="status" class="form-control" id="statusSelect">
+                      <option value="active" <%= teacher.status==='active'?'selected':'' %>>نشط</option>
+                      <option value="inactive" <%= teacher.status==='inactive'?'selected':'' %>>غير نشط</option>
                     </select>
                   </div>
 
@@ -114,7 +112,6 @@
 
       </div>
     </main>
-
   </div>
 
   <%- include('../../../partials/scripts.ejs') %>
@@ -124,64 +121,140 @@
     const nameError = document.getElementById('nameError');
     const teacherEmailInput = document.getElementById('teacherEmailInput');
     const emailError = document.getElementById('emailError');
+    const teacherPasswordInput = document.getElementById('teacherPasswordInput');
+    const passwordError = document.getElementById('passwordError');
+    const classesSelect = document.getElementById('classesSelect');
+    const sectionsSelect = document.getElementById('sectionsSelect');
+    const subjectsSelect = document.getElementById('subjectsSelect');
+    const statusSelect = document.getElementById('statusSelect');
 
-    // AJAX للتحقق من البريد الإلكتروني الفريد عند الخروج من الحقل
-    teacherEmailInput.addEventListener('blur', async () => {
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+    // الشعب لكل فصل
+    const classSections = {};
+    <% classes.forEach(cls => { %>
+      classSections["<%= cls._id %>"] = [
+        <% cls.sections.forEach(sec => { %>
+          { id: "<%= sec._id %>", name: "<%= cls.name %> - <%= sec.name %>" },
+        <% }) %>
+      ];
+    <% }) %>
+
+    // قيم المعلم الحالية
+    const teacherClasses = <%- JSON.stringify(teacher.classes.map(c=>c._id.toString())) %>;
+    const teacherSections = <%- JSON.stringify(teacher.sections.map(s=>s._id.toString())) %>;
+    const teacherSubjects = <%- JSON.stringify(teacher.subjects.map(s=>s._id.toString())) %>;
+
+    function updateSections() {
+      const selectedClasses = Array.from(classesSelect.selectedOptions).map(o=>o.value);
+      const selectedSections = [];
+
+      sectionsSelect.innerHTML = '';
+      selectedClasses.forEach(classId=>{
+        if(classSections[classId]){
+          classSections[classId].forEach(sec=>{
+            const option = document.createElement('option');
+            option.value = sec.id;
+            option.textContent = sec.name;
+            if(teacherSections.includes(sec.id)) option.selected = true;
+            sectionsSelect.appendChild(option);
+          });
+        }
+      });
+    }
+
+    function initSelections(){
+      Array.from(classesSelect.options).forEach(o=>{
+        if(teacherClasses.includes(o.value)) o.selected=true;
+      });
+      Array.from(subjectsSelect.options).forEach(o=>{
+        if(teacherSubjects.includes(o.value)) o.selected=true;
+      });
+      updateSections();
+    }
+
+    classesSelect.addEventListener('change', updateSections);
+
+    // تحقق البريد
+    teacherEmailInput.addEventListener('blur', async()=>{
       const email = teacherEmailInput.value.trim();
       if(!email) return;
-
       const res = await fetch('/school-admin/teachers/<%= teacher._id %>/edit', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email, checkField: 'email' })
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email, checkField:'email' })
       });
       const data = await res.json();
       emailError.textContent = data.error || '';
     });
 
+    // تحقق كلمة المرور
+    teacherPasswordInput.addEventListener('blur', ()=>{
+      const password = teacherPasswordInput.value.trim();
+      if(password && !strongPasswordRegex.test(password)){
+        passwordError.textContent="كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز خاص";
+      } else passwordError.textContent='';
+    });
+
     // إرسال الفورم
-    document.getElementById('editTeacherForm').addEventListener('submit', async e => {
+    document.getElementById('editTeacherForm').addEventListener('submit', async e=>{
       e.preventDefault();
+      nameError.textContent=''; emailError.textContent=''; passwordError.textContent='';
 
-      nameError.textContent = '';
-      emailError.textContent = '';
+      const name = teacherNameInput.value.trim();
+      const email = teacherEmailInput.value.trim();
+      const password = teacherPasswordInput.value.trim();
+      const phone = document.querySelector('input[name="phone"]').value;
+      const classes = Array.from(classesSelect.selectedOptions).map(o=>o.value);
+      const sections = Array.from(sectionsSelect.selectedOptions).map(o=>o.value);
+      const subjects = Array.from(subjectsSelect.selectedOptions).map(o=>o.value);
+      const status = statusSelect.value;
 
-      if(!teacherNameInput.value.trim()){
-        nameError.textContent = "الاسم مطلوب";
-        return;
-      }
+      let hasError=false;
+      if(!name){ nameError.textContent="الاسم مطلوب"; hasError=true; }
+      if(!email){ emailError.textContent="البريد الإلكتروني مطلوب"; hasError=true; }
+      if(password && !strongPasswordRegex.test(password)){ passwordError.textContent="كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز خاص"; hasError=true; }
+      if(hasError) return;
 
-      if(!teacherEmailInput.value.trim()){
-        emailError.textContent = "البريد الإلكتروني مطلوب";
-        return;
-      }
+      // تحقق البريد قبل الإرسال
+      const emailCheckRes = await fetch('/school-admin/teachers/<%= teacher._id %>/edit',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email, checkField:'email' })
+      });
+      const emailData = await emailCheckRes.json();
+      if(emailData.error){ emailError.textContent=emailData.error; return; }
 
       const formData = {
-        name: teacherNameInput.value,
-        email: teacherEmailInput.value,
-        password: document.getElementById('teacherPasswordInput').value,
-        phone: document.querySelector('input[name="phone"]').value,
-        classes: Array.from(document.querySelector('select[name="classes[]"]').selectedOptions).map(o => o.value),
-        subjects: Array.from(document.querySelector('select[name="subjects[]"]').selectedOptions).map(o => o.value),
-        status: document.querySelector('select[name="status"]').value
+        name,
+        email,
+        password: password || undefined,
+        phone,
+        classes: classes.length>0?classes:teacherClasses,
+        sections: sections.length>0?sections:teacherSections,
+        subjects: subjects.length>0?subjects:teacherSubjects,
+        status
       };
 
-      const res = await fetch('/school-admin/teachers/<%= teacher._id %>/edit', {
+      const res = await fetch('/school-admin/teachers/<%= teacher._id %>/edit',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify(formData)
       });
       const data = await res.json();
-
       if(data.errors){
-        if(data.errors.name) nameError.textContent = data.errors.name;
-        if(data.errors.email) emailError.textContent = data.errors.email;
+        if(data.errors.name) nameError.textContent=data.errors.name;
+        if(data.errors.email) emailError.textContent=data.errors.email;
+        if(data.errors.password) passwordError.textContent=data.errors.password;
         if(data.errors.general) alert(data.errors.general);
       } else if(data.success){
         alert(data.success);
         window.location.href="/school-admin/teachers";
       }
     });
+
+    // تهيئة الصفحة
+    initSelections();
   </script>
 
 </body>

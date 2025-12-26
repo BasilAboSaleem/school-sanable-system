@@ -8,7 +8,7 @@ const{
 // عرض صفحة إضافة مدرس
 exports.renderCreateTeacherForm = async (req, res) => {
   try {
-    const classes = await Class.find({ schoolId: req.user.schoolId });
+    const classes = await Class.find({ schoolId: req.user.schoolId }).populate('sections');
     const subjects = await Subject.find({ schoolId: req.user.schoolId });
     res.render("dashboard/school-admin/teacher/add-teacher", {
       title: "إضافة مدرس جديد",
@@ -25,7 +25,7 @@ exports.renderCreateTeacherForm = async (req, res) => {
 
 // إنشاء مدرس جديد
 exports.createTeacher = async (req, res) => {
-  const { name, email, password, phone, classes, subjects, status, checkField } = req.body;
+  const { name, email, password, phone, classes,sections, subjects, status, checkField } = req.body;
 
   try {
     // تحقق سريع للـ AJAX من البريد الإلكتروني
@@ -53,6 +53,7 @@ exports.createTeacher = async (req, res) => {
       phone: phone ? phone.trim() : "",
       classes: classes || [],
       subjects: subjects || [],
+      sections: sections || [],
       role: "teacher",
       schoolId: req.user.schoolId,
       status: status || "active"
@@ -78,6 +79,11 @@ exports.listTeachers = async (req, res) => {
       role: "teacher"
     })
     .populate("classes", "name")
+    .populate({
+      path: "sections",
+      select: "name classId",
+      populate: { path: "classId", select: "name" } // ربط كل شعبة بالفصل
+    })
     .populate("subjects", "name")
     .sort({ createdAt: -1 });
 
@@ -96,14 +102,16 @@ exports.listTeachers = async (req, res) => {
 
 
 
+
 // عرض صفحة تعديل مدرس
 exports.renderEditTeacherForm = async (req, res) => {
   try {
     const teacher = await User.findById(req.params.id)
       .populate("classes")
+      .populate("sections")
       .populate("subjects");
 
-    const classes = await Class.find({ schoolId: req.user.schoolId });
+    const classes = await Class.find({ schoolId: req.user.schoolId }).populate('sections');
     const subjects = await Subject.find({ schoolId: req.user.schoolId });
 
     res.render("dashboard/school-admin/teacher/edit-teacher", {
@@ -120,32 +128,42 @@ exports.renderEditTeacherForm = async (req, res) => {
 };
 
 // POST تحديث بيانات المدرس
-exports.updateTeacher = async (req, res) => {
-  const { name, email, password, phone, classes, subjects, status, checkField } = req.body;
-
-  try {
-    if(checkField === 'email' && email){
-      const existing = await User.findOne({ email, _id: { $ne: req.params.id } });
-      if(existing) return res.json({ error: "البريد الإلكتروني مستخدم مسبقاً" });
-      return res.json({ error: null });
+exports.updateTeacher = async(req,res)=>{
+  const { name,email,password,phone,classes,sections,subjects,status,checkField } = req.body;
+  try{
+    if(checkField==='email' && email){
+      const existing = await User.findOne({ email: email.trim(), _id: { $ne: req.params.id } });
+      return res.json({ error: existing ? "البريد الإلكتروني مستخدم مسبقاً": null });
     }
 
     const teacher = await User.findById(req.params.id);
-    if(!teacher) return res.json({ errors: { general: "لم يتم العثور على المدرس" } });
+    if(!teacher) return res.json({ errors: { general:"لم يتم العثور على المدرس" } });
 
+    // تحقق الحقول المطلوبة
+    const errors={};
+    if(!name || !name.trim()) errors.name="الاسم مطلوب";
+    if(!email || !email.trim()) errors.email="البريد الإلكتروني مطلوب";
+    const existing = await User.findOne({ email: email.trim(), _id: { $ne: req.params.id } });
+    if(existing) errors.email="البريد الإلكتروني مستخدم مسبقاً";
+    if(Object.keys(errors).length>0) return res.json({ errors });
+
+    // تحديث القيم
     teacher.name = name.trim();
     teacher.email = email.trim();
-    if(password && password.trim()) teacher.password = password;
-    teacher.phone = phone;
-    teacher.classes = classes || [];
-    teacher.subjects = subjects || [];
-    teacher.status = status;
+    if(password && password.trim()) teacher.password = password.trim();
+    teacher.phone = phone!==undefined ? phone.trim() : teacher.phone;
+    teacher.classes = classes && classes.length>0 ? classes : teacher.classes;
+    teacher.sections = sections && sections.length>0 ? sections : teacher.sections;
+    teacher.subjects = subjects && subjects.length>0 ? subjects : teacher.subjects;
+    teacher.status = status || teacher.status;
 
     await teacher.save();
-
     return res.json({ success: "تم تحديث بيانات المدرس بنجاح" });
-  } catch(err){
+
+  }catch(err){
     console.error(err);
-    return res.json({ errors: { general: "حدث خطأ أثناء تحديث بيانات المدرس" } });
+    return res.json({ errors:{ general:"حدث خطأ أثناء تحديث بيانات المدرس" } });
   }
 };
+
+

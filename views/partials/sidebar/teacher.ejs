@@ -1,19 +1,63 @@
 <p class="side-comment">التدريس</p>
 
+<!-- لوحة التحكم -->
 <li class="side a-collapse short">
-  <a href="/dashboard" class="side-item">
-    <i class="fas fa-chalkboard mr-1"></i> صفوفي
+  <a href="/teacher/dashboard" class="side-item">
+    <i class="fas fa-tachometer-alt mr-1"></i> لوحة التحكم
   </a>
 </li>
 
-<li class="side a-collapse short">
-  <a href="/attendance" class="side-item">
-    <i class="fas fa-clipboard-check mr-1"></i> الحضور
+<!-- الشعب والفصول -->
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-chalkboard-teacher mr-1"></i> الشعب والفصول
+    <i class="fas fa-chevron-down arrow"></i>
   </a>
-</li>
+  <div class="side-item-container">
+    <li class="side-item"><a href="/teacher/classes">عرض الشعب والفصول</a></li>
+  </div>
+</ul>
 
-<li class="side a-collapse short">
-  <a href="/grades" class="side-item">
+<!-- المواد -->
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-book mr-1"></i> المواد
+    <i class="fas fa-chevron-down arrow"></i>
+  </a>
+  <div class="side-item-container">
+    <li class="side-item"><a href="/teacher/subjects">عرض موادي</a></li>
+  </div>
+</ul>
+
+<!-- الطلاب -->
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-user-graduate mr-1"></i> الطلاب
+    <i class="fas fa-chevron-down arrow"></i>
+  </a>
+  <div class="side-item-container">
+    <li class="side-item"><a href="/teacher/students">عرض طلابي</a></li>
+  </div>
+</ul>
+
+<!-- الاختبارات -->
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-file-alt mr-1"></i> الاختبارات
+    <i class="fas fa-chevron-down arrow"></i>
+  </a>
+  <div class="side-item-container">
+    <li class="side-item"><a href="/teacher/exams">انشاء / إدارة الاختبارات</a></li>
+  </div>
+</ul>
+
+<!-- الدرجات -->
+<ul class="side a-collapse">
+  <a class="ul-text">
     <i class="fas fa-star mr-1"></i> الدرجات
+    <i class="fas fa-chevron-down arrow"></i>
   </a>
-</li>
+  <div class="side-item-container">
+    <li class="side-item"><a href="/teacher/grades">رصد وعرض الدرجات</a></li>
+  </div>
+</ul>

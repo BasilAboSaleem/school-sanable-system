@@ -14,6 +14,7 @@ role: {
   phone: { type: String },
   classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }], // الفصول المرتبطة بالمعلم
   subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }], // المواد المرتبطة بالمعلم
+  sections: [{ type: mongoose.Schema.Types.ObjectId, ref: "Section" }],
   createdAt: { type: Date, default: Date.now },
 });
 

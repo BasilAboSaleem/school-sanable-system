@@ -16,17 +16,15 @@
       <!-- Breadcrumb -->
       <div class="row m-1 pb-4 mb-3">
         <div class="col-12 p-2">
-          <div class="page-header breadcrumb-header">
-            <div class="row align-items-end">
-              <div class="col-lg-8">
-                <h3 class="lite-text">جميع المدرسين</h3>
-                <span class="lite-text text-gray">عرض كل المدرسين في المدرسة</span>
-              </div>
-              <div class="col-lg-4 text-left">
-                <a href="/school-admin/teachers/create" class="btn btn-success">
-                  <i class="fas fa-plus"></i> إضافة مدرس
-                </a>
-              </div>
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-end">
+            <div>
+              <h3 class="lite-text">جميع المدرسين</h3>
+              <span class="lite-text text-gray">عرض كل المدرسين في المدرسة</span>
+            </div>
+            <div>
+              <a href="/school-admin/teachers/create" class="btn btn-success">
+                <i class="fas fa-plus"></i> إضافة مدرس
+              </a>
             </div>
           </div>
         </div>
@@ -45,18 +43,18 @@
       </div>
 
       <!-- Flash Messages -->
-     <% if (locals.error && locals.error.length > 0) { %>
-  <div class="alert alert-danger"><%= locals.error %></div>
-<% } %>
-<% if (locals.success && locals.success.length > 0) { %>
-  <div class="alert alert-success"><%= locals.success %></div>
-<% } %>
+      <% if (locals.error && locals.error.length > 0) { %>
+        <div class="alert alert-danger"><%= locals.error %></div>
+      <% } %>
+      <% if (locals.success && locals.success.length > 0) { %>
+        <div class="alert alert-success"><%= locals.success %></div>
+      <% } %>
 
       <!-- Table -->
       <div class="row m-1">
         <div class="col-12 p-2">
           <div class="card shade h-100">
-            <div class="card-body">
+            <div class="card-body table-responsive">
               <table class="table table-bordered table-hover text-center" id="teachersTable">
                 <thead class="thead-light">
                   <tr>
@@ -65,43 +63,56 @@
                     <th>البريد الإلكتروني</th>
                     <th>الفصول</th>
                     <th>المواد</th>
-                    <th>الهاتف</th>
                     <th>الحالة</th>
                     <th>العمليات</th>
                   </tr>
                 </thead>
                 <tbody>
-                <% if(teachers.length === 0){ %>
-                  <tr><td colspan="8">لا يوجد مدرسين مضافين</td></tr>
-                <% } %>
+                  <% if(teachers.length === 0){ %>
+                    <tr><td colspan="7">لا يوجد مدرسين مضافين</td></tr>
+                  <% } %>
 
-                <% teachers.forEach((teacher, index) => { %>
-                  <tr
-                    data-name="<%= teacher.name.toLowerCase() %>"
-                    data-classes="<%= teacher.classes.map(c => c.name).join(' ').toLowerCase() %>"
-                    data-subjects="<%= teacher.subjects.map(s => s.name).join(' ').toLowerCase() %>"
-                  >
-                    <td><%= index + 1 %></td>
-                    <td><%= teacher.name %></td>
-                    <td><%= teacher.email %></td>
-                    <td>
-                      <% teacher.classes.forEach(cls => { %>
-                        <span class="badge badge-info"><%= cls.name %></span>
-                      <% }) %>
-                    </td>
-                    <td>
-                      <% teacher.subjects.forEach(sub => { %>
-                        <span class="badge badge-success"><%= sub.name %></span>
-                      <% }) %>
-                    </td>
-                    <td><%= teacher.phone || '—' %></td>
-                    <td><%= teacher.status === 'active' ? 'نشط' : 'غير نشط' %></td>
-                    <td>
-                      <a href="/school-admin/teachers/<%= teacher._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
-                      <a href="/school-admin/teachers/<%= teacher._id %>/delete" class="btn btn-sm btn-danger">حذف</a>
-                    </td>
-                  </tr>
-                <% }) %>
+                  <% teachers.forEach((teacher, index) => { %>
+                    <!-- الصف الرئيسي -->
+                    <tr class="main-row" data-teacher-id="<%= teacher._id %>"
+                        data-name="<%= teacher.name.toLowerCase() %>"
+                        data-classes="<%= teacher.classes.map(c => c.name).join(' ').toLowerCase() %>"
+                        data-subjects="<%= teacher.subjects.map(s => s.name).join(' ').toLowerCase() %>"
+                    >
+                      <td><%= index + 1 %></td>
+                      <td><%= teacher.name %></td>
+                      <td><%= teacher.email %></td>
+                      <td>
+                        <% teacher.classes.forEach(cls => { %>
+                          <span class="badge badge-info"><%= cls.name %></span>
+                        <% }) %>
+                      </td>
+                      <td>
+                        <% teacher.subjects.forEach(sub => { %>
+                          <span class="badge badge-success"><%= sub.name %></span>
+                        <% }) %>
+                      </td>
+                      <td><%= teacher.status === 'active' ? 'نشط' : 'غير نشط' %></td>
+                      <td class="d-flex justify-content-center flex-wrap gap-1">
+                        <button class="btn btn-sm btn-primary toggle-details">عرض</button>
+                        <a href="/school-admin/teachers/<%= teacher._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                        <a href="/school-admin/teachers/<%= teacher._id %>/delete" class="btn btn-sm btn-danger">حذف</a>
+                      </td>
+                    </tr>
+
+                    <!-- صف التفاصيل المخفي -->
+                    <tr class="details-row" style="display:none;">
+                      <td colspan="7" class="text-left">
+                        <strong>الهاتف:</strong> <%= teacher.phone || '—' %><br>
+                       <strong>الشعب:</strong>
+<% teacher.sections.forEach(sec => { %>
+  <span class="badge badge-secondary">
+    <%= sec.classId ? sec.classId.name + ' - ' : '' %><%= sec.name %>
+  </span>
+<% }) %>
+                      </td>
+                    </tr>
+                  <% }) %>
                 </tbody>
               </table>
             </div>
@@ -115,11 +126,11 @@
 
 <%- include('../../../partials/scripts.ejs') %>
 
-<!-- 🔍 Search Script -->
 <script>
+  // 🔍 البحث الفوري
   document.getElementById('teacherSearch').addEventListener('keyup', function () {
     const searchValue = this.value.toLowerCase();
-    const rows = document.querySelectorAll('#teachersTable tbody tr');
+    const rows = document.querySelectorAll('#teachersTable tbody tr.main-row');
 
     rows.forEach(row => {
       const name = row.dataset.name || '';
@@ -132,6 +143,26 @@
         subjects.includes(searchValue);
 
       row.style.display = match ? '' : 'none';
+      const detailsRow = row.nextElementSibling;
+      if(detailsRow && detailsRow.classList.contains('details-row')){
+        detailsRow.style.display = 'none';
+        row.querySelector('.toggle-details').textContent = 'عرض';
+      }
+    });
+  });
+
+  // 🔽 زر عرض التفاصيل لكل مدرس
+  document.querySelectorAll('.toggle-details').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const mainRow = this.closest('tr');
+      const detailsRow = mainRow.nextElementSibling;
+      if(detailsRow.style.display === 'none'){
+        detailsRow.style.display = '';
+        this.textContent = 'إخفاء';
+      } else {
+        detailsRow.style.display = 'none';
+        this.textContent = 'عرض';
+      }
     });
   });
 </script>

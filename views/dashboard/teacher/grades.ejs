@@ -1,0 +1,78 @@
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+<main class="bmd-layout-content">
+  <div class="container-fluid">
+
+<h3>رصد الدرجات – <%= exam.title %></h3>
+
+<form id="gradesForm">
+<table class="table table-bordered text-center">
+<thead>
+<tr>
+  <th>#</th>
+  <th>اسم الطالب</th>
+  <th>الدرجة</th>
+  <th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<% students.forEach((s,i) => { %>
+<tr>
+  <td><%= i+1 %></td>
+  <td><%= s.fullName %></td>
+  <td>
+    <input type="number"
+      class="form-control"
+      name="score_<%= s._id %>"
+      value="<%= s.score ?? '' %>"
+      min="0">
+  </td>
+  <td>
+    <input type="text"
+      class="form-control"
+      name="notes_<%= s._id %>"
+      value="<%= s.notes ?? '' %>">
+  </td>
+</tr>
+<% }) %>
+</tbody>
+</table>
+
+<button class="btn btn-success">حفظ الدرجات</button>
+</form>
+
+</div>
+</main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+document.getElementById('gradesForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = {};
+
+  formData.forEach((v,k) => data[k] = v);
+
+  const res = await fetch('', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+
+  const result = await res.json();
+  alert(result.message);
+});
+</script>
+</body>
+</html>

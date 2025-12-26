@@ -1,0 +1,66 @@
+<%- include('../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid mt-3">
+      <h3>الاختبارات</h3>
+      
+
+      <table class="table table-bordered text-center">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>العنوان</th>
+            <th>المادة</th>
+            <th>الفصل</th>
+            <th>الشعبة</th>
+            <th>تاريخ الاختبار</th>
+            <th>الحالة</th>
+            <th>العمليات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (exams.length === 0) { %>
+            <tr>
+              <td colspan="8">لا توجد اختبارات</td>
+            </tr>
+          <% } else { %>
+            <% exams.forEach((e, i) => { %>
+              <tr>
+                <td><%= i + 1 %></td>
+                <td><%= e.title %></td>
+                <td><%= e.subjectId.name %></td>
+                <td><%= e.classId.name %></td>
+                <td><%= e.sectionId.name %></td>
+                <td><%= new Date(e.examDate).toLocaleDateString('ar-EG') %></td>
+                <td>
+                  <% 
+                    const today = new Date();
+                    let status = "";
+                    if (e.examDate > today) status = "لم يحن الموعد بعد";
+                    else if (e.examDate.toDateString() === today.toDateString()) status = "اليوم";
+                    else status = "تم";
+                  %>
+                  <span class="badge <%= status === 'تم' ? 'badge-success' : (status==='اليوم'?'badge-warning':'badge-info') %>">
+                    <%= status %>
+                  </span>
+                </td>
+                <td>
+                  <a href="/teacher/exams/<%= e._id %>" class="btn btn-sm btn-info">عرض</a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+<%- include('../../partials/scripts.ejs') %>
+</body>
+</html>

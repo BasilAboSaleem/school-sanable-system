@@ -1,0 +1,90 @@
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+<main class="bmd-layout-content">
+<div class="container-fluid mt-3">
+  <h3>بيانات الطالب: <%= student.fullName %></h3>
+
+  <div class="row mb-3">
+    <div class="col-md-4"><strong>الصف:</strong> <%= student.classId.name %></div>
+    <div class="col-md-4"><strong>الشعبة:</strong> <%= student.sectionId.name %></div>
+    <div class="col-md-4"><strong>رقم ولي الأمر:</strong> <%= student.phoneOfParents || '-' %></div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-4"><strong>تاريخ الميلاد:</strong> <%= student.dateOfBirth ? student.dateOfBirth.toLocaleDateString('ar-EG') : '-' %></div>
+    <div class="col-md-4"><strong>العنوان:</strong> <%= student.address || '-' %></div>
+    <div class="col-md-4"><strong>الدرجة:</strong> <%= student.grade || '-' %></div>
+  </div>
+
+  <h4 class="mt-4">كشف درجات الطالب</h4>
+  <div class="mb-2">
+    <button id="exportBtn" class="btn btn-success">تصدير Excel</button>
+    <button id="printBtn" class="btn btn-secondary">طباعة</button>
+  </div>
+
+  <table class="table table-bordered text-center" id="gradesTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>المادة</th>
+        <th>نوع الامتحان</th>
+        <th>الدرجة</th>
+        <th>ملاحظات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% exams.forEach((e, i) => { %>
+        <tr>
+          <td><%= i+1 %></td>
+          <td><%= e.subjectId.name %></td>
+          <td><%= e.examType || '-' %></td>
+          <td><%= e.score || '-' %></td>
+          <td><%= e.notes || '-' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+</main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+// تصدير Excel
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const table = document.getElementById('gradesTable');
+  const workbook = XLSX.utils.table_to_book(table, {sheet:"Grades"});
+  XLSX.writeFile(workbook, `${'<%= student.fullName %>'}_grades.xlsx`);
+});
+
+// طباعة
+document.getElementById('printBtn').addEventListener('click', () => {
+  const tableHtml = document.getElementById('gradesTable').outerHTML;
+  const win = window.open('', '', 'width=1000,height=700');
+  win.document.write(`
+    <html>
+      <head>
+        <title>كشف درجات <%= student.fullName %></title>
+        <style>
+          body { direction: rtl; font-family: Arial; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+        </style>
+      </head>
+      <body>${tableHtml}</body>
+    </html>
+  `);
+  win.document.close();
+  win.print();
+});
+</script>
+</body>
+</html>

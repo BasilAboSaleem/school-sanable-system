@@ -1,0 +1,99 @@
+<%- include('../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid mt-3">
+      <h3>تفاصيل الاختبار: <%= exam.title %></h3>
+      <% if (!isUpcoming) { %>
+  <a href="/teacher/exams/<%= exam._id %>/grades"
+     class="btn btn-primary mb-3">
+     رصد / تعديل الدرجات
+  </a>
+<% } %>
+      <p>المادة: <%= exam.subjectId.name %></p>
+      <p>الفصل: <%= exam.classId.name %> - الشعبة: <%= exam.sectionId.name %></p>
+      <p>تاريخ الاختبار: <%= new Date(exam.examDate).toLocaleDateString('ar-EG') %></p>
+      <% if (exam.fileUrl) { %>
+        <p>ملف الاختبار: <a href="<%= exam.fileUrl %>" target="_blank">عرض / تحميل</a></p>
+      <% } %>
+
+      <% if (!isUpcoming) { %>
+        <h4 class="mt-4">كشف درجات الطلاب</h4>
+        <button id="exportBtn" class="btn btn-success mb-2">تصدير Excel</button>
+        <button id="printBtn" class="btn btn-secondary mb-2">طباعة</button>
+        <table class="table table-bordered text-center">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>اسم الطالب</th>
+              <th>الدرجة</th>
+              <th>ملاحظات</th>
+            </tr>
+          </thead>
+          <tbody id="gradesTable">
+            <% if (studentsWithGrades.length === 0) { %>
+              <tr><td colspan="5">لا توجد درجات مرصودة بعد</td></tr>
+            <% } else { %>
+              <% studentsWithGrades.forEach((s,i) => { %>
+                <tr>
+                  <td><%= i+1 %></td>
+                  <td><%= s.fullName %></td>
+                  <td><%= s.score !== null ? s.score : '-' %></td>
+                  <td><%= s.notes %></td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <div class="alert alert-info">لم يحن موعد الاختبار بعد</div>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+  const exportBtn = document.getElementById('exportBtn');
+  const printBtn = document.getElementById('printBtn');
+
+  if(exportBtn){
+    exportBtn.addEventListener('click', () => {
+      const table = document.getElementById('gradesTable');
+      const data = [];
+      for(let i=0; i<table.rows.length; i++){
+        const row = table.rows[i];
+        const rowData = {};
+        for(let j=0; j<row.cells.length; j++){
+          const header = table.rows[0].cells[j]?.innerText || `col${j}`;
+          rowData[header] = row.cells[j].innerText;
+        }
+        data.push(rowData);
+      }
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Grades");
+      XLSX.writeFile(wb, "grades.xlsx");
+    });
+  }
+
+  if(printBtn){
+    printBtn.addEventListener('click', () => {
+      const win = window.open('', '', 'width=900,height=700');
+      win.document.write('<html><head><title>طباعة</title></head><body>');
+      win.document.write(document.querySelector('.container-fluid').innerHTML);
+      win.document.write('</body></html>');
+      win.document.close();
+      win.print();
+    });
+  }
+</script>
+</body>
+</html>

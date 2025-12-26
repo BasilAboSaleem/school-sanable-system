@@ -1,0 +1,180 @@
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+<main class="bmd-layout-content">
+  <div class="container-fluid">
+    <h3>طلابي</h3>
+
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label>الفصل</label>
+        <select id="classSelect" class="form-control">
+          <option value="">-- اختر الفصل --</option>
+          <% classes.forEach(c => { %>
+            <option value="<%= c._id %>"><%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label>الشعبة</label>
+        <select id="sectionSelect" class="form-control" disabled>
+          <option value="">-- اختر الشعبة --</option>
+        </select>
+      </div>
+
+      <div class="col-md-3 align-self-end">
+        <button type="button" id="filterBtn" class="btn btn-primary">عرض</button>
+        <button type="button" id="exportBtn" class="btn btn-success">تصدير Excel</button>
+        <button type="button" id="printBtn" class="btn btn-secondary">طباعة</button>
+      </div>
+
+      <div class="col-md-3">
+        <label>بحث باسم الطالب</label>
+        <input type="text" id="studentSearch" class="form-control">
+      </div>
+    </div>
+
+    <div id="studentsContainer">
+      <table class="table table-bordered text-center">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>اسم الطالب</th>
+            <th>المستوى</th>
+            <th>العمليات</th>
+          </tr>
+        </thead>
+        <tbody id="studentsTable"></tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+let studentsData = [];
+
+const classSelect = document.getElementById('classSelect');
+const sectionSelect = document.getElementById('sectionSelect');
+const filterBtn = document.getElementById('filterBtn');
+const studentSearch = document.getElementById('studentSearch');
+const studentsTable = document.getElementById('studentsTable');
+
+// جلب الشعب عند اختيار الفصل
+classSelect.addEventListener('change', async () => {
+  sectionSelect.innerHTML = '<option value="">-- اختر الشعبة --</option>';
+  if (!classSelect.value) return sectionSelect.disabled = true;
+
+  const res = await fetch(`/teacher/classes/${classSelect.value}/sections`);
+  const sections = await res.json();
+
+  sections.forEach(s => {
+    sectionSelect.innerHTML += `<option value="${s._id}">${s.name}</option>`;
+  });
+
+  sectionSelect.disabled = false;
+});
+
+// عرض الطلاب بعد الفلترة
+filterBtn.addEventListener('click', async () => {
+  if (!sectionSelect.value) return alert("اختر الشعبة");
+
+  const res = await fetch('/teacher/students/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sectionId: sectionSelect.value })
+  });
+
+  studentsData = await res.json();
+  renderStudents();
+});
+
+// دالة عرض الطلاب مع البحث الداخلي
+function renderStudents() {
+  const search = studentSearch.value.toLowerCase();
+  const filtered = studentsData.filter(s =>
+    s.fullName.toLowerCase().includes(search)
+  );
+
+  studentsTable.innerHTML = '';
+
+  if (!filtered.length) {
+    studentsTable.innerHTML = `<tr><td colspan="4">لا يوجد طلاب</td></tr>`;
+    return;
+  }
+
+  filtered.forEach((s, i) => {
+    studentsTable.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${s.fullName}</td>
+        <td>${s.grade || '-'}</td>
+        <td>
+          <a href="/teacher/students/${s._id}" class="btn btn-sm btn-info">
+            عرض
+          </a>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+// بحث مباشر بدون ريلود
+studentSearch.addEventListener('input', renderStudents);
+
+// تصدير Excel
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (!studentsData.length) return alert("لا توجد بيانات للتصدير");
+
+  const excelData = studentsData.map((s, i) => ({
+    "الرقم": i + 1,
+    "اسم الطالب": s.fullName,
+    "الصف": s.grade || '-'
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+  worksheet['!cols'] = [{ wch: 5 }, { wch: 30 }, { wch: 10 }];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "طلابي");
+
+  XLSX.writeFile(workbook, "students.xlsx");
+});
+
+// طباعة
+document.getElementById('printBtn').addEventListener('click', () => {
+  if (!studentsData.length) return alert("لا توجد بيانات للطباعة");
+
+  const tableHtml = document.getElementById('studentsContainer').outerHTML;
+  const win = window.open('', '', 'width=1000,height=700');
+  win.document.write(`
+    <html>
+      <head>
+        <title>طباعة الطلاب</title>
+        <style>
+          body { direction: rtl; font-family: Arial; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+        </style>
+      </head>
+      <body>${tableHtml}</body>
+    </html>
+  `);
+  win.document.close();
+  win.print();
+});
+</script>
+</body>
+</html>

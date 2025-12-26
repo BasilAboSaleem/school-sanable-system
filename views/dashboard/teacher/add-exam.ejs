@@ -1,0 +1,117 @@
+<%- include('../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+<main class="bmd-layout-content">
+<div class="container-fluid mt-3">
+  <h3>إضافة اختبار جديد</h3>
+
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label>الفصل</label>
+      <select id="classSelect" class="form-control">
+        <option value="">-- اختر الفصل --</option>
+        <% classes.forEach(c => { %>
+          <option value="<%= c._id %>"><%= c.name %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label>الشعبة</label>
+      <select id="sectionSelect" class="form-control" disabled>
+        <option value="">-- اختر الشعبة --</option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label>المادة</label>
+      <select id="subjectSelect" class="form-control">
+        <option value="">-- اختر المادة --</option>
+        <% subjects.forEach(s => { %>
+          <option value="<%= s._id %>"><%= s.name %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label>تاريخ الاختبار</label>
+      <input type="date" id="examDate" class="form-control">
+    </div>
+
+    <div class="col-md-6 mt-3">
+      <label>رابط الملف (اختياري)</label>
+      <input type="text" id="fileUrl" class="form-control" placeholder="رابط PDF / DOCX">
+    </div>
+
+    <div class="col-md-6 mt-3 align-self-end">
+      <button id="addExamBtn" class="btn btn-primary">إضافة الاختبار</button>
+    </div>
+  </div>
+
+</div>
+</main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+
+<script>
+const classSelect = document.getElementById('classSelect');
+const sectionSelect = document.getElementById('sectionSelect');
+const subjectSelect = document.getElementById('subjectSelect');
+const examDate = document.getElementById('examDate');
+const fileUrl = document.getElementById('fileUrl');
+const addExamBtn = document.getElementById('addExamBtn');
+
+classSelect.addEventListener('change', async () => {
+  sectionSelect.innerHTML = '<option value="">-- اختر الشعبة --</option>';
+  if (!classSelect.value) return sectionSelect.disabled = true;
+
+  const res = await fetch(`/teacher/classes/${classSelect.value}/sections`);
+  const sections = await res.json();
+
+  sections.forEach(s => {
+    sectionSelect.innerHTML += `<option value="${s._id}">${s.name}</option>`;
+  });
+
+  sectionSelect.disabled = false;
+});
+
+addExamBtn.addEventListener('click', async () => {
+  if (!classSelect.value || !sectionSelect.value || !subjectSelect.value || !examDate.value) {
+    return alert("جميع الحقول مطلوبة");
+  }
+
+  const res = await fetch('/teacher/exams/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: `اختبار ${subjectSelect.options[subjectSelect.selectedIndex].text}`,
+      classId: classSelect.value,
+      sectionId: sectionSelect.value,
+      subjectId: subjectSelect.value,
+      examDate: examDate.value,
+      fileUrl: fileUrl.value
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.error) return alert(data.error);
+  alert(data.success);
+  // إعادة ضبط الفورم
+  classSelect.value = '';
+  sectionSelect.innerHTML = '<option value="">-- اختر الشعبة --</option>';
+  sectionSelect.disabled = true;
+  subjectSelect.value = '';
+  examDate.value = '';
+  fileUrl.value = '';
+});
+</script>
+
+</body>
+</html>

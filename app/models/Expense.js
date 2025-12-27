@@ -10,6 +10,8 @@ const expenseSchema = new mongoose.Schema({
     enum: ["institution", "school"],
     default: "school"
   },
+  incomeId: { type: mongoose.Schema.Types.ObjectId, ref: "Income", default: null },
+
   createdAt: { type: Date, default: Date.now },
 });
 

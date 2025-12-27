@@ -29,9 +29,9 @@ router.get("/incomes", superAdminController.Income.listIncomes);
 router.get("/incomes/create", superAdminController.Income.renderAddIncome);
 router.post("/incomes/create", superAdminController.Income.createIncome);
 
-// صفحة عرض وارد لتوزيعه
 router.get("/incomes/:id/view", superAdminController.Income.viewIncomeDetails);
-// توزيع وارد على المدارس
+
+// توزيع وارد
 router.post("/incomes/:id/distribute", superAdminController.Income.distributeIncome);
 
 // تعديل وارد

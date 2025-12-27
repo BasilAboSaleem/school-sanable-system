@@ -1,65 +1,91 @@
-<!doctype html>
-<html class="no-js" lang="ar">
-
 <%- include('../../../partials/head.ejs') %>
-
 <body class="rtl">
 
-  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
-    <%- include('../../../partials/header.ejs') %>
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../../partials/header.ejs') %>
 
-    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
-      <%- include('../../../partials/sidebar/index.ejs') %>
-    </div>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
 
-    <main class="bmd-layout-content">
-      <div class="container-fluid">
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
 
-        <!-- Breadcrumb -->
-        <div class="row m-1 pb-4 mb-3">
-          <div class="col-12 p-2">
-            <div class="page-header breadcrumb-header">
-              <div class="row align-items-end">
-                <div class="col-lg-8">
-                  <h3 class="lite-text">بيانات المدرسة: <%= school.name %></h3>
-                  <span class="lite-text text-gray">عرض كل التفاصيل الخاصة بالمدرسة</span>
-                </div>
-                <div class="col-lg-4 text-left">
-                  <a href="/super-admin/schools" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> العودة لجميع المدارس
-                  </a>
-                  <a href="/super-admin/schools/<%= school._id %>/edit" class="btn btn-warning">
-                    تعديل المدرسة
-                  </a>
-                </div>
-              </div>
+      <!-- Page Header -->
+      <div class="row m-1 pb-3 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1">
+                <i class="fas fa-school"></i>
+                <%= school.name %>
+              </h3>
+              <span class="lite-text text-gray">تفاصيل المدرسة</span>
+            </div>
+            <div>
+              <a href="/super-admin/schools" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+              </a>
+              <a href="/super-admin/schools/<%= school._id %>/edit" class="btn btn-warning">
+                <i class="fas fa-edit"></i> تعديل
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row m-1">
+
+        <!-- School Info -->
+        <div class="col-md-6 p-2">
+          <div class="card shade h-100">
+            <div class="card-header bg-primary text-white">
+              <i class="fas fa-info-circle"></i> معلومات المدرسة
+            </div>
+            <div class="card-body">
+              <p><strong>الاسم:</strong> <%= school.name %></p>
+              <p><strong>الكود:</strong> <%= school.code %></p>
+              <p><strong>البريد الإلكتروني:</strong> <%= school.email || '—' %></p>
+              <p><strong>الهاتف:</strong> <%= school.phone || '—' %></p>
+              <p><strong>العنوان:</strong> <%= school.address || '—' %></p>
+              <p>
+                <strong>الحالة:</strong>
+                <% if (school.status === 'active') { %>
+                  <span class="badge badge-success">مفعلة</span>
+                <% } else { %>
+                  <span class="badge badge-danger">معطلة</span>
+                <% } %>
+              </p>
             </div>
           </div>
         </div>
 
-        <!-- School Info -->
-        <div class="row m-1">
-          <div class="col-12 p-2">
-            <div class="card shade">
-              <div class="card-header">
-                معلومات المدرسة
-              </div>
-              <div class="card-body">
-                <p><strong>اسم المدرسة:</strong> <%= school.name %></p>
-                <p><strong>كود المدرسة:</strong> <%= school.code %></p>
-                <p><strong>البريد الإلكتروني:</strong> <%= school.email || '—' %></p>
-                <p><strong>الهاتف:</strong> <%= school.phone || '—' %></p>
-                <p><strong>العنوان:</strong> <%= school.address || '—' %></p>
-                <p><strong>ملاحظات:</strong> <%= school.notes || '—' %></p>
-              </div>
+        <!-- School Admin -->
+        <div class="col-md-6 p-2">
+          <div class="card shade h-100">
+            <div class="card-header bg-dark text-white">
+              <i class="fas fa-user-shield"></i> مدير المدرسة
+            </div>
+            <div class="card-body">
+              <% if (schoolAdmin) { %>
+                <p><strong>الاسم:</strong> <%= schoolAdmin.name %></p>
+                <p><strong>البريد الإلكتروني:</strong> <%= schoolAdmin.email %></p>
+                <p><strong>رقم الهاتف:</strong> <%= schoolAdmin.phone || '—' %></p>
+              <% } else { %>
+                <div class="alert alert-warning mb-0">
+                  لا يوجد مدير مدرسة مسجل
+                </div>
+              <% } %>
             </div>
           </div>
         </div>
 
       </div>
-    </main>
-  </div>
 
-  <%- include('../../../partials/scripts.ejs') %>
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
 </body>
 </html>

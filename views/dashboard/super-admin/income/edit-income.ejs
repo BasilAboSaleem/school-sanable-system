@@ -1,0 +1,134 @@
+<%- include('../../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- Header -->
+      <div class="row m-1 pb-3 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1">
+                <i class="fas fa-edit"></i> تعديل الوارد
+              </h3>
+              <span class="lite-text text-gray">
+                يمكن تعديل الوارد فقط إذا لم يتم توزيعه
+              </span>
+            </div>
+            <div>
+              <a href="/super-admin/incomes/<%= income._id %>/view" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
+
+            <div class="card-header bg-primary text-white">
+              <i class="fas fa-money-bill-wave"></i> بيانات الوارد
+            </div>
+
+            <div class="card-body">
+              <form id="editIncomeForm">
+
+                <!-- المورد -->
+                <div class="form-group">
+                  <label>المورد *</label>
+                  <select name="supplierId" class="form-control" required>
+                    <% suppliers.forEach(supplier => { %>
+                      <option value="<%= supplier._id %>"
+                        <%= income.supplierId && supplier._id.equals(income.supplierId._id) ? 'selected' : '' %>>
+                        <%= supplier.name %>
+                      </option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <!-- المبلغ -->
+                <div class="form-group">
+                  <label>المبلغ *</label>
+                  <input
+                    type="number"
+                    name="amount"
+                    class="form-control"
+                    min="1"
+                    value="<%= income.amount %>"
+                    required>
+                </div>
+
+                <!-- الوصف -->
+                <div class="form-group">
+                  <label>الوصف</label>
+                  <textarea
+                    name="description"
+                    class="form-control"
+                    rows="3"><%= income.description || '' %></textarea>
+                </div>
+
+                <hr>
+
+                <!-- أزرار -->
+                <div class="d-flex justify-content-between">
+                  <a href="/super-admin/incomes/<%= income._id %>/view" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> إلغاء
+                  </a>
+
+                  <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> حفظ التعديلات
+                  </button>
+                </div>
+
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<script>
+document.getElementById('editIncomeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = Object.fromEntries(new FormData(e.target).entries());
+
+  try {
+    const res = await fetch('/super-admin/incomes/<%= income._id %>/edit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+
+    if (data.errors) {
+      alert(data.errors.general);
+    } else {
+      alert(data.success);
+      window.location.href = data.redirect;
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert('حدث خطأ في الاتصال');
+  }
+});
+</script>
+
+</body>

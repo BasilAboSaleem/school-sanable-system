@@ -1,6 +1,7 @@
 const {
     School,
     User,
+    strongPasswordRegex
 } = require("./utils");
 
 exports.getAddSchool = (req, res) => {
@@ -36,7 +37,7 @@ exports.postAddSchool = async (req, res) => {
       return res.json({ error: errorMessage });
     }
 
-    // إذا كان إرسال الفورم النهائي
+    // validate all fields
     let errors = {};
 
     if (!name) errors.name = "اسم المدرسة مطلوب";
@@ -65,10 +66,9 @@ exports.postAddSchool = async (req, res) => {
     const school = await School.create({ name, address, phone, email, code, status });
 
     // create school admin user
-    await User.create({ name: adminName, email: adminEmail, password: adminPassword, role: "school-admin", schoolId: school._id, phone });
+    await User.create({ name: adminName, email: adminEmail, password: adminPassword, role: "school-admin", schoolId: school._id, phone: "-" });
 
-     req.flash("success", "تم إضافة المدرسة ومديرها بنجاح");
-    return res.redirect("/super-admin/schools");
+return res.json({ success: "تم إضافة المدرسة ومديرها بنجاح" });
 
   } catch (err) {
     console.error(err);
@@ -76,7 +76,7 @@ exports.postAddSchool = async (req, res) => {
   }
 };
 
-// عرض جميع المدارس
+
 exports.listSchools = async (req, res) => {
   try {
     const schools = await School.find().sort({ createdAt: -1 });
@@ -88,15 +88,27 @@ exports.listSchools = async (req, res) => {
   }
 };
 
-// عرض تفاصيل مدرسة واحدة
+
 exports.viewSchool = async (req, res) => {
   try {
     const school = await School.findById(req.params.id);
+
     if (!school) {
       req.flash("error", "المدرسة غير موجودة");
       return res.redirect("/super-admin/schools");
     }
-    res.render("dashboard/super-admin/view-school", { school });
+
+    
+    const schoolAdmin = await User.findOne({
+      schoolId: school._id,
+      role: "school-admin"
+    }).select("name email phone");
+
+    res.render("dashboard/super-admin/school/view-school", {
+      school,
+      schoolAdmin
+    });
+
   } catch (err) {
     console.error(err);
     req.flash("error", "حدث خطأ أثناء جلب بيانات المدرسة");
@@ -104,7 +116,8 @@ exports.viewSchool = async (req, res) => {
   }
 };
 
-// صفحة تعديل مدرسة
+
+
 exports.editSchoolForm = async (req, res) => {
   try {
     const school = await School.findById(req.params.id);
@@ -112,7 +125,7 @@ exports.editSchoolForm = async (req, res) => {
       req.flash("error", "المدرسة غير موجودة");
       return res.redirect("/super-admin/schools");
     }
-    res.render("dashboard/super-admin/edit-school", { school });
+    res.render("dashboard/super-admin/school/edit-school", { school });
   } catch (err) {
     console.error(err);
     req.flash("error", "حدث خطأ أثناء جلب بيانات المدرسة");
@@ -120,23 +133,28 @@ exports.editSchoolForm = async (req, res) => {
   }
 };
 
-// تحديث مدرسة
+
 exports.updateSchool = async (req, res) => {
   try {
-    const { name, code, address, phone, email } = req.body;
+    const { name, code, address, phone, email, status } = req.body;
 
-    // تحقق من تكرار الاسم أو الكود
+    
     const duplicate = await School.findOne({
       $or: [{ name }, { code }],
       _id: { $ne: req.params.id },
     });
+
     if (duplicate) {
-      return res.json({ errors: { general: "الاسم أو الكود موجود بالفعل" } });
+      return res.json({
+        errors: { general: "اسم المدرسة أو الكود مستخدم مسبقًا" }
+      });
     }
 
     const school = await School.findById(req.params.id);
     if (!school) {
-      return res.json({ errors: { general: "المدرسة غير موجودة" } });
+      return res.json({
+        errors: { general: "المدرسة غير موجودة" }
+      });
     }
 
     school.name = name;
@@ -144,12 +162,19 @@ exports.updateSchool = async (req, res) => {
     school.address = address;
     school.phone = phone;
     school.email = email;
+    school.status = status; 
 
     await school.save();
 
-    res.json({ success: "تم تحديث بيانات المدرسة", redirect: "/super-admin/schools" });
+    res.json({
+      success: "تم تحديث بيانات المدرسة بنجاح",
+      redirect: "/super-admin/schools"
+    });
+
   } catch (err) {
     console.error(err);
-    res.json({ errors: { general: "حدث خطأ أثناء تحديث بيانات المدرسة" } });
+    res.json({
+      errors: { general: "حدث خطأ أثناء تحديث بيانات المدرسة" }
+    });
   }
 };

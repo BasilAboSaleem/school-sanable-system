@@ -6,7 +6,8 @@ const supplierSchema = new mongoose.Schema({
   phone: { type: String },
   address: { type: String },
   notes: { type: String },
-  schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
+  schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" , default: null },
+  isSuperAdminSupplier: { type: Boolean, default: false }, // مورد خاص بالسوبر أدمن
   createdAt: { type: Date, default: Date.now },
 });
 

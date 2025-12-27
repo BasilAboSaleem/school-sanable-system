@@ -1,29 +1,45 @@
 <%- include('../../../partials/head.ejs') %>
 <body class="rtl">
 <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
   <%- include('../../../partials/header.ejs') %>
+
   <div id="dw-s1" class="bmd-layout-drawer bg-faded">
     <%- include('../../../partials/sidebar/index.ejs') %>
   </div>
+
   <main class="bmd-layout-content">
     <div class="container-fluid">
-      <div class="row m-1 pb-4 mb-3">
+
+      <!-- Page Header -->
+      <div class="row m-1 pb-3 mb-3">
         <div class="col-12 p-2">
-          <div class="page-header breadcrumb-header">
-            <div class="row align-items-end">
-              <div class="col-lg-8">
-                <h3 class="lite-text">جميع المدارس</h3>
-                <span class="lite-text text-gray">عرض جميع المدارس في النظام</span>
-              </div>
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1">جميع المدارس</h3>
+              <span class="lite-text text-gray">إدارة المدارس المسجلة في النظام</span>
             </div>
+            <a href="/super-admin/schools/add" class="btn btn-primary">
+              <i class="fas fa-plus"></i> إضافة مدرسة
+            </a>
           </div>
         </div>
       </div>
 
       <!-- Search -->
-      <div class="row m-1 mb-2">
+      <div class="row m-1 mb-3">
         <div class="col-12">
-          <input type="text" id="searchInput" placeholder="ابحث باسم المدرسة أو الكود" class="form-control">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
+            </div>
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="ابحث باسم المدرسة أو الكود"
+            >
+          </div>
         </div>
       </div>
 
@@ -36,17 +52,21 @@
                 <thead class="thead-light">
                   <tr>
                     <th>#</th>
-                    <th>الاسم</th>
+                    <th>اسم المدرسة</th>
                     <th>الكود</th>
                     <th>الهاتف</th>
                     <th>البريد الإلكتروني</th>
+                    <th>الحالة</th>
                     <th>العمليات</th>
                   </tr>
                 </thead>
                 <tbody id="schoolsTableBody">
                   <% if (schools.length === 0) { %>
-                    <tr><td colspan="6">لا توجد مدارس مضافة</td></tr>
+                    <tr>
+                      <td colspan="7">لا توجد مدارس مضافة</td>
+                    </tr>
                   <% } %>
+
                   <% schools.forEach((school, index) => { %>
                     <tr>
                       <td><%= index + 1 %></td>
@@ -55,8 +75,27 @@
                       <td><%= school.phone || '—' %></td>
                       <td><%= school.email || '—' %></td>
                       <td>
-                        <a href="/super-admin/schools/<%= school._id %>/view" class="btn btn-secondary btn-sm">عرض</a>
-                        <a href="/super-admin/schools/<%= school._id %>/edit" class="btn btn-warning btn-sm">تعديل</a>
+                        <% if (school.status === 'active') { %>
+                          <span class="badge badge-success">مفعلة</span>
+                        <% } else { %>
+                          <span class="badge badge-danger">معطلة</span>
+                        <% } %>
+                      </td>
+                      <td>
+                        <a
+                          href="/super-admin/schools/<%= school._id %>/view"
+                          class="btn btn-info btn-sm"
+                          title="عرض"
+                        >
+                          <i class="fas fa-eye"></i>
+                        </a>
+                        <a
+                          href="/super-admin/schools/<%= school._id %>/edit"
+                          class="btn btn-warning btn-sm"
+                          title="تعديل"
+                        >
+                          <i class="fas fa-edit"></i>
+                        </a>
                       </td>
                     </tr>
                   <% }) %>
@@ -72,16 +111,21 @@
 </div>
 
 <%- include('../../../partials/scripts.ejs') %>
+
 <script>
-const searchInput = document.getElementById('searchInput');
-searchInput.addEventListener('input', () => {
-  const filter = searchInput.value.toLowerCase();
-  const rows = document.querySelectorAll('#schoolsTableBody tr');
-  rows.forEach(row => {
-    const name = row.querySelector('.name')?.textContent.toLowerCase() || '';
-    const code = row.querySelector('.code')?.textContent.toLowerCase() || '';
-    row.style.display = (name.includes(filter) || code.includes(filter)) ? '' : 'none';
+  const searchInput = document.getElementById('searchInput');
+
+  searchInput.addEventListener('input', () => {
+    const filter = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll('#schoolsTableBody tr');
+
+    rows.forEach(row => {
+      const name = row.querySelector('.name')?.textContent.toLowerCase() || '';
+      const code = row.querySelector('.code')?.textContent.toLowerCase() || '';
+      row.style.display = (name.includes(filter) || code.includes(filter)) ? '' : 'none';
+    });
   });
-});
 </script>
+
 </body>
+</html>

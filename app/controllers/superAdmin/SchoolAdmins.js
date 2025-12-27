@@ -5,9 +5,6 @@ const{
 } = require('./utils');
 
 
-
-
-// List all school-admin users
 exports.listSchoolAdmins = async (req, res) => {
   try {
     const schoolAdmins = await User.find({ role: 'school-admin' }).populate('schoolId');
@@ -19,7 +16,7 @@ exports.listSchoolAdmins = async (req, res) => {
   }
 };
 
-// View single school-admin
+
 exports.viewSchoolAdmin = async (req, res) => {
   try {
     const admin = await User.findById(req.params.id).populate('schoolId');
@@ -27,7 +24,7 @@ exports.viewSchoolAdmin = async (req, res) => {
       req.flash('error', 'المدير غير موجود');
       return res.redirect('/super-admin/school-admins');
     }
-    res.render('dashboard/super-admin/view-school-admin', { admin });
+    res.render('dashboard/super-admin/school-admin/view-school-admin', { admin });
   } catch (err) {
     console.error(err);
     req.flash('error', 'حدث خطأ أثناء جلب بيانات المدير');
@@ -35,7 +32,7 @@ exports.viewSchoolAdmin = async (req, res) => {
   }
 };
 
-// Show edit form
+
 exports.editSchoolAdminForm = async (req, res) => {
   try {
     const admin = await User.findById(req.params.id);
@@ -44,7 +41,7 @@ exports.editSchoolAdminForm = async (req, res) => {
       req.flash('error', 'المدير غير موجود');
       return res.redirect('/super-admin/school-admins');
     }
-    res.render('dashboard/super-admin/edit-school-admin', { admin, schools });
+    res.render('dashboard/super-admin/school-admin/edit-school-admin', { admin, schools });
   } catch (err) {
     console.error(err);
     req.flash('error', 'حدث خطأ أثناء جلب بيانات المدير');

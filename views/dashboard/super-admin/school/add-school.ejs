@@ -1,256 +1,247 @@
 <!doctype html>
-<html class="no-js" lang="ar">
-
+<html lang="ar">
 <%- include('../../../partials/head.ejs') %>
 
 <body class="rtl">
 
-  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
 
-    <%- include('../../../partials/header.ejs') %>
+  <%- include('../../../partials/header.ejs') %>
 
-    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
-      <%- include('../../../partials/sidebar/index.ejs') %>
-    </div>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
 
-    <main class="bmd-layout-content">
-      <div class="container-fluid">
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
 
-        <!-- breadcrumb -->
-        <div class="row m-1 pb-4 mb-3">
-          <div class="col-12 p-2">
-            <div class="page-header breadcrumb-header">
-              <div class="row align-items-end">
-                <div class="col-lg-8">
-                  <div class="page-header-title text-left-rtl">
-                    <div class="d-inline">
-                      <h3 class="lite-text">إضافة مدرسة جديدة</h3>
-                      <span class="lite-text text-gray">أدخل بيانات المدرسة الجديدة والمدير</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-4">
-                  <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                    <li class="breadcrumb-item active">إضافة مدرسة</li>
-                  </ol>
-                </div>
-              </div>
+      <!-- Page Header -->
+      <div class="row m-1 pb-3 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1">
+                <i class="fas fa-school"></i> إضافة مدرسة جديدة
+              </h3>
+              <span class="lite-text text-gray">
+                إنشاء مدرسة جديدة مع حساب مدير المدرسة
+              </span>
+            </div>
+            <div>
+              <a href="/super-admin/schools" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+              </a>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- الفورم متعدد الخطوات -->
-        <div class="row m-1">
-          <div class="col-12 p-2">
-            <div class="card shade h-100">
-              <div class="card-header">
-                إضافة مدرسة وبيانات مدير المدرسة
-              </div>
-              <div class="card-body">
+      <!-- Form Card -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
 
-                <form id="addSchoolForm" action="/super-admin/schools/add" method="POST" class="text-right">
-                  <!-- Step 1: بيانات المدرسة -->
-                  <div class="form-step" id="step1">
-                    <div class="form-group">
+            <div class="card-header bg-primary text-white">
+              <i class="fas fa-plus-circle"></i> بيانات المدرسة ومديرها
+            </div>
+
+            <div class="card-body">
+
+              <form id="addSchoolForm" method="POST">
+
+                <!-- ================= STEP 1 ================= -->
+                <div id="step1">
+
+                  <h5 class="mb-3 text-primary">
+                    <i class="fas fa-building"></i> بيانات المدرسة
+                  </h5>
+
+                  <div class="row">
+                    <div class="col-md-6 form-group">
                       <label>اسم المدرسة *</label>
-                      <input type="text" name="name" id="nameInput" required class="form-control">
+                      <input type="text" id="nameInput" class="form-control" required>
                       <small class="text-danger" id="nameError"></small>
                     </div>
-                    <div class="form-group">
-                      <label>العنوان</label>
-                      <input type="text" name="address" class="form-control">
+
+                    <div class="col-md-6 form-group">
+                      <label>كود المدرسة *</label>
+                      <input type="text" id="schoolCode" class="form-control" required>
+                      <small class="text-danger" id="codeError"></small>
                     </div>
-                    <div class="form-group">
+
+                    <div class="col-md-6 form-group">
                       <label>الهاتف</label>
                       <input type="text" name="phone" class="form-control">
                     </div>
-                    <div class="form-group">
+
+                    <div class="col-md-6 form-group">
                       <label>البريد الإلكتروني</label>
                       <input type="email" name="email" class="form-control">
                     </div>
-                    <div class="form-group">
-                      <label>كود المدرسة *</label>
-                      <input type="text" name="code" id="schoolCode" required class="form-control">
-                      <small class="text-danger" id="codeError"></small>
+
+                    <div class="col-md-12 form-group">
+                      <label>العنوان</label>
+                      <input type="text" name="address" class="form-control">
                     </div>
-                    <div class="form-group">
-                      <label>الحالة</label>
+
+                    <div class="col-md-4 form-group">
+                      <label>حالة المدرسة</label>
                       <select name="status" class="form-control">
                         <option value="active">نشطة</option>
                         <option value="inactive">غير نشطة</option>
                       </select>
                     </div>
-                    <button type="button" class="btn btn-primary" id="nextBtn">التالي</button>
                   </div>
 
-                  <!-- Step 2: بيانات مدير المدرسة -->
-                  <div class="form-step" id="step2" style="display:none;">
-                    <div class="form-group">
-                      <label>اسم مدير المدرسة *</label>
-                      <input type="text" name="adminName" id="adminNameInput" required class="form-control">
+                  <button type="button" class="btn btn-primary mt-2" id="nextBtn">
+                    التالي <i class="fas fa-arrow-left"></i>
+                  </button>
+
+                </div>
+
+                <!-- ================= STEP 2 ================= -->
+                <div id="step2" style="display:none;">
+
+                  <h5 class="mb-3 text-success">
+                    <i class="fas fa-user-shield"></i> بيانات مدير المدرسة
+                  </h5>
+
+                  <div class="row">
+                    <div class="col-md-6 form-group">
+                      <label>اسم المدير *</label>
+                      <input type="text" id="adminNameInput" class="form-control" required>
                       <small class="text-danger" id="adminNameError"></small>
                     </div>
-                    <div class="form-group">
+
+                    <div class="col-md-6 form-group">
                       <label>البريد الإلكتروني *</label>
-                      <input type="email" name="adminEmail" id="adminEmail" required class="form-control">
+                      <input type="email" id="adminEmail" class="form-control" required>
                       <small class="text-danger" id="emailError"></small>
                     </div>
-                    <div class="form-group">
+
+                    <div class="col-md-6 form-group">
                       <label>كلمة المرور *</label>
-                      <input type="password" name="adminPassword" id="adminPassword" required class="form-control">
+                      <input type="password" id="adminPassword" class="form-control" required>
                       <small class="text-danger" id="passwordError"></small>
+                      <small class="text-muted">
+                        8 أحرف – حرف كبير – صغير – رقم – رمز
+                      </small>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="prevStep()">السابق</button>
-                    <button type="submit" class="btn btn-success">إضافة المدرسة</button>
                   </div>
 
-                </form>
+                  <hr>
 
-              </div>
+                  <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                    <i class="fas fa-arrow-right"></i> السابق
+                  </button>
+
+                  <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> إضافة المدرسة
+                  </button>
+
+                </div>
+
+              </form>
+
             </div>
           </div>
         </div>
-
       </div>
-    </main>
 
-  </div>
+    </div>
+  </main>
+</div>
 
-  <%- include('../../../partials/scripts.ejs') %>
+<%- include('../../../partials/scripts.ejs') %>
 
 <script>
+const nameInput = document.getElementById('nameInput');
 const codeInput = document.getElementById('schoolCode');
+const adminNameInput = document.getElementById('adminNameInput');
 const emailInput = document.getElementById('adminEmail');
 const passwordInput = document.getElementById('adminPassword');
-const nameInput = document.getElementById('nameInput');
-const adminNameInput = document.getElementById('adminNameInput');
 
+const nameError = document.getElementById('nameError');
 const codeError = document.getElementById('codeError');
+const adminNameError = document.getElementById('adminNameError');
 const emailError = document.getElementById('emailError');
 const passwordError = document.getElementById('passwordError');
-const nameError = document.getElementById('nameError');
-const adminNameError = document.getElementById('adminNameError');
 
 const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-// AJAX للتحقق من كود المدرسة
-codeInput.addEventListener('blur', async () => {
-  const res = await fetch('/super-admin/schools/add', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ code: codeInput.value, checkField: 'code' })
-  });
-  const data = await res.json();
-  codeError.textContent = data.error || '';
-});
-
-// AJAX للتحقق من إيميل المدير
-emailInput.addEventListener('blur', async () => {
-  const res = await fetch('/super-admin/schools/add', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ adminEmail: emailInput.value, checkField: 'adminEmail' })
-  });
-  const data = await res.json();
-  emailError.textContent = data.error || '';
-});
-
-// تحقق كلمة المرور مباشر
-passwordInput.addEventListener('input', async () => {
-  const res = await fetch('/super-admin/schools/add', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ adminPassword: passwordInput.value, checkField: 'adminPassword' })
-  });
-  const data = await res.json();
-  passwordError.textContent = data.error || '';
-});
-
-// Step 1 next button
+// Step navigation
 document.getElementById('nextBtn').addEventListener('click', async () => {
   nameError.textContent = '';
   codeError.textContent = '';
-  let valid = true;
 
-  if(!nameInput.value.trim()){ valid=false; nameError.textContent="اسم المدرسة مطلوب"; }
-  if(!codeInput.value.trim()){ valid=false; codeError.textContent="كود المدرسة مطلوب"; }
-
-  // تحقق الكود عبر الكنترولر
-  if(codeInput.value.trim()){
-    const res = await fetch('/super-admin/schools/add', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ code: codeInput.value, checkField: 'code' })
-    });
-    const data = await res.json();
-    if(data.error){ codeError.textContent = data.error; valid=false; }
+  if (!nameInput.value.trim()) {
+    nameError.textContent = 'اسم المدرسة مطلوب';
+    return;
   }
 
-  if(!valid) return;
-  document.getElementById('step1').style.display='none';
-  document.getElementById('step2').style.display='block';
+  const res = await fetch('/super-admin/schools/add', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ code: codeInput.value, checkField: 'code' })
+  });
+  const data = await res.json();
+  if (data.error) {
+    codeError.textContent = data.error;
+    return;
+  }
+
+  step1.style.display = 'none';
+  step2.style.display = 'block';
 });
 
-// Step 2 previous
-function prevStep(){ document.getElementById('step2').style.display='none'; document.getElementById('step1').style.display='block'; }
+function prevStep() {
+  step2.style.display = 'none';
+  step1.style.display = 'block';
+}
 
-// Step 2 submit
+// Submit
 document.getElementById('addSchoolForm').addEventListener('submit', async e => {
   e.preventDefault();
 
-  // تنظيف الأخطاء
-  adminNameError.textContent='';
-  emailError.textContent='';
-  passwordError.textContent='';
+  adminNameError.textContent = '';
+  emailError.textContent = '';
+  passwordError.textContent = '';
 
-  let valid = true;
-  if(!adminNameInput.value.trim()){ adminNameError.textContent="اسم المدير مطلوب"; valid=false; }
-  if(!strongPasswordRegex.test(passwordInput.value)){ passwordError.textContent="كلمة المرور غير قوية"; valid=false; }
-
-  // تحقق البريد الإلكتروني
-  if(emailInput.value.trim()){
-    const res = await fetch('/super-admin/schools/add', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ adminEmail: emailInput.value, checkField: 'adminEmail' })
-    });
-    const data = await res.json();
-    if(data.error){ emailError.textContent=data.error; valid=false; }
+  if (!adminNameInput.value.trim()) {
+    adminNameError.textContent = 'اسم المدير مطلوب';
+    return;
   }
 
-  if(!valid) return;
+  if (!strongPasswordRegex.test(passwordInput.value)) {
+    passwordError.textContent = 'كلمة المرور غير قوية';
+    return;
+  }
 
-  // إرسال الفورم النهائي
-  const formData = {
+  const payload = {
     name: nameInput.value,
-    address: document.querySelector('input[name="address"]').value,
-    phone: document.querySelector('input[name="phone"]').value,
-    email: document.querySelector('input[name="email"]').value,
     code: codeInput.value,
-    status: document.querySelector('select[name="status"]').value,
+    address: document.querySelector('[name="address"]').value,
+    phone: document.querySelector('[name="phone"]').value,
+    email: document.querySelector('[name="email"]').value,
+    status: document.querySelector('[name="status"]').value,
     adminName: adminNameInput.value,
     adminEmail: emailInput.value,
     adminPassword: passwordInput.value
   };
 
   const res = await fetch('/super-admin/schools/add', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(formData)
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
   });
+
   const data = await res.json();
 
-  if(data.errors){
-    if(data.errors.adminName) adminNameError.textContent=data.errors.adminName;
-    if(data.errors.adminEmail) emailError.textContent=data.errors.adminEmail;
-    if(data.errors.adminPassword) passwordError.textContent=data.errors.adminPassword;
-    if(data.errors.name) nameError.textContent=data.errors.name;
-    if(data.errors.code) codeError.textContent=data.errors.code;
-    if(data.errors.general) alert(data.errors.general);
-  } else if(data.success){
-    alert(data.success);
-    window.location.href="/super-admin/schools";
+  if (data.errors) {
+    alert(data.errors.general || 'حدث خطأ');
+  } else {
+    alert('تم إضافة المدرسة بنجاح');
+    window.location.href = '/super-admin/schools';
   }
 });
 </script>

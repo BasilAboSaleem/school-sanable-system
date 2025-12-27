@@ -1,61 +1,108 @@
 <%- include('../../../partials/head.ejs') %>
 <body class="rtl">
+
 <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
   <%- include('../../../partials/header.ejs') %>
+
   <div id="dw-s1" class="bmd-layout-drawer bg-faded">
     <%- include('../../../partials/sidebar/index.ejs') %>
   </div>
+
   <main class="bmd-layout-content">
     <div class="container-fluid">
 
-      <div class="row m-1 pb-4 mb-3">
+      <!-- Page Header -->
+      <div class="row m-1 pb-3 mb-3">
         <div class="col-12 p-2">
-          <div class="page-header breadcrumb-header">
-            <div class="row align-items-end">
-              <div class="col-lg-8">
-                <h3 class="lite-text">تعديل المدرسة</h3>
-                <span class="lite-text text-gray">تعديل بيانات المدرسة الحالية</span>
-              </div>
-              <div class="col-lg-4 text-left">
-                <a href="/super-admin/schools" class="btn btn-secondary">
-                  <i class="fas fa-arrow-left"></i> العودة للمدارس
-                </a>
-              </div>
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1">
+                <i class="fas fa-edit"></i> تعديل المدرسة
+              </h3>
+              <span class="lite-text text-gray">
+                تعديل البيانات الأساسية وحالة المدرسة
+              </span>
+            </div>
+            <div>
+              <a href="/super-admin/schools" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+              </a>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Edit Form -->
       <div class="row m-1">
         <div class="col-12 p-2">
-          <div class="card shade h-100">
+          <div class="card shade">
+            <div class="card-header bg-warning text-dark">
+              <i class="fas fa-school"></i> بيانات المدرسة
+            </div>
+
             <div class="card-body">
-              <form id="editSchoolForm" action="/super-admin/schools/<%= school._id %>/edit" method="POST" class="text-right">
-                <div class="form-group">
-                  <label>اسم المدرسة *</label>
-                  <input type="text" name="name" value="<%= school.name %>" class="form-control" required>
-                  <small class="text-danger" id="nameError"></small>
-                </div>
-                <div class="form-group">
-                  <label>كود المدرسة *</label>
-                  <input type="text" name="code" value="<%= school.code %>" class="form-control" required>
-                  <small class="text-danger" id="codeError"></small>
-                </div>
-                <div class="form-group">
-                  <label>الهاتف</label>
-                  <input type="text" name="phone" value="<%= school.phone %>" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>البريد الإلكتروني</label>
-                  <input type="email" name="email" value="<%= school.email %>" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>العنوان</label>
-                  <input type="text" name="address" value="<%= school.address %>" class="form-control">
+              <form id="editSchoolForm"
+                    action="/super-admin/schools/<%= school._id %>/edit"
+                    method="POST">
+
+                <div class="row">
+
+                  <div class="col-md-6 form-group">
+                    <label>اسم المدرسة *</label>
+                    <input type="text" name="name" class="form-control"
+                           value="<%= school.name %>" required>
+                  </div>
+
+                  <div class="col-md-6 form-group">
+                    <label>كود المدرسة *</label>
+                    <input type="text" name="code" class="form-control"
+                           value="<%= school.code %>" required>
+                  </div>
+
+                  <div class="col-md-6 form-group">
+                    <label>الهاتف</label>
+                    <input type="text" name="phone" class="form-control"
+                           value="<%= school.phone || '' %>">
+                  </div>
+
+                  <div class="col-md-6 form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" name="email" class="form-control"
+                           value="<%= school.email || '' %>">
+                  </div>
+
+                  <div class="col-md-12 form-group">
+                    <label>العنوان</label>
+                    <input type="text" name="address" class="form-control"
+                           value="<%= school.address || '' %>">
+                  </div>
+
+                  <!-- School Status -->
+                  <div class="col-md-6 form-group">
+                    <label>حالة المدرسة</label>
+                    <select name="status" class="form-control">
+                      <option value="active"
+                        <%= school.status === 'active' ? 'selected' : '' %>>
+                        نشطة
+                      </option>
+                      <option value="inactive"
+                        <%= school.status === 'inactive' ? 'selected' : '' %>>
+                        غير نشطة
+                      </option>
+                    </select>
+                  </div>
+
                 </div>
 
-                <button type="submit" class="btn btn-success">تحديث المدرسة</button>
-                <a href="/super-admin/schools" class="btn btn-secondary">إلغاء</a>
+                <hr>
+
+                <button type="submit" class="btn btn-success">
+                  <i class="fas fa-save"></i> حفظ التعديلات
+                </button>
+                <a href="/super-admin/schools" class="btn btn-secondary">
+                  إلغاء
+                </a>
+
               </form>
             </div>
           </div>
@@ -67,38 +114,38 @@
 </div>
 
 <%- include('../../../partials/scripts.ejs') %>
+
 <script>
 const editForm = document.getElementById('editSchoolForm');
-const nameError = document.getElementById('nameError');
-const codeError = document.getElementById('codeError');
 
 editForm.addEventListener('submit', async e => {
   e.preventDefault();
-  nameError.textContent = '';
-  codeError.textContent = '';
 
   const formData = {
     name: editForm.name.value.trim(),
     code: editForm.code.value.trim(),
     phone: editForm.phone.value.trim(),
     email: editForm.email.value.trim(),
-    address: editForm.address.value.trim()
+    address: editForm.address.value.trim(),
+    status: editForm.status.value
   };
 
   const res = await fetch(editForm.action, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(formData)
   });
 
   const data = await res.json();
 
   if (data.errors) {
-    if (data.errors.general) alert(data.errors.general);
+    alert(data.errors.general);
   } else if (data.success) {
     alert(data.success);
-    if (data.redirect) window.location.href = data.redirect;
+    window.location.href = data.redirect;
   }
 });
 </script>
+
 </body>
+</html>

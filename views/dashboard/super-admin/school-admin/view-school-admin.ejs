@@ -1,7 +1,9 @@
 <%- include('../../../partials/head.ejs') %>
 <body class="rtl">
+
 <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
   <%- include('../../../partials/header.ejs') %>
+
   <div id="dw-s1" class="bmd-layout-drawer bg-faded">
     <%- include('../../../partials/sidebar/index.ejs') %>
   </div>
@@ -9,44 +11,76 @@
   <main class="bmd-layout-content">
     <div class="container-fluid">
 
-      <div class="row m-1 pb-4 mb-3">
+      <!-- Page Header -->
+      <div class="row m-1 pb-3 mb-3">
         <div class="col-12 p-2">
-          <div class="page-header breadcrumb-header">
-            <div class="row align-items-end">
-              <div class="col-lg-8">
-                <h3 class="lite-text">بيانات المدير: <%= admin.name %></h3>
-                <span class="lite-text text-gray">عرض جميع التفاصيل الخاصة بالمدير</span>
-              </div>
-              <div class="col-lg-4 text-left">
-                <a href="/super-admin/school-admins" class="btn btn-secondary">
-                  <i class="fas fa-arrow-left"></i> العودة لجميع المدراء
-                </a>
-                <a href="/super-admin/school-admins/<%= admin._id %>/edit" class="btn btn-warning">
-                  تعديل المدير
-                </a>
-              </div>
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1">
+                <i class="fas fa-user-shield"></i>
+                <%= admin.name %>
+              </h3>
+              <span class="lite-text text-gray">تفاصيل مدير المدرسة</span>
+            </div>
+            <div>
+              <a href="/super-admin/school-admins" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+              </a>
+              <a href="/super-admin/school-admins/<%= admin._id %>/edit" class="btn btn-warning">
+                <i class="fas fa-edit"></i> تعديل
+              </a>
             </div>
           </div>
         </div>
       </div>
 
       <div class="row m-1">
-        <div class="col-12 p-2">
-          <div class="card shade">
-            <div class="card-header">معلومات المدير</div>
+
+        <!-- Admin Info -->
+        <div class="col-md-6 p-2">
+          <div class="card shade h-100">
+            <div class="card-header bg-dark text-white">
+              <i class="fas fa-user-shield"></i> معلومات المدير
+            </div>
             <div class="card-body">
               <p><strong>الاسم:</strong> <%= admin.name %></p>
               <p><strong>البريد الإلكتروني:</strong> <%= admin.email %></p>
-              <p><strong>الهاتف:</strong> <%= admin.phone || '—' %></p>
+              <p><strong>رقم الهاتف:</strong> <%= admin.phone || '—' %></p>
               <p><strong>المدرسة:</strong> <%= admin.schoolId ? admin.schoolId.name : '—' %></p>
+<p>
+  <strong>الحالة:</strong>
+  <% if (admin.schoolId && admin.schoolId.status === 'active') { %>
+    <span class="badge badge-success">نشط</span>
+  <% } else { %>
+    <span class="badge badge-danger">موقوف</span>
+  <% } %>
+</p>
             </div>
           </div>
         </div>
+
+        <!-- Optional: Additional Info -->
+        <div class="col-md-6 p-2">
+          <div class="card shade h-100">
+            <div class="card-header bg-primary text-white">
+              <i class="fas fa-info-circle"></i> معلومات إضافية
+            </div>
+            <div class="card-body">
+              <% if (admin.notes) { %>
+                <p><%= admin.notes %></p>
+              <% } else { %>
+                <div class="alert alert-light mb-0">لا توجد ملاحظات إضافية</div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
   </main>
 </div>
+
 <%- include('../../../partials/scripts.ejs') %>
 </body>
 </html>

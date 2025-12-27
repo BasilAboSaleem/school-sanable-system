@@ -6,6 +6,7 @@ const incomeSchema = new mongoose.Schema({
   supplierId: { type: mongoose.Schema.Types.ObjectId, ref: "Supplier" },
   description: { type: String },
   schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
 });
 

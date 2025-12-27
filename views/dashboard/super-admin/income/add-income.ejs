@@ -7,39 +7,114 @@
   </div>
   <main class="bmd-layout-content">
     <div class="container-fluid">
-      <h3>إضافة وارد جديد</h3>
 
-      <form id="addIncomeForm" class="text-right">
-        <div class="form-group">
-          <label>اسم المورد *</label>
-          <input type="text" name="supplierName" class="form-control" required>
+      <!-- Page Header -->
+      <div class="row m-1 pb-3 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1"><i class="fas fa-money-bill-wave"></i> إضافة وارد جديد</h3>
+              <span class="lite-text text-gray">اختيار مورد موجود أو إضافة مورد جديد</span>
+            </div>
+            <div>
+              <a href="/super-admin/incomes" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+              </a>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label>البريد الإلكتروني</label>
-          <input type="email" name="email" class="form-control">
+      </div>
+
+      <!-- Form Card -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
+
+            <div class="card-header bg-primary text-white">
+              <i class="fas fa-plus-circle"></i> بيانات المورد والوارد
+            </div>
+
+            <div class="card-body">
+              <form id="addIncomeForm">
+
+                <!-- ================= STEP 1 ================= -->
+                <div id="step1">
+                  <h5 class="mb-3 text-primary"><i class="fas fa-user-tie"></i> اختيار المورد</h5>
+                  <div class="row">
+                    <div class="col-md-6 form-group">
+                      <label>المورد *</label>
+                      <select name="supplierId" id="supplierSelect" class="form-control" required>
+                        <option value="">اختر مورد</option>
+                        <% suppliers.forEach(supplier => { %>
+                          <option value="<%= supplier._id %>"><%= supplier.name %></option>
+                        <% }) %>
+                        <option value="new">مورد جديد</option>
+                      </select>
+                      <small class="text-danger" id="supplierError"></small>
+                    </div>
+                  </div>
+
+                  <div id="newSupplierFields" style="display:none;">
+                    <div class="row mt-2">
+                      <div class="col-md-6 form-group">
+                        <label>اسم المورد *</label>
+                        <input type="text" name="supplierName" class="form-control">
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label>البريد الإلكتروني</label>
+                        <input type="email" name="email" class="form-control">
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label>الهاتف</label>
+                        <input type="text" name="phone" class="form-control">
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label>العنوان</label>
+                        <input type="text" name="address" class="form-control">
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label>ملاحظات</label>
+                        <textarea name="notes" class="form-control"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="button" class="btn btn-primary mt-2" id="nextBtn">
+                    التالي <i class="fas fa-arrow-left"></i>
+                  </button>
+                </div>
+
+                <!-- ================= STEP 2 ================= -->
+                <div id="step2" style="display:none;">
+                  <h5 class="mb-3 text-success"><i class="fas fa-coins"></i> بيانات الوارد</h5>
+                  <div class="row">
+                    <div class="col-md-6 form-group">
+                      <label>المبلغ *</label>
+                      <input type="number" name="amount" class="form-control" required>
+                      <small class="text-danger" id="amountError"></small>
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label>الوصف</label>
+                      <textarea name="description" class="form-control"></textarea>
+                    </div>
+                  </div>
+
+                  <hr>
+                  <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                    <i class="fas fa-arrow-right"></i> السابق
+                  </button>
+                  <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> إضافة الوارد
+                  </button>
+                </div>
+
+              </form>
+            </div>
+
+          </div>
         </div>
-        <div class="form-group">
-          <label>الهاتف</label>
-          <input type="text" name="phone" class="form-control">
-        </div>
-        <div class="form-group">
-          <label>العنوان</label>
-          <input type="text" name="address" class="form-control">
-        </div>
-        <div class="form-group">
-          <label>ملاحظات</label>
-          <textarea name="notes" class="form-control"></textarea>
-        </div>
-        <div class="form-group">
-          <label>المبلغ *</label>
-          <input type="number" name="amount" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label>الوصف</label>
-          <textarea name="description" class="form-control"></textarea>
-        </div>
-        <button type="submit" class="btn btn-success">إضافة الوارد</button>
-      </form>
+      </div>
+
     </div>
   </main>
 </div>
@@ -47,14 +122,60 @@
 <%- include('../../../partials/scripts.ejs') %>
 
 <script>
+const step1 = document.getElementById('step1');
+const step2 = document.getElementById('step2');
+const supplierSelect = document.getElementById('supplierSelect');
+const newSupplierFields = document.getElementById('newSupplierFields');
+
+supplierSelect.addEventListener('change', () => {
+  if (supplierSelect.value === 'new') {
+    newSupplierFields.style.display = 'block';
+  } else {
+    newSupplierFields.style.display = 'none';
+  }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  const supplierError = document.getElementById('supplierError');
+  supplierError.textContent = '';
+  if (!supplierSelect.value) {
+    supplierError.textContent = 'اختر مورد أو أضف مورد جديد';
+    return;
+  }
+  if (supplierSelect.value === 'new') {
+    const name = document.querySelector('[name="supplierName"]').value.trim();
+    if (!name) {
+      supplierError.textContent = 'اسم المورد مطلوب';
+      return;
+    }
+  }
+  step1.style.display = 'none';
+  step2.style.display = 'block';
+});
+
+function prevStep() {
+  step2.style.display = 'none';
+  step1.style.display = 'block';
+}
+
 document.getElementById('addIncomeForm').addEventListener('submit', async e => {
   e.preventDefault();
+  const amountError = document.getElementById('amountError');
+  amountError.textContent = '';
+
+  const amount = document.querySelector('[name="amount"]').value.trim();
+  if (!amount || Number(amount) <= 0) {
+    amountError.textContent = 'المبلغ مطلوب ويجب أن يكون أكبر من صفر';
+    return;
+  }
+
   const formData = Object.fromEntries(new FormData(e.target).entries());
   const res = await fetch('/super-admin/incomes/create', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type':'application/json'},
     body: JSON.stringify(formData)
   });
+
   const data = await res.json();
   if(data.success) window.location.href = data.redirect;
   if(data.errors) alert(data.errors.general);

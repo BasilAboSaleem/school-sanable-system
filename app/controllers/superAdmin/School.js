@@ -98,15 +98,26 @@ exports.viewSchool = async (req, res) => {
       return res.redirect("/super-admin/schools");
     }
 
-    
     const schoolAdmin = await User.findOne({
       schoolId: school._id,
       role: "school-admin"
     }).select("name email phone");
 
+    const totalTeachers = await User.countDocuments({
+      schoolId: school._id,
+      role: "teacher"
+    });
+
+    const totalStudents = await User.countDocuments({
+      schoolId: school._id,
+      role: "student"
+    });
+
     res.render("dashboard/super-admin/school/view-school", {
       school,
-      schoolAdmin
+      schoolAdmin,
+      totalTeachers,
+      totalStudents
     });
 
   } catch (err) {
@@ -177,4 +188,4 @@ exports.updateSchool = async (req, res) => {
       errors: { general: "حدث خطأ أثناء تحديث بيانات المدرسة" }
     });
   }
-};
+}; 

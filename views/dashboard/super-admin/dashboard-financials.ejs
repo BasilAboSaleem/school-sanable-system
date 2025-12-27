@@ -8,119 +8,123 @@
 
   <main class="bmd-layout-content">
     <div class="container-fluid">
-      <h3>لوحة متابعة المالية للسوبر أدمن</h3>
+      <h3 class="mb-4">التقرير المالي الشامل للمؤسسة </h3>
 
-      <!-- الموردين -->
-      <div class="card shade mb-4">
-        <div class="card-header">
-          الموردين
-        </div>
-        <div class="card-body">
+      <ul class="nav nav-tabs mb-3" id="reportTabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="suppliers-tab" data-toggle="tab" href="#suppliers" role="tab">الموردين</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="incomes-tab" data-toggle="tab" href="#incomes" role="tab">الواردات</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="expenses-tab" data-toggle="tab" href="#expenses" role="tab">الصادرات</a>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="reportTabsContent">
+
+        <!-- الموردين -->
+        <div class="tab-pane fade show active" id="suppliers" role="tabpanel">
+          <div class="d-flex justify-content-end mb-2">
+            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('suppliersTable', 'الموردين')">Excel</button>
+            <button class="btn btn-primary btn-sm" onclick="printTable('suppliersTable')">طباعة</button>
+          </div>
           <input type="text" id="searchSuppliers" placeholder="ابحث باسم المورد" class="form-control mb-2">
-          <table class="table table-bordered table-hover text-center mb-0">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>الاسم</th>
-                <th>البريد الإلكتروني</th>
-                <th>الهاتف</th>
-                <th>العنوان</th>
-                <th>الملاحظات</th>
-                <th>العمليات</th>
-              </tr>
-            </thead>
-            <tbody id="suppliersTableBody">
-              <% suppliers.forEach((sup, i) => { %>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center mb-0" id="suppliersTable">
+              <thead>
                 <tr>
-                  <td><%= i+1 %></td>
-                  <td class="name"><%= sup.name %></td>
-                  <td><%= sup.email || '—' %></td>
-                  <td><%= sup.phone || '—' %></td>
-                  <td><%= sup.address || '—' %></td>
-                  <td><%= sup.notes || '—' %></td>
-                  <td>
-                    <a href="/school-admin/suppliers/<%= sup._id %>/view" class="btn btn-secondary btn-sm">عرض</a>
-                    <a href="/school-admin/suppliers/<%= sup._id %>/edit" class="btn btn-warning btn-sm">تعديل</a>
-                  </td>
+                  <th>#</th>
+                  <th>الاسم</th>
+                  <th>البريد الإلكتروني</th>
+                  <th>الهاتف</th>
+                  <th>العنوان</th>
+                  <th>الملاحظات</th>
                 </tr>
-              <% }) %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% suppliers.forEach((sup, i) => { %>
+                  <tr>
+                    <td><%= i+1 %></td>
+                    <td class="name"><%= sup.name %></td>
+                    <td><%= sup.email || '—' %></td>
+                    <td><%= sup.phone || '—' %></td>
+                    <td><%= sup.address || '—' %></td>
+                    <td><%= sup.notes || '—' %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <!-- الواردات -->
-      <div class="card shade mb-4">
-        <div class="card-header">
-          الواردات
-        </div>
-        <div class="card-body">
+        <!-- الواردات -->
+        <div class="tab-pane fade" id="incomes" role="tabpanel">
+          <div class="d-flex justify-content-end mb-2">
+            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('incomesTable', 'الواردات')">Excel</button>
+            <button class="btn btn-primary btn-sm" onclick="printTable('incomesTable')">طباعة</button>
+          </div>
           <input type="text" id="searchIncomes" placeholder="ابحث باسم المورد أو المدرسة" class="form-control mb-2">
-          <table class="table table-bordered table-hover text-center mb-0">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>المورد</th>
-                <th>المدرسة</th>
-                <th>المبلغ</th>
-                <th>الوصف</th>
-                <th>العمليات</th>
-              </tr>
-            </thead>
-            <tbody id="incomesTableBody">
-              <% incomes.forEach((inc, i) => { %>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center mb-0" id="incomesTable">
+              <thead>
                 <tr>
-                  <td><%= i+1 %></td>
-                  <td class="supplierName"><%= inc.supplierId.name %></td>
-                  <td class="schoolName"><%= inc.schoolId.name %></td>
-                  <td><%= inc.amount %></td>
-                  <td><%= inc.description || '—' %></td>
-                  <td>
-                    <a href="/school-admin/incomes/<%= inc._id %>/view" class="btn btn-secondary btn-sm">عرض</a>
-                    <a href="/school-admin/incomes/<%= inc._id %>/edit" class="btn btn-warning btn-sm">تعديل</a>
-                  </td>
+                  <th>#</th>
+                  <th>المورد</th>
+                  <th>المدرسة</th>
+                  <th>المبلغ</th>
+                  <th>الوصف</th>
                 </tr>
-              <% }) %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% incomes.forEach((inc, i) => { %>
+                  <tr>
+                    <td><%= i+1 %></td>
+                    <td class="supplierName"><%= inc.supplierId?.name || '—' %></td>
+                    <td class="schoolName"><%= inc.schoolId?.name || '—' %></td>
+                    <td><%= inc.amount %></td>
+                    <td><%= inc.description || '—' %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <!-- الصادرات -->
-      <div class="card shade mb-4">
-        <div class="card-header">
-          الصادرات
-        </div>
-        <div class="card-body">
+        <!-- الصادرات -->
+        <div class="tab-pane fade" id="expenses" role="tabpanel">
+          <div class="d-flex justify-content-end mb-2">
+            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('expensesTable', 'الصادرات')">Excel</button>
+            <button class="btn btn-primary btn-sm" onclick="printTable('expensesTable')">طباعة</button>
+          </div>
           <input type="text" id="searchExpenses" placeholder="ابحث باسم المدرسة أو الفئة" class="form-control mb-2">
-          <table class="table table-bordered table-hover text-center mb-0">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>المدرسة</th>
-                <th>المبلغ</th>
-                <th>الفئة</th>
-                <th>الوصف</th>
-                <th>العمليات</th>
-              </tr>
-            </thead>
-            <tbody id="expensesTableBody">
-              <% expenses.forEach((exp, i) => { %>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center mb-0" id="expensesTable">
+              <thead>
                 <tr>
-                  <td><%= i+1 %></td>
-                  <td class="schoolName"><%= exp.schoolId.name %></td>
-                  <td><%= exp.amount %></td>
-                  <td class="category"><%= exp.category || '—' %></td>
-                  <td><%= exp.description || '—' %></td>
-                  <td>
-                    <a href="/super-admin/expenses/<%= exp._id %>/view" class="btn btn-secondary btn-sm">عرض</a>
-                    <a href="/super-admin/expenses/<%= exp._id %>/edit" class="btn btn-warning btn-sm">تعديل</a>
-                  </td>
+                  <th>#</th>
+                  <th>المدرسة</th>
+                  <th>المبلغ</th>
+                  <th>الفئة</th>
+                  <th>الوصف</th>
                 </tr>
-              <% }) %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% expenses.forEach((exp, i) => { %>
+                  <tr>
+                    <td><%= i+1 %></td>
+                    <td class="schoolName"><%= exp.schoolId?.name || '—' %></td>
+                    <td><%= exp.amount %></td>
+                    <td class="category"><%= exp.category || '—' %></td>
+                    <td><%= exp.incomeId?.description || '—' %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </div>
 
     </div>
@@ -130,33 +134,52 @@
 <%- include('../../partials/scripts.ejs') %>
 
 <script>
-// بحث الموردين
+// البحث بدون ريلود
 document.getElementById('searchSuppliers').addEventListener('input', e => {
   const filter = e.target.value.toLowerCase();
-  document.querySelectorAll('#suppliersTableBody tr').forEach(row => {
+  document.querySelectorAll('#suppliersTable tbody tr').forEach(row => {
     const name = row.querySelector('.name')?.textContent.toLowerCase() || '';
     row.style.display = name.includes(filter) ? '' : 'none';
   });
 });
 
-// بحث الواردات
 document.getElementById('searchIncomes').addEventListener('input', e => {
   const filter = e.target.value.toLowerCase();
-  document.querySelectorAll('#incomesTableBody tr').forEach(row => {
+  document.querySelectorAll('#incomesTable tbody tr').forEach(row => {
     const supplierName = row.querySelector('.supplierName')?.textContent.toLowerCase() || '';
     const schoolName = row.querySelector('.schoolName')?.textContent.toLowerCase() || '';
     row.style.display = (supplierName.includes(filter) || schoolName.includes(filter)) ? '' : 'none';
   });
 });
 
-// بحث الصادرات
 document.getElementById('searchExpenses').addEventListener('input', e => {
   const filter = e.target.value.toLowerCase();
-  document.querySelectorAll('#expensesTableBody tr').forEach(row => {
+  document.querySelectorAll('#expensesTable tbody tr').forEach(row => {
     const schoolName = row.querySelector('.schoolName')?.textContent.toLowerCase() || '';
     const category = row.querySelector('.category')?.textContent.toLowerCase() || '';
     row.style.display = (schoolName.includes(filter) || category.includes(filter)) ? '' : 'none';
   });
 });
+
+// تصدير Excel
+function exportTableToExcel(tableId, filename = ''){
+  const table = document.getElementById(tableId).outerHTML.replace(/ /g, '%20');
+  const link = document.createElement('a');
+  link.href = 'data:application/vnd.ms-excel,' + table;
+  link.download = filename + '.xls';
+  link.click();
+}
+
+// طباعة الجدول
+function printTable(tableId){
+  const table = document.getElementById(tableId).outerHTML;
+  const newWin = window.open('');
+  newWin.document.write('<html><head><title>طباعة التقرير</title></head><body>');
+  newWin.document.write(table);
+  newWin.document.write('</body></html>');
+  newWin.print();
+  newWin.close();
+}
 </script>
 </body>
+</html>

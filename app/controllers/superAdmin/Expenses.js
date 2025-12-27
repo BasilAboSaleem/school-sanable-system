@@ -2,80 +2,54 @@ const{
     Expense,
     Supplier,
     Income,
-    School
+    School,
+    
 } = require("./utils");
 
 
-// عرض  صادرات المؤسسة
-exports.listExpenses = async (req, res) => {
-  const expenses = await Expense.find({ source: "institution" })
-    .populate("schoolId")
-    .sort({ createdAt: -1 });
+exports.listInstitutionExports = async (req, res) => {
+  try {
+    // جلب كل الصادرات الخاصة بالمؤسسة
+    const exportsList = await Expense.find({ source: "institution" })
+      .populate({
+        path: 'incomeId', // افترض أن الصادرات مربوطة بالوارد
+        select: 'supplierId description amount', 
+        populate: { path: 'supplierId', select: 'name' } // نجيب المورد من الوارد
+      })
+      .populate('schoolId', 'name')
+      .lean();
 
-  res.render("dashboard/super-admin/expense/expenses", { expenses });
+    res.render('dashboard/super-admin/expense/expenses', { exportsList });
+  } catch (err) {
+    console.error(err);
+    res.json({ errors: { general: 'حدث خطأ أثناء جلب الصادرات' } });
+  }
 };
 
-// صادرات المدارس (عرض فقط)
+// جلب كل المدارس مع الصادرات التي أنشأتها المدرسة نفسها
 exports.listSchoolExpenses = async (req, res) => {
-  const expenses = await Expense.find({ source: "school" })
-    .populate("schoolId")
-    .sort({ createdAt: -1 });
-
-  res.render("dashboard/super-admin/expense/school-expenses", { expenses });
-};
-// صفحة إضافة صادر جديد
-exports.renderAddExpense = async (req, res) => {
-  const schools = await School.find();
-  res.render("dashboard/super-admin/expense/add-expense", { schools });
-};
-
-// إنشاء صادر جديد
-exports.createExpense = async (req, res) => {
   try {
-    const { schoolId, amount, category, description } = req.body;
+    const schools = await School.find().lean();
 
-    const expense = new Expense({
-      schoolId,
-      amount,
-      category,
-      description,
-      source: "institution"
-    });
-    await expense.save();
+    for (let school of schools) {
+      // جلب الصادرات التي أنشأتها المدرسة نفسها فقط
+      const expenses = await Expense.find({ 
+        source: "school", 
+        schoolId: school._id 
+      }).populate('incomeId').lean();
 
-    res.json({ success: "Expense added successfully", redirect: "/super-admin/expenses" });
+      school.expenses = expenses;
+    }
+
+    res.render("dashboard/super-admin/expense/school-expenses", { schools });
   } catch (err) {
     console.error(err);
-    res.json({ errors: { general: "Error adding expense" } });
+    res.json({ errors: { general: 'حدث خطأ أثناء جلب الصادرات' } });
   }
 };
 
-// صفحة عرض تفاصيل صادر
-exports.viewExpenseDetails = async (req, res) => {
-  const expense = await Expense.findById(req.params.id).populate("schoolId");
-  res.render("dashboard/super-admin/expense/view-expense", { expense });
-};
 
-// صفحة تعديل صادر
-exports.renderEditExpense = async (req, res) => {
-  const expense = await Expense.findById(req.params.id);
-  const schools = await School.find();
-  res.render("dashboard/super-admin/expense/edit-expense", { expense, schools });
-};
 
-// تحديث صادر
-exports.updateExpense = async (req, res) => {
-  try {
-    const expense = await Expense.findById(req.params.id);
-    expense.schoolId = req.body.schoolId;
-    expense.amount = req.body.amount;
-    expense.category = req.body.category;
-    expense.description = req.body.description;
-    await expense.save();
 
-    res.json({ success: "Expense updated successfully", redirect: "/super-admin/expenses" });
-  } catch (err) {
-    console.error(err);
-    res.json({ errors: { general: "Error updating expense" } });
-  }
-};
+
+

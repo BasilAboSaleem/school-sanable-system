@@ -13,7 +13,7 @@
       <div class="row m-1 pb-4 mb-3">
         <div class="col-12 p-2">
           <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
-            <h3 class="lite-text">جميع الصادرات الخاصة بالمدارس</h3>
+            <h3 class="lite-text">جميع واردات المدارس</h3>
             <a href="/super-admin/dashboard" class="btn btn-secondary">
               <i class="fas fa-arrow-right"></i> رجوع
             </a>
@@ -22,7 +22,7 @@
       </div>
 
       <!-- Accordion لكل مدرسة -->
-      <div class="accordion" id="schoolsExpensesAccordion">
+      <div class="accordion" id="schoolsAccordion">
         <% schools.forEach((school, idx) => { %>
           <div class="card shade mb-2">
             <div class="card-header bg-primary text-white" id="heading<%= idx %>">
@@ -30,13 +30,13 @@
                 <button class="btn btn-link text-white" type="button" data-toggle="collapse" data-target="#collapse<%= idx %>" aria-expanded="false" aria-controls="collapse<%= idx %>">
                   <i class="fas fa-school"></i> <%= school.name %>
                 </button>
-                <span>المجموع الكلي للصادرات: 
-                  <strong><%= (school.expenses.reduce((sum, exp) => sum + exp.amount, 0)).toLocaleString() %></strong>
+                <span>المجموع الكلي: 
+                  <strong><%= (school.incomes.reduce((sum, inc) => sum + inc.amount, 0)).toLocaleString() %></strong>
                 </span>
               </h5>
             </div>
 
-            <div id="collapse<%= idx %>" class="collapse" aria-labelledby="heading<%= idx %>" data-parent="#schoolsExpensesAccordion">
+            <div id="collapse<%= idx %>" class="collapse" aria-labelledby="heading<%= idx %>" data-parent="#schoolsAccordion">
               <div class="card-body p-2">
 
                 <!-- بيانات المدرسة -->
@@ -46,29 +46,31 @@
                   <p><strong>العنوان:</strong> <%= school.address || '—' %></p>
                 </div>
 
-                <!-- جدول الصادرات -->
+                <!-- جدول الواردات -->
                 <div class="table-responsive">
                   <table class="table table-bordered table-hover text-center mb-0">
                     <thead class="thead-light">
                       <tr>
                         <th>#</th>
-                        <th>المورد / الجهة</th>
+                        <th>المورد</th>
                         <th>المبلغ</th>
                         <th>الوصف</th>
-                        <th>تاريخ الصادر</th>
+                        <th>تاريخ التسجيل</th>
+                        
                       </tr>
                     </thead>
                     <tbody>
-                      <% if (!school.expenses || school.expenses.length === 0) { %>
-                        <tr><td colspan="5" class="text-muted py-4">لا توجد صادرات لهذه المدرسة</td></tr>
+                      <% if (!school.incomes || school.incomes.length === 0) { %>
+                        <tr><td colspan="6" class="text-muted py-4">لا توجد واردات لهذه المدرسة</td></tr>
                       <% } else { %>
-                        <% school.expenses.forEach((exp, i) => { %>
+                        <% school.incomes.forEach((income, i) => { %>
                           <tr>
                             <td><%= i + 1 %></td>
-                         <td><%= exp.incomeId?.supplierId?.name || '—' %></td>
-<td><%= exp.amount.toLocaleString() %></td>
-<td><%= exp.incomeId?.description || '—' %></td>
-<td><%= exp.createdAt.toLocaleDateString() %></td>
+                            <td><%= income.supplier?.name || '—' %></td>
+                            <td><%= income.amount.toLocaleString() %></td>
+                            <td><%= income.description || '—' %></td>
+                            <td><%= income.createdAt.toLocaleDateString() %></td>
+                      
                           </tr>
                         <% }) %>
                       <% } %>
@@ -89,7 +91,7 @@
 <%- include('../../../partials/scripts.ejs') %>
 
 <script>
-  // Optional: expand أول مدرسة افتراضياً
+  // Optional: expand first school by default
   $('#collapse0').addClass('show');
 </script>
 

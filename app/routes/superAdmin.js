@@ -40,13 +40,13 @@ router.post("/incomes/:id/edit", superAdminController.Income.updateIncome);
 
 
 // عرض كل الصادرات
-router.get("/expenses", superAdminController.Expense.listExpenses);
+router.get("/expenses", superAdminController.Expense.listInstitutionExports);
 
 // صفحة إضافة صادر جديد
-router.get("/expenses/create", superAdminController.Expense.renderAddExpense);
-router.post("/expenses/create", superAdminController.Expense.createExpense);
+//router.get("/expenses/create", superAdminController.Expense.renderAddExpense);
+//router.post("/expenses/create", superAdminController.Expense.createExpense);
 // صفحة عرض صادر
-router.get("/expenses/:id/view", superAdminController.Expense.viewExpenseDetails);
+//router.get("/expenses/:id/view", superAdminController.Expense.viewExpenseDetails);
 // صادرات المدارس (تقارير)
 router.get(
   "/school-expenses",
@@ -54,9 +54,16 @@ router.get(
 );
 
 // تعديل صادر
-router.get("/expenses/:id/edit", superAdminController.Expense.renderEditExpense);
-router.post("/expenses/:id/edit", superAdminController.Expense.updateExpense);
+//router.get("/expenses/:id/edit", superAdminController.Expense.renderEditExpense);
+//router.post("/expenses/:id/edit", superAdminController.Expense.updateExpense);
 
 router.get("/dashboard-financials", superAdminController.dashboardFinancials.dashboardFinancials);
+router.get("/suppliers", superAdminController.Supplier.renderSuppliers);
+
+// عرض واردات مورد محدد
+router.get("/suppliers/:id/incomes", superAdminController.Supplier.renderSupplierIncomes);
+// عرض جميع الواردات الخاصة بالمدارس
+router.get('/schools/incomes', superAdminController.Income.viewAllSchoolIncomes);
+
 
 module.exports = router;

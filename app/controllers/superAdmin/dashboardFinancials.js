@@ -7,10 +7,26 @@ const{
 
 // لوحة شاملة للسوبر أدمن
 exports.dashboardFinancials = async (req, res) => {
-  try {
-    const suppliers = await Supplier.find().sort({ createdAt: -1 });
-    const incomes = await Income.find().populate("supplierId schoolId").sort({ createdAt: -1 });
-    const expenses = await Expense.find().populate("schoolId").sort({ createdAt: -1 });
+try {
+    // جلب الموردين
+    const suppliers = await Supplier.find().lean();
+
+    // جلب الواردات مع supplier و school
+    const incomes = await Income.find()
+      .populate("supplierId")
+      .populate("schoolId")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // جلب الصادرات مع school وربط incomeId (لإظهار المورد/الوارد)
+    const expenses = await Expense.find()
+      .populate("schoolId")
+      .populate({
+        path: "incomeId",
+        populate: { path: "supplierId" }
+      })
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.render("dashboard/super-admin/dashboard-financials", {
       suppliers,
@@ -18,9 +34,8 @@ exports.dashboardFinancials = async (req, res) => {
       expenses
     });
   } catch (err) {
-    console.error(err);
-    req.flash("error", "حدث خطأ أثناء تحميل البيانات");
-    res.redirect("/super-admin");
+    console.error("[financialReport Error]:", err);
+    req.flash("error", "حدث خطأ أثناء تحميل التقرير المالي");
+    res.redirect("/super-admin/dashboard");
   }
 };
-

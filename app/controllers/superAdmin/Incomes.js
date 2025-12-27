@@ -2,7 +2,8 @@ const{
     Income,
     Supplier,
     School,
-    Expense
+    Expense,
+
 } = require("./utils");
 
 
@@ -241,4 +242,38 @@ exports.updateIncome = async (req, res) => {
     res.json({ errors: { general: "حدث خطأ أثناء التعديل" } });
   }
 };
+
+// عرض جميع واردات المدارس
+exports.viewAllSchoolIncomes = async (req, res) => {
+  try {
+    const schools = await School.find().lean();
+
+    for (let school of schools) {
+      // جلب جميع Expense الخاصة بالمدرسة
+      const expenses = await Expense.find({ schoolId: school._id }).lean();
+
+      // لكل Expense، جيب الـ Income اللي منها للحصول على المورد
+      const incomes = await Promise.all(expenses.map(async (exp) => {
+        const income = await Income.findById(exp.incomeId).populate('supplierId').lean();
+        return {
+          _id: exp._id,
+          amount: exp.amount,
+          description: exp.description,
+          createdAt: exp.createdAt,
+          supplier: income ? income.supplierId : null
+        };
+      }));
+
+      school.incomes = incomes;
+    }
+
+    res.render('dashboard/super-admin/income/schools-incomes', { schools });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ errors: { general: 'حدث خطأ أثناء جلب البيانات' } });
+  }
+};
+
+
 

@@ -43,3 +43,9 @@ exports.postLogin = async (req, res) => {
     res.status(500).send("حدث خطأ في الخادم");
   }
 };
+
+// POST /auth/logout
+exports.logout = (req, res) => {
+  res.clearCookie("token");
+  res.redirect("/auth/login");
+};

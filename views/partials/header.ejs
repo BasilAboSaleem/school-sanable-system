@@ -83,9 +83,12 @@
 										class="fas fa-moon fa-sm c-main mr-2"></i>Dark Mode</button>
 								<button class="dropdown-item" type="button"><i
 										class="fas fa-cog fa-sm c-main mr-2"></i>Setting</button>
-								<button class="dropdown-item" type="button"><i
-										class="fas fa-sign-out-alt c-main fa-sm mr-2"></i>Sign Out</button>
-							</div>
+			<form action="/auth/logout" method="POST" class="d-inline">
+  <button type="submit" class="dropdown-item">
+    <i class="fas fa-sign-out-alt c-main fa-sm mr-2"></i> Sign Out
+  </button>
+</form>
+					</div>
 						</div>
 					</li>
 

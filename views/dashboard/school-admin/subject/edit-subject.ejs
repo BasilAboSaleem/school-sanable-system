@@ -1,6 +1,3 @@
-<!doctype html>
-<html class="no-js" lang="ar">
-
 <%- include('../../../partials/head.ejs') %>
 
 <body class="rtl">
@@ -14,54 +11,71 @@
 <main class="bmd-layout-content">
 <div class="container-fluid">
 
-<!-- breadcrumb -->
-<div class="row m-1 pb-4 mb-3">
+<!-- Page Header -->
+<div class="row m-1 pb-3 mb-3">
   <div class="col-12 p-2">
-    <div class="page-header breadcrumb-header">
-      <div class="row align-items-end">
-        <div class="col-lg-8">
-          <h3 class="lite-text">تعديل المادة</h3>
-          <span class="lite-text text-gray">تعديل اسم وحالة المادة</span>
-        </div>
-        <div class="col-lg-4 text-left">
-          <a href="/school-admin/subjects" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> العودة
-          </a>
-        </div>
+    <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="lite-text mb-1"><i class="fas fa-book"></i> تعديل المادة</h3>
+        <span class="lite-text text-gray">تعديل اسم، رمز وحالة المادة</span>
+      </div>
+      <div>
+        <a href="/school-admin/subjects" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> العودة للمواد
+        </a>
       </div>
     </div>
   </div>
 </div>
 
-<div class="row m-1">
-<div class="col-12 p-2">
-<div class="card shade h-100">
-<div class="card-header">
-  تعديل المادة
-</div>
-<div class="card-body">
+<!-- Alerts -->
+<% if (locals.error && locals.error.length > 0) { %>
+  <div class="alert alert-danger"><%= locals.error %></div>
+<% } %>
+<% if (locals.success && locals.success.length > 0) { %>
+  <div class="alert alert-success"><%= locals.success %></div>
+<% } %>
 
-<form id="editSubjectForm" class="text-right">
-  <div class="form-group">
-    <label>اسم المادة *</label>
-    <input type="text" name="name" id="subjectNameInput" required class="form-control" value="<%= subject.name %>">
-    <small class="text-danger" id="nameError"></small>
+<!-- Form Card -->
+<div class="row m-1 justify-content-center">
+  <div class="col-lg-6 col-md-8 col-12 p-2">
+    <div class="card shade">
+      <div class="card-header bg-primary text-white">
+        <i class="fas fa-edit"></i> بيانات المادة
+      </div>
+      <div class="card-body">
+        <form id="editSubjectForm" class="text-right">
+          <div class="form-group">
+            <label>اسم المادة *</label>
+            <input type="text" name="name" id="subjectNameInput" required class="form-control" value="<%= subject.name %>">
+            <small class="text-danger" id="nameError"></small>
+          </div>
+
+          <div class="form-group">
+            <label>رمز المادة</label>
+            <input type="text" name="code" id="subjectCodeInput" class="form-control" value="<%= subject.code %>">
+          </div>
+
+          <div class="form-group">
+            <label>الحالة</label>
+            <select name="status" class="form-control">
+              <option value="active" <%= subject.status==='active' ? 'selected' : '' %>>نشط</option>
+              <option value="inactive" <%= subject.status==='inactive' ? 'selected' : '' %>>غير نشط</option>
+            </select>
+          </div>
+
+          <div class="d-flex justify-content-between mt-3">
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-save"></i> حفظ التعديلات
+            </button>
+            <a href="/school-admin/subjects" class="btn btn-secondary">
+              <i class="fas fa-times"></i> إلغاء
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
-
-  <div class="form-group">
-    <label>الحالة</label>
-    <select name="status" class="form-control">
-      <option value="active" <%= subject.status==='active' ? 'selected' : '' %>>نشط</option>
-      <option value="inactive" <%= subject.status==='inactive' ? 'selected' : '' %>>غير نشط</option>
-    </select>
-  </div>
-
-  <button type="submit" class="btn btn-success">حفظ التعديلات</button>
-</form>
-
-</div>
-</div>
-</div>
 </div>
 
 </div>
@@ -72,6 +86,7 @@
 
 <script>
 const subjectNameInput = document.getElementById('subjectNameInput');
+const subjectCodeInput = document.getElementById('subjectCodeInput');
 const nameError = document.getElementById('nameError');
 
 document.getElementById('editSubjectForm').addEventListener('submit', async e => {
@@ -84,7 +99,8 @@ document.getElementById('editSubjectForm').addEventListener('submit', async e =>
   }
 
   const formData = {
-    name: subjectNameInput.value,
+    name: subjectNameInput.value.trim(),
+    code: subjectCodeInput.value.trim(),
     status: document.querySelector('select[name="status"]').value
   };
 

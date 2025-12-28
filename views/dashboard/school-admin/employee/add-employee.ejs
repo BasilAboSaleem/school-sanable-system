@@ -1,65 +1,98 @@
 <%- include('../../../partials/head.ejs') %>
+
 <body class="rtl">
-<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
-  <%- include('../../../partials/header.ejs') %>
-  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
-    <%- include('../../../partials/sidebar/index.ejs') %>
-  </div>
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+    <%- include('../../../partials/header.ejs') %>
 
-  <main class="bmd-layout-content">
-    <div class="container-fluid">
-      <div class="row m-1 pb-4 mb-3">
-        <div class="col-12 p-2">
-          <h3 class="lite-text">إضافة موظف جديد</h3>
-        </div>
-      </div>
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../../partials/sidebar/index.ejs') %>
+    </div>
 
-     <% if (locals.error && locals.error.length > 0) { %>
-  <div class="alert alert-danger"><%= locals.error %></div>
-<% } %>
-<% if (locals.success && locals.success.length > 0) { %>
-  <div class="alert alert-success"><%= locals.success %></div>
-<% } %>
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
 
-      <div class="row m-1">
-        <div class="col-12 p-2">
-          <div class="card shade h-100">
-            <div class="card-body">
-              <form action="/school-admin/employees/create" method="POST">
-                <div class="form-group">
-                  <label>الاسم *</label>
-                  <input type="text" name="name" required class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>البريد الإلكتروني</label>
-                  <input type="email" name="email" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>رقم الهاتف</label>
-                  <input type="text" name="phone" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>المسمى الوظيفي</label>
-                  <input type="text" name="jobTitle" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>العنوان</label>
-                  <input type="text" name="address" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>الراتب</label>
-                  <input type="number" name="salary" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-success">إضافة الموظف</button>
-                <a href="/school-admin/employees" class="btn btn-secondary">إلغاء</a>
-              </form>
+        <!-- Page Header -->
+        <div class="row m-1 pb-3 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+              <div>
+                <h3 class="lite-text mb-1"><i class="fas fa-user-tie"></i> إضافة موظف جديد</h3>
+                <span class="lite-text text-gray">إدخال بيانات الموظف الجديد للنظام</span>
+              </div>
+              <div>
+                <a href="/school-admin/employees" class="btn btn-secondary">
+                  <i class="fas fa-arrow-left"></i> العودة للموظفين
+                </a>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Alerts -->
+        <% if (locals.error && locals.error.length > 0) { %>
+          <div class="alert alert-danger"><%= locals.error %></div>
+        <% } %>
+        <% if (locals.success && locals.success.length > 0) { %>
+          <div class="alert alert-success"><%= locals.success %></div>
+        <% } %>
+
+        <!-- Form Card -->
+        <div class="row m-1 justify-content-center">
+          <div class="col-lg-6 col-md-8 col-12 p-2">
+            <div class="card shade">
+              <div class="card-header bg-primary text-white">
+                <i class="fas fa-plus-circle"></i> بيانات الموظف
+              </div>
+              <div class="card-body">
+                <form action="/school-admin/employees/create" method="POST">
+                  <div class="form-group">
+                    <label>الاسم الكامل *</label>
+                    <input type="text" name="name" required class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" name="email" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="text" name="phone" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>المسمى الوظيفي</label>
+                    <input type="text" name="jobTitle" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" name="address" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>الراتب</label>
+                    <input type="number" name="salary" class="form-control">
+                  </div>
+
+                  <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-success">
+                      <i class="fas fa-save"></i> إضافة الموظف
+                    </button>
+                    <a href="/school-admin/employees" class="btn btn-secondary">
+                      <i class="fas fa-times"></i> إلغاء
+                    </a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div>
-  </main>
-</div>
-<%- include('../../../partials/scripts.ejs') %>
+    </main>
+  </div>
+
+  <%- include('../../../partials/scripts.ejs') %>
 </body>
 </html>

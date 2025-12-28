@@ -1,12 +1,9 @@
-<!doctype html>
-<html class="no-js" lang="ar">
-
 <%- include('../../../partials/head.ejs') %>
 
 <body class="rtl">
-
   <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
     <%- include('../../../partials/header.ejs') %>
+
     <div id="dw-s1" class="bmd-layout-drawer bg-faded">
       <%- include('../../../partials/sidebar/index.ejs') %>
     </div>
@@ -14,36 +11,40 @@
     <main class="bmd-layout-content">
       <div class="container-fluid">
 
-        <!-- breadcrumb -->
-        <div class="row m-1 pb-4 mb-3">
+        <!-- Page Header -->
+        <div class="row m-1 pb-3 mb-3">
           <div class="col-12 p-2">
-            <div class="page-header breadcrumb-header">
-              <div class="row align-items-end">
-                <div class="col-lg-8">
-                  <h3 class="lite-text">إضافة مادة جديدة</h3>
-                  <span class="lite-text text-gray">أدخل اسم المادة الجديدة للمدرسة</span>
-                </div>
-                <div class="col-lg-4">
-                  <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
-                    <li class="breadcrumb-item active">إضافة مادة</li>
-                  </ol>
-                </div>
+            <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+              <div>
+                <h3 class="lite-text mb-1"><i class="fas fa-book"></i> إضافة مادة جديدة</h3>
+                <span class="lite-text text-gray">أدخل بيانات المادة الجديدة للمدرسة</span>
+              </div>
+              <div>
+                <a href="/school-admin/subjects" class="btn btn-secondary">
+                  <i class="fas fa-arrow-left"></i> العودة للمواد
+                </a>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- الفورم لإضافة مادة -->
-        <div class="row m-1">
-          <div class="col-12 p-2">
-            <div class="card shade h-100">
-              <div class="card-header">
-                إضافة مادة جديدة
+        <!-- Alerts -->
+        <% if (locals.error && locals.error.length > 0) { %>
+          <div class="alert alert-danger"><%= locals.error %></div>
+        <% } %>
+        <% if (locals.success && locals.success.length > 0) { %>
+          <div class="alert alert-success"><%= locals.success %></div>
+        <% } %>
+
+        <!-- Form Card -->
+        <div class="row m-1 justify-content-center">
+          <div class="col-lg-6 col-md-8 col-12 p-2">
+            <div class="card shade">
+              <div class="card-header bg-primary text-white">
+                <i class="fas fa-plus-circle"></i> بيانات المادة
               </div>
               <div class="card-body">
-
-                <form id="addSubjectForm" action="/school-admin/subjects/create" method="POST" class="text-right">
+                <form id="addSubjectForm" class="text-right">
                   <div class="form-group">
                     <label>اسم المادة *</label>
                     <input type="text" name="name" id="subjectNameInput" required class="form-control">
@@ -63,9 +64,15 @@
                     </select>
                   </div>
 
-                  <button type="submit" class="btn btn-success">إضافة المادة</button>
+                  <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-success">
+                      <i class="fas fa-save"></i> إضافة المادة
+                    </button>
+                    <a href="/school-admin/subjects" class="btn btn-secondary">
+                      <i class="fas fa-times"></i> إلغاء
+                    </a>
+                  </div>
                 </form>
-
               </div>
             </div>
           </div>

@@ -5,109 +5,134 @@
 
 <body class="rtl">
 
-  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
 
-    <%- include('../../../partials/header.ejs') %>
+<%- include('../../../partials/header.ejs') %>
 
-    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
-      <%- include('../../../partials/sidebar/index.ejs') %>
-    </div>
+<div id="dw-s1" class="bmd-layout-drawer bg-faded">
+  <%- include('../../../partials/sidebar/index.ejs') %>
+</div>
 
-    <main class="bmd-layout-content">
-      <div class="container-fluid">
+<main class="bmd-layout-content">
+<div class="container-fluid">
 
-        <!-- breadcrumb -->
-        <div class="row m-1 pb-4 mb-3">
-          <div class="col-12 p-2">
-            <div class="page-header breadcrumb-header">
-              <div class="row align-items-end">
-                <div class="col-lg-8">
-                  <div class="page-header-title text-left-rtl">
-                    <div class="d-inline">
-                      <h3 class="lite-text">بيانات الطالب</h3>
-                      <span class="lite-text text-gray">عرض جميع بيانات الطالب</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-4">
-                  <a href="/school-admin/students" class="btn btn-secondary float-left">
-                    <i class="fas fa-arrow-left"></i> العودة للطلاب
-                  </a>
-                  <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
-                    <li class="breadcrumb-item active">بيانات الطالب</li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </div>
+  <!-- Page Header -->
+  <div class="row m-1 pb-3 mb-3">
+    <div class="col-12 p-2">
+      <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="lite-text mb-1"><i class="fas fa-user-graduate"></i> بيانات الطالب</h3>
+          <span class="lite-text text-gray">عرض جميع بيانات الطالب وسجل العلامات</span>
         </div>
-
-        <!-- بيانات الطالب -->
-        <div class="row m-1">
-          <div class="col-12 p-2">
-            <div class="card shade h-100">
-              <div class="card-header">
-                معلومات الطالب
-              </div>
-              <div class="card-body">
-                <table class="table table-bordered">
-                  <tbody>
-                    <tr>
-                      <th>الاسم الكامل</th>
-                      <td><%= student.fullName %></td>
-                    </tr>
-                    <tr>
-                      <th>تاريخ الميلاد</th>
-                      <td><%= student.dateOfBirth ? student.dateOfBirth.toLocaleDateString() : '—' %></td>
-                    </tr>
-                    <tr>
-                      <th>الفصل</th>
-                      <td><%= student.classId ? student.classId.name : '—' %></td>
-                    </tr>
-                    <tr>
-                      <th>الشعبة</th>
-                      <td><%= student.sectionId ? student.sectionId.name : '—' %></td>
-                    </tr>
-                    <tr>
-                      <th>الجنس</th>
-                      <td><%= student.gender || '—' %></td>
-                    </tr>
-                    <tr>
-                      <th>رقم ولي الأمر</th>
-                      <td><%= student.phoneOfParents || '—' %></td>
-                    </tr>
-                    <tr>
-                      <th>العنوان</th>
-                      <td><%= student.address || '—' %></td>
-                    </tr>
-                    <tr>
-                      <th>الفئة</th>
-                      <td><%= student.grade || '—' %></td>
-                    </tr>
-                    <tr>
-                      <th>تاريخ الإضافة</th>
-                      <td><%= student.createdAt.toLocaleDateString() %></td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <div class="mt-3">
-                  <a href="/school-admin/students/<%= student._id %>/edit" class="btn btn-warning">تعديل الطالب</a>
-                  <a href="/school-admin/students" class="btn btn-secondary">عودة للطلاب</a>
-                </div>
-
-              </div>
-            </div>
-          </div>
+        <div>
+          <a href="/school-admin/students" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> العودة للطلاب
+          </a>
         </div>
-
       </div>
-    </main>
-
+    </div>
   </div>
 
-  <%- include('../../../partials/scripts.ejs') %>
+  <!-- Student Info Card -->
+  <div class="row m-1 justify-content-center">
+    <div class="col-lg-10 col-md-12 p-2">
+      <div class="card shade">
+        <div class="card-header bg-primary text-white">
+          <i class="fas fa-info-circle"></i> معلومات الطالب
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <tbody>
+              <tr><th>الاسم الكامل</th><td><%= student.fullName %></td></tr>
+              <tr><th>تاريخ الميلاد</th><td><%= student.dateOfBirth ? student.dateOfBirth.toLocaleDateString() : '—' %></td></tr>
+              <tr><th>الفصل</th><td><%= student.classId ? student.classId.name : '—' %></td></tr>
+              <tr><th>الشعبة</th><td><%= student.sectionId ? student.sectionId.name : '—' %></td></tr>
+              <tr><th>الجنس</th><td><%= student.gender || '—' %></td></tr>
+              <tr><th>رقم ولي الأمر</th><td><%= student.phoneOfParents || '—' %></td></tr>
+              <tr><th>العنوان</th><td><%= student.address || '—' %></td></tr>
+              <tr><th>الفئة</th><td><%= student.grade || '—' %></td></tr>
+              <tr><th>تاريخ الإضافة</th><td><%= student.createdAt.toLocaleDateString() %></td></tr>
+            </tbody>
+          </table>
+          <div class="mt-3">
+            <a href="/school-admin/students/<%= student._id %>/edit" class="btn btn-warning">تعديل الطالب</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grades History Card -->
+  <div class="row m-1 justify-content-center">
+    <div class="col-lg-10 col-md-12 p-2">
+      <div class="card shade">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-clipboard-list"></i> سجل العلامات</span>
+          <div class="btn-group no-print">
+            <button id="exportExcel" class="btn btn-light btn-sm">
+              <i class="fas fa-file-excel"></i> Excel
+            </button>
+            <button class="btn btn-light btn-sm" onclick="window.print()">
+              <i class="fas fa-print"></i> طباعة
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <% if (grades && grades.length > 0) { %>
+          <table class="table table-striped table-bordered" id="gradesTable">
+            <thead class="thead-dark">
+              <tr>
+                <th>المادة</th>
+                <th>الاختبار</th>
+                <th>الدرجة</th>
+                <th>المعلم</th>
+                <th>تاريخ الإدخال</th>
+                <th>ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% grades.forEach(grade => { %>
+                <tr>
+                  <td><%= grade.subjectId.name %></td>
+                  <td><%= grade.examId ? grade.examId.title : '—' %></td>
+                  <td><%= grade.score %></td>
+                  <td><%= grade.teacherId.name %></td>
+                  <td><%= grade.createdAt.toLocaleDateString() %></td>
+                  <td><%= grade.notes || '—' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <% } else { %>
+            <p class="text-muted text-center">لا توجد علامات مسجلة لهذا الطالب بعد.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<!-- SheetJS and Export Script -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+  document.getElementById('exportExcel').addEventListener('click', () => {
+    const table = document.getElementById('gradesTable');
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Grades" });
+    XLSX.writeFile(wb, "<%= student.fullName %>_Grades.xlsx");
+  });
+</script>
+
+<style>
+  @media print {
+    .no-print, header, #dw-s1, .breadcrumb-header, .btn-warning { display: none !important; }
+    body { direction: rtl; }
+    table { width: 100%; border-collapse: collapse; }
+  }
+</style>
 
 </body>
 </html>

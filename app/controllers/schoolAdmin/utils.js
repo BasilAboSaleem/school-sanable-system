@@ -7,6 +7,8 @@ const Employee = require("../../models/Employee");
 const Supplier = require("../../models/Supplier");
 const Income = require("../../models/Income");
 const Expense = require("../../models/Expense");
+const Grade = require("../../models/Grade");
+const Exam = require("../../models/Exam");
 
 module.exports = {
     Class,
@@ -17,5 +19,7 @@ module.exports = {
     Employee,
     Supplier,
     Income,
-    Expense
+    Expense,
+    Grade,
+    Exam
 };

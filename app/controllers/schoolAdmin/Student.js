@@ -1,7 +1,8 @@
 const{
     Student,
     Class,
-    Section
+    Section,
+    Grade
 } = require("./utils");
 
 
@@ -102,20 +103,38 @@ exports.listStudents = async (req, res) => {
 
 exports.viewStudentDetails = async (req, res) => {
   try {
+    console.log("Student ID:", req.params.id);
+    console.log("School ID:", req.user.schoolId);
+
     const student = await Student.findOne({ _id: req.params.id, schoolId: req.user.schoolId })
       .populate("classId", "name")
       .populate("sectionId", "name");
+
     if (!student) {
       req.flash("error", "لم يتم العثور على الطالب");
       return res.redirect("/school-admin/students");
     }
-    res.render("dashboard/school-admin/student/show-student", { title: "بيانات الطالب", student });
+
+    const grades = await Grade.find({ studentId: student._id })
+      .populate("subjectId", "name")
+      .populate("examId", "title date")
+      .populate("teacherId", "name")
+      .sort({ createdAt: -1 });
+
+    console.log("Grades fetched:", grades.length);
+
+    res.render("dashboard/school-admin/student/show-student", {
+      title: "بيانات الطالب",
+      student,
+      grades
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching student details:", err);
     req.flash("error", "حدث خطأ أثناء جلب بيانات الطالب");
     res.redirect("/school-admin/students");
   }
 };
+
 
 exports.renderEditStudentForm = async (req, res) => {
   try {

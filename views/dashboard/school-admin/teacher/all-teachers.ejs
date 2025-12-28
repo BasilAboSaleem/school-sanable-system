@@ -63,7 +63,7 @@
                     <th>البريد الإلكتروني</th>
                     <th>الفصول</th>
                     <th>المواد</th>
-                    <th>الحالة</th>
+                    
                     <th>العمليات</th>
                   </tr>
                 </thead>
@@ -92,11 +92,9 @@
                           <span class="badge badge-success"><%= sub.name %></span>
                         <% }) %>
                       </td>
-                      <td><%= teacher.status === 'active' ? 'نشط' : 'غير نشط' %></td>
                       <td class="d-flex justify-content-center flex-wrap gap-1">
                         <button class="btn btn-sm btn-primary toggle-details">عرض</button>
                         <a href="/school-admin/teachers/<%= teacher._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
-                        <a href="/school-admin/teachers/<%= teacher._id %>/delete" class="btn btn-sm btn-danger">حذف</a>
                       </td>
                     </tr>
 

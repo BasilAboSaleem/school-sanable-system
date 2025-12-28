@@ -4,7 +4,6 @@
 
 <body class="rtl">
 <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
-
 <%- include('../../../partials/header.ejs') %>
 
 <div id="dw-s1" class="bmd-layout-drawer bg-faded">
@@ -14,75 +13,67 @@
 <main class="bmd-layout-content">
 <div class="container-fluid">
 
-<!-- breadcrumb -->
-<div class="row m-1 pb-4 mb-3">
-  <div class="col-12 p-2">
-    <div class="page-header breadcrumb-header">
-      <div class="row align-items-end">
-        <div class="col-lg-8">
-<h3 class="lite-text">شعب فصل <%= classData.name %></h3>
-<span class="lite-text text-gray">عرض جميع الشعب التابعة لهذا الفصل</span>
+  <!-- Breadcrumb -->
+  <div class="row m-1 pb-4 mb-3">
+    <div class="col-12 p-2">
+      <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="lite-text mb-1">شعب فصل <%= classData.name %></h3>
+          <span class="lite-text text-gray">عرض جميع الشعب التابعة لهذا الفصل</span>
         </div>
-        <div class="col-lg-4 text-left">
-          <a href="/school-admin/sections/create" class="btn btn-success">
-            <i class="fas fa-plus"></i> إضافة شعبة
+        <div>
+          <a href="/school-admin/classes" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> العودة للفصول
           </a>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- table -->
-<div class="row m-1">
-<div class="col-12 p-2">
-<div class="card shade h-100">
-<div class="card-body">
+  <!-- جدول الشعب -->
+  <div class="row m-1">
+    <div class="col-12 p-2">
+      <div class="card shade h-100">
+        <div class="card-header">
+          قائمة الشعب
+          <a href="/school-admin/sections/create" class="btn btn-success btn-sm float-left">إضافة شعبة جديدة</a>
+        </div>
+        <div class="card-body">
 
-<table class="table table-bordered table-hover text-center">
-  <thead class="thead-light">
-    <tr>
-      <th>#</th>
-      <th>اسم الشعبة</th>
-      <th>الفصل</th>
-      <th>عدد الطلاب</th>
-      <th>المعلم</th>
-      <th>العمليات</th>
-    </tr>
-  </thead>
-  <tbody>
-  <% if(sections.length === 0){ %>
-    <tr>
-      <td colspan="6">لا توجد شعب مضافة</td>
-    </tr>
-  <% } %>
+          <table class="table table-bordered table-hover text-center">
+            <thead class="thead-light">
+              <tr>
+                <th>#</th>
+                <th>اسم الشعبة</th>
+                <th>عدد الطلاب</th>
+                <th>العمليات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if(sections.length === 0){ %>
+                <tr>
+                  <td colspan="4">لا توجد شعب مضافة</td>
+                </tr>
+              <% } %>
 
-  <% sections.forEach((section, index) => { %>
-    <tr>
-      <td><%= index + 1 %></td>
-      <td><%= section.name %></td>
-      <td><%= section.classId.name %></td>
-      <td><%= section.students.length %></td>
-      <td>
-        <%= section.teacherId ? section.teacherId.name : "—" %>
-      </td>
-      <td>
-        <a href="/school-admin/sections/<%= section._id %>" class="btn btn-sm btn-info">
-          عرض
-        </a>
-        <a href="/school-admin/sections/<%= section._id %>/edit" class="btn btn-sm btn-warning">
-          تعديل
-        </a>
-      </td>
-    </tr>
-  <% }) %>
-  </tbody>
-</table>
+              <% sections.forEach((section, index) => { %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><%= section.name %></td>
+                  <td><%= section.studentsCount %></td>
+                  <td>
+                    <a href="/school-admin/sections/<%= section._id %>/students" class="btn btn-sm btn-info">عرض الطلاب</a>
+                    <a href="/school-admin/sections/<%= section._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
 
-</div>
-</div>
-</div>
-</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
 </main>

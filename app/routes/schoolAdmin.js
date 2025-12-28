@@ -115,5 +115,6 @@ router.post(
   '/attendance-users/:id/edit',
   schoolAdminController.Attendance.updateAttendanceUser
 );
+router.get('/sections/:sectionId/students', schoolAdminController.Section.listStudentsBySection);
 
 module.exports = router;   

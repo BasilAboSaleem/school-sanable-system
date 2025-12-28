@@ -1,6 +1,8 @@
 const{
     Section,
-    Class
+    Class,
+    Student
+    
 } = require("./utils");
 
 
@@ -72,18 +74,24 @@ exports.listSectionsByClass = async (req, res) => {
 
     if (!classData) {
       req.flash("error", "الفصل غير موجود");
-      return res.redirect("/school-admin/section/classes");
+      return res.redirect("/school-admin/classes");
     }
 
+    // جلب الشعب المرتبطة بالفصل
     const sections = await Section.find({ classId })
       .populate("classId", "name")
-      .populate("teacherId", "name")
       .sort({ createdAt: -1 });
 
-    res.render("dashboard/school-admin/class-sections", {
+    // حساب عدد الطلاب لكل شعبة
+    const sectionsWithCount = await Promise.all(sections.map(async section => {
+      const studentsCount = await Student.countDocuments({ sectionId: section._id, schoolId: req.user.schoolId });
+      return { ...section.toObject(), studentsCount };
+    }));
+
+    res.render("dashboard/school-admin/section/class-sections", {
       title: `شعب فصل ${classData.name}`,
       classData,
-      sections
+      sections: sectionsWithCount
     });
 
   } catch (err) {
@@ -107,3 +115,42 @@ exports.getSectionsByClassJSON = async (req, res) => {
     res.status(500).json([]);
   }
 };
+
+// controllers/schoolAdmin/Section.js
+exports.listStudentsBySection = async (req, res) => {
+  try {
+    const { sectionId } = req.params;
+
+    // جلب الشعبة مع الصف المرتبط
+    const section = await Section.findById(sectionId).populate("classId");
+    if(!section){
+      req.flash("error", "الشعبة غير موجودة");
+      return res.redirect("/school-admin/classes");
+    }
+
+    // تحقق أن الصف مرتبط بنفس المدرسة
+    if(section.classId.schoolId.toString() !== req.user.schoolId.toString()){
+      req.flash("error", "لا يمكنك الوصول لهذه الشعبة");
+      return res.redirect("/school-admin/classes");
+    }
+
+    // جلب الطلاب المرتبطين بالشعبة
+    const students = await Student.find({ sectionId })
+      .populate("classId", "name")
+      .populate("sectionId", "name")
+      .sort({ fullName: 1 });
+
+    res.render("dashboard/school-admin/student/students-by-section", {
+      title: `طلاب شعبة ${section.name}`,
+      section,
+      students
+    });
+
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب الطلاب");
+    res.redirect("/school-admin/classes");
+  }
+};
+
+

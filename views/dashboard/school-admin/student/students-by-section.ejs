@@ -1,0 +1,108 @@
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+<%- include('../../../partials/header.ejs') %>
+<div id="dw-s1" class="bmd-layout-drawer bg-faded">
+  <%- include('../../../partials/sidebar/index.ejs') %>
+</div>
+
+<main class="bmd-layout-content">
+<div class="container-fluid">
+
+  <!-- Breadcrumb -->
+  <div class="row m-1 pb-4 mb-3">
+    <div class="col-12 p-2">
+      <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="lite-text mb-1">طلاب شعبة <%= section.name %></h3>
+          <span class="lite-text text-gray">عرض جميع الطلاب في هذه الشعبة</span>
+        </div>
+        <div>
+          <a href="/school-admin/sections" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> العودة للشعب
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- البحث الداخلي -->
+  <div class="row m-1 mb-3">
+    <div class="col-12 p-2">
+      <div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
+        <input type="text" id="searchStudent" class="form-control form-control-lg" style="min-width:250px;" placeholder="بحث باسم الطالب">
+      </div>
+    </div>
+  </div>
+
+  <!-- جدول الطلاب -->
+  <div class="row m-1">
+    <div class="col-12 p-2">
+      <div class="card shade h-100">
+        <div class="card-body">
+
+          <table class="table table-bordered table-hover text-center" id="studentsTable">
+            <thead class="thead-light">
+              <tr>
+                <th>#</th>
+                <th>الاسم الكامل</th>
+                <th>الفصل</th>
+                <th>الشعبة</th>
+                <th>الجنس</th>
+                <th>رقم ولي الأمر</th>
+                <th>العمليات</th>
+              </tr>
+            </thead>
+            <tbody>
+            <% if(students.length === 0){ %>
+              <tr><td colspan="7">لا يوجد طلاب في هذه الشعبة</td></tr>
+            <% } %>
+            <% students.forEach((student, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td class="studentName"><%= student.fullName %></td>
+                <td><%= student.classId ? student.classId.name : '—' %></td>
+                <td><%= student.sectionId ? student.sectionId.name : '—' %></td>
+                <td><%= student.gender || '—' %></td>
+                <td><%= student.phoneOfParents || '—' %></td>
+                <td>
+                  <a href="/school-admin/students/<%= student._id %>" class="btn btn-sm btn-info">عرض</a>
+                  <a href="/school-admin/students/<%= student._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                </td>
+              </tr>
+            <% }) %>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<script>
+// بحث داخلي بدون ريلود
+const searchInput = document.getElementById('searchStudent');
+searchInput.addEventListener('input', () => {
+  const filter = searchInput.value.toLowerCase();
+  const rows = document.querySelectorAll('#studentsTable tbody tr');
+
+  rows.forEach(row => {
+    const nameCell = row.querySelector('.studentName');
+    if(nameCell){
+      const text = nameCell.textContent.toLowerCase();
+      row.style.display = text.includes(filter) ? '' : 'none';
+    }
+  });
+});
+</script>
+
+</body>
+</html>
+    

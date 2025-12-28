@@ -1,45 +1,43 @@
 <!doctype html>
 <html class="no-js" lang="ar">
-<%- include('../../partials/head.ejs') %>
+<%- include('../../../partials/head.ejs') %>
 
 <body class="rtl">
 <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
-  <%- include('../../partials/header.ejs') %>
+  <%- include('../../../partials/header.ejs') %>
 
   <div id="dw-s1" class="bmd-layout-drawer bg-faded">
-    <%- include('../../partials/sidebar/index.ejs') %>
+    <%- include('../../../partials/sidebar/index.ejs') %>
   </div>
 
   <main class="bmd-layout-content">
     <div class="container-fluid">
 
-      <!-- breadcrumb -->
+      <!-- Breadcrumb -->
       <div class="row m-1 pb-4 mb-3">
         <div class="col-12 p-2">
-          <div class="page-header breadcrumb-header">
-            <div class="row align-items-end">
-              <div class="col-lg-8">
-                <h3 class="lite-text">تعديل الفصل</h3>
-                <span class="lite-text text-gray">تعديل بيانات الفصل</span>
-              </div>
-              <div class="col-lg-4 text-left">
-                <a href="/school-admin/classes" class="btn btn-secondary">
-                  <i class="fas fa-arrow-left"></i> العودة للفصول
-                </a>
-              </div>
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-end">
+            <div>
+              <h3 class="lite-text">تعديل الفصل</h3>
+              <span class="lite-text text-gray">تعديل بيانات الفصل</span>
+            </div>
+            <div>
+              <a href="/school-admin/classes" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> العودة للفصول
+              </a>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- فورم تعديل الفصل -->
-      <div class="row m-1">
-        <div class="col-12 p-2">
+      <!-- Form Card -->
+      <div class="row m-1 justify-content-center">
+        <div class="col-lg-6 col-md-8 col-sm-12 p-2">
           <div class="card shade h-100">
-            <div class="card-header">تعديل الفصل</div>
+            <div class="card-header bg-primary text-white">تعديل الفصل</div>
             <div class="card-body">
 
-              <form id="editClassForm" action="/school-admin/classes/<%= cls._id %>/edit" method="POST" class="text-right">
+              <form id="editClassForm" class="text-right">
                 <div class="form-group">
                   <label>اسم الفصل *</label>
                   <input type="text" name="name" id="classNameInput" required class="form-control" value="<%= cls.name %>">
@@ -54,7 +52,10 @@
                   </select>
                 </div>
 
-                <button type="submit" class="btn btn-success">حفظ التعديلات</button>
+                <div class="mt-3 d-flex justify-content-between">
+                  <button type="submit" class="btn btn-success">حفظ التعديلات</button>
+                  <a href="/school-admin/classes" class="btn btn-secondary">إلغاء</a>
+                </div>
               </form>
 
             </div>
@@ -66,17 +67,17 @@
   </main>
 </div>
 
-<%- include('../../partials/scripts.ejs') %>
+<%- include('../../../partials/scripts.ejs') %>
 
 <script>
 const classNameInput = document.getElementById('classNameInput');
 const nameError = document.getElementById('nameError');
 
-// AJAX للتحقق من الاسم الفريد عند الخروج من الحقل
+// التحقق من الاسم الفريد عند الخروج من الحقل
 classNameInput.addEventListener('blur', async () => {
   const name = classNameInput.value.trim();
   if(!name) return;
-  
+
   const res = await fetch(`/school-admin/classes/<%= cls._id %>/edit`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -89,7 +90,6 @@ classNameInput.addEventListener('blur', async () => {
 // إرسال الفورم
 document.getElementById('editClassForm').addEventListener('submit', async e => {
   e.preventDefault();
-
   nameError.textContent = '';
 
   if(!classNameInput.value.trim()){
@@ -103,17 +103,16 @@ document.getElementById('editClassForm').addEventListener('submit', async e => {
   };
 
   const res = await fetch(`/school-admin/classes/<%= cls._id %>/edit`, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
     body: JSON.stringify(formData)
   });
-
   const data = await res.json();
 
   if(data.errors){
     if(data.errors.name) nameError.textContent = data.errors.name;
     if(data.errors.general) alert(data.errors.general);
-  } else if(!data.errors){
+  } else if(data.success){
     alert("تم تعديل الفصل بنجاح");
     window.location.href="/school-admin/classes";
   }

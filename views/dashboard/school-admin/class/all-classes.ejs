@@ -1,16 +1,16 @@
 <!doctype html>
 <html class="no-js" lang="ar">
 
-<%- include('../../partials/head.ejs') %>
+<%- include('../../../partials/head.ejs') %>
 
 <body class="rtl">
 
   <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
 
-    <%- include('../../partials/header.ejs') %>
+    <%- include('../../../partials/header.ejs') %>
 
     <div id="dw-s1" class="bmd-layout-drawer bg-faded">
-      <%- include('../../partials/sidebar/index.ejs') %>
+      <%- include('../../../partials/sidebar/index.ejs') %>
     </div>
 
     <main class="bmd-layout-content">
@@ -19,22 +19,16 @@
         <!-- breadcrumb -->
         <div class="row m-1 pb-4 mb-3">
           <div class="col-12 p-2">
-            <div class="page-header breadcrumb-header">
-              <div class="row align-items-end">
-                <div class="col-lg-8">
-                  <div class="page-header-title text-left-rtl">
-                    <div class="d-inline">
-                      <h3 class="lite-text">جميع الفصول</h3>
-                      <span class="lite-text text-gray">عرض كل الفصول الموجودة في المدرسة</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-4">
-                  <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
-                    <li class="breadcrumb-item active">الفصول</li>
-                  </ol>
-                </div>
+            <div class="page-header breadcrumb-header d-flex justify-content-between align-items-end">
+              <div>
+                <h3 class="lite-text">جميع الفصول</h3>
+                <span class="lite-text text-gray">عرض كل الفصول الموجودة في المدرسة</span>
+              </div>
+              <div>
+                <ol class="breadcrumb float-sm-right">
+                  <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
+                  <li class="breadcrumb-item active">الفصول</li>
+                </ol>
               </div>
             </div>
           </div>
@@ -44,26 +38,34 @@
         <div class="row m-1">
           <div class="col-12 p-2">
             <div class="card shade h-100">
-              <div class="card-header">
-                قائمة الفصول
-                <a href="/school-admin/classes/create" class="btn btn-primary btn-sm float-left">إضافة فصل جديد</a>
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span>قائمة الفصول</span>
+                <a href="/school-admin/classes/create" class="btn btn-primary btn-sm">إضافة فصل جديد</a>
               </div>
               <div class="card-body">
+
                 <!-- Flash messages -->
-<% if (locals.success && locals.success.length > 0) { %>
-  <div class="alert alert-success">
-    <%= success %>
-  </div>
-<% } %>
+                <% if (locals.success && locals.success.length > 0) { %>
+                  <div class="alert alert-success"><%= success %></div>
+                <% } %>
+                <% if (locals.error && locals.error.length > 0) { %>
+                  <div class="alert alert-danger"><%= error %></div>
+                <% } %>
 
-<% if (locals.error && locals.error.length > 0) { %>
-  <div class="alert alert-danger">
-    <%= error %>
-  </div>
-<% } %>
+             <!-- البحث الداخلي -->
+<div class="mb-3" style="max-width: 400px;">
+  <input 
+    type="text" 
+    id="searchName" 
+    class="form-control" 
+    style="width: 100%; padding: 0.5rem 1rem; font-size: 1rem;" 
+    placeholder="بحث باسم الفصل"
+  >
+</div>
 
-                <table class="table table-bordered table-hover">
-                  <thead>
+
+                <table class="table table-bordered table-hover" id="classesTable">
+                  <thead class="thead-light text-center">
                     <tr>
                       <th>#</th>
                       <th>اسم الفصل</th>
@@ -76,17 +78,18 @@
                     <% classes.forEach((cls, index) => { %>
                       <tr>
                         <td><%= index + 1 %></td>
-                        <td><%= cls.name %></td>
-                        <td><%= cls.status === 'active' ? 'نشط' : 'غير نشط' %></td>
+                        <td class="cls-name"><%= cls.name %></td>
+                        <td class="cls-status"><%= cls.status === 'active' ? 'نشط' : 'غير نشط' %></td>
                         <td><%= cls.sections.length %></td>
-                        <td>
-<a href="/school-admin/classes/<%= cls._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                        <td class="text-center">
+                          <a href="/school-admin/classes/<%= cls._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
                           <a href="/school-admin/classes/<%= cls._id %>/sections" class="btn btn-sm btn-info">عرض الشعب</a>
                         </td>
                       </tr>
                     <% }) %>
                   </tbody>
                 </table>
+
               </div>
             </div>
           </div>
@@ -97,7 +100,34 @@
 
   </div>
 
-  <%- include('../../partials/scripts.ejs') %>
+  <%- include('../../../partials/scripts.ejs') %>
+
+  <script>
+    // بحث داخلي بدون ريلود
+    const searchName = document.getElementById('searchName');
+    const searchStatus = document.getElementById('searchStatus');
+    const table = document.getElementById('classesTable');
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    function filterRows() {
+      const nameValue = searchName.value.trim().toLowerCase();
+      const statusValue = searchStatus.value;
+
+      rows.forEach(row => {
+        const nameText = row.querySelector('.cls-name').textContent.toLowerCase();
+        const statusText = row.querySelector('.cls-status').textContent === 'نشط' ? 'active' : 'inactive';
+
+        if ((nameText.includes(nameValue)) && (statusValue === '' || statusValue === statusText)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    searchName.addEventListener('input', filterRows);
+    searchStatus.addEventListener('change', filterRows);
+  </script>
 
 </body>
 </html>

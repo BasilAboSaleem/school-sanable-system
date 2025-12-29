@@ -1,7 +1,12 @@
 const{
     User,
+    Attendance,
+    Class,
+    Section,
+    Student
     
 } = require("./utils");
+const mongoose = require("mongoose");
     
 const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
@@ -189,5 +194,82 @@ exports.updateAttendanceUser = async (req, res) => {
     console.error(err);
     req.flash("error", "حدث خطأ أثناء تحديث الموظف");
     res.redirect("/school-admin/attendance-users");
+  }
+};
+
+exports.renderAttendancePage = async (req, res) => {
+  try {
+    // جلب كل الفصول لإظهارها في الاختيار
+    const classes = await Class.find({ schoolId: req.user.schoolId }).sort({ name: 1 });
+
+    res.render("dashboard/school-admin/attendance/attendance-logs", {
+      title: "سجل الحضور والغياب",
+      classes,
+      sections: [], // يبدأ فارغ، يتعبأ عند اختيار فصل
+      attendanceRecords: [],
+      filters: {}
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء تحميل الصفحة");
+    res.redirect("/");
+  }
+};
+
+exports.getSectionsByClassJSON = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const sections = await Section.find({ classId }).select("_id name").sort({ name: 1 });
+    res.json(sections);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json([]);
+  }
+};
+
+exports.filterAttendance = async (req, res) => {
+  try {
+    const { classId, sectionId, date, status } = req.body;
+
+    if (!date) {
+      req.flash("error", "التاريخ مطلوب");
+      return res.redirect("/school-admin/attendance");
+    }
+
+    // بناء فلتر
+    let filter = {
+      schoolId: new mongoose.Types.ObjectId(req.user.schoolId)
+    };
+
+    if (classId) filter.classId = new mongoose.Types.ObjectId(classId);
+    if (sectionId) filter.sectionId = new mongoose.Types.ObjectId(sectionId);
+    if (status) filter.status = status;
+
+    // ضبط التاريخ لبداية ونهاية اليوم
+    const selectedDate = new Date(date); // 2025-12-25T00:00:00 (local أو naive)
+
+const startOfDayUTC = new Date(Date.UTC(selectedDate.getUTCFullYear(), selectedDate.getUTCMonth(), selectedDate.getUTCDate(), 0, 0, 0, 0));
+const endOfDayUTC = new Date(Date.UTC(selectedDate.getUTCFullYear(), selectedDate.getUTCMonth(), selectedDate.getUTCDate(), 23, 59, 59, 999));
+
+filter.date = { $gte: startOfDayUTC, $lte: endOfDayUTC };
+
+    const attendanceRecords = await Attendance.find(filter)
+      .populate("studentId", "fullName classId sectionId")
+      .populate("classId", "name")
+      .populate("sectionId", "name")
+      .sort({ "studentId.fullName": 1 });
+
+    res.render("dashboard/school-admin/attendance/attendance-logs", {
+      title: "سجل الحضور والغياب",
+      classes: await Class.find({ schoolId: req.user.schoolId }).sort({ name: 1 }),
+      sections: classId ? await Section.find({ classId }).sort({ name: 1 }) : [],
+      attendanceRecords,
+      filters: { classId, sectionId, date, status }
+    });
+
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب سجلات الحضور والغياب");
+    res.redirect("/school-admin/attendance");
   }
 };

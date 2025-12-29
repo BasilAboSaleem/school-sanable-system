@@ -1,6 +1,7 @@
 const{
     Income,
     Supplier
+, Expense
 } = require("./utils");
 
 
@@ -41,11 +42,18 @@ exports.addIncome = async (req, res) => {
 };
 
 // List All Incomes
+// List All Incomes
 exports.listIncomes = async (req, res) => {
   try {
-    const incomes = await Income.find({ schoolId: req.user.schoolId })
-      .populate("supplierId")
-      .sort({ createdAt: -1 });
+    // جلب كل الواردات للمدرسة أو الواردات المحولة من السوبر أدمن
+    const incomes = await Income.find({
+      $or: [
+        { schoolId: req.user.schoolId }, // واردات المدرسة نفسها
+        { schoolId: null } // واردات السوبر أدمن التي تحولت للمدرسة
+      ]
+    })
+    .populate("supplierId")
+    .sort({ createdAt: -1 });
 
     res.render("dashboard/school-admin/income/list-incomes", { incomes });
   } catch (err) {
@@ -99,30 +107,41 @@ exports.updateIncome = async (req, res) => {
 // View Income Details
 exports.viewIncomeDetails = async (req, res) => {
   try {
-    const income = await Income.findById(req.params.id).populate("supplierId");
+    const income = await Income.findById(req.params.id)
+      .populate("supplierId");
 
     if (!income) {
-      req.flash("error", "Income not found");
+      req.flash("error", "الوارد غير موجود");
       return res.redirect("/school-admin/incomes");
     }
 
-    res.render("dashboard/school-admin/income/view-income", { income });
+    // ✅ فقط صادرات هذا الوارد + هذه المدرسة
+    const distributedExpenses = await Expense.find({
+      incomeId: income._id,
+      schoolId: req.user.schoolId
+    }).sort({ createdAt: -1 });
+
+    const totalDistributed = distributedExpenses.reduce(
+      (sum, e) => sum + e.amount,
+      0
+    );
+
+    const remainingAmount = income.amount - totalDistributed;
+
+    res.render("dashboard/school-admin/income/view-income", {
+      income,
+      distributedExpenses,
+      totalDistributed,
+      remainingAmount,
+      user: req.user
+    });
   } catch (err) {
     console.error(err);
-    req.flash("error", "Error loading income details");
+    req.flash("error", "حدث خطأ");
     res.redirect("/school-admin/incomes");
   }
 };
 
-// Delete Income
-exports.deleteIncome = async (req, res) => {
-  try {
-    await Income.findByIdAndDelete(req.params.id);
-    req.flash("success", "Income deleted successfully");
-    res.redirect("/school-admin/incomes");
-  } catch (err) {
-    console.error(err);
-    req.flash("error", "Failed to delete income");
-    res.redirect("/school-admin/incomes");
-  }
-};
+
+
+

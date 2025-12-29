@@ -13,37 +13,113 @@
       <!-- Breadcrumb -->
       <div class="row m-1 pb-4 mb-3">
         <div class="col-12 p-2">
-          <div class="page-header breadcrumb-header">
-            <div class="row align-items-end">
-              <div class="col-lg-8">
-                <h3 class="lite-text">بيانات الوارد: <%= income._id %></h3>
-                <span class="lite-text text-gray">عرض جميع التفاصيل الخاصة بالوارد</span>
-              </div>
-              <div class="col-lg-4 text-left">
-                <a href="/school-admin/incomes" class="btn btn-secondary">
-                  <i class="fas fa-arrow-left"></i> العودة للواردات
-                </a>
-                <a href="/school-admin/incomes/<%= income._id %>/edit" class="btn btn-warning">
-                  تعديل الوارد
-                </a>
-              </div>
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text">تفاصيل الوارد</h3>
+              <span class="lite-text text-gray">المورد: <%= income.supplierId ? income.supplierId.name : '—' %></span>
+            </div>
+            <div>
+              <a href="/school-admin/incomes" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+              </a>
+              <% 
+                const hasDistributed = distributedExpenses && distributedExpenses.length > 0;
+                if(!hasDistributed) { 
+              %>
+                <a href="/school-admin/incomes/<%= income._id %>/edit" class="btn btn-warning">تعديل الوارد</a>
+              <% } %>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Income Info -->
-      <div class="row m-1">
+      <!-- مبالغ الوارد -->
+      <div class="row m-1 mb-3">
+        <div class="col-md-4">
+          <div class="alert alert-primary"><strong>المبلغ الكلي:</strong> <%= income.amount.toLocaleString() %> </div>
+        </div>
+        <div class="col-md-4">
+          <div class="alert alert-success"><strong>المبلغ الموزع:</strong> <%= totalDistributed.toLocaleString() %> </div>
+        </div>
+        <div class="col-md-4">
+          <div class="alert alert-info"><strong>المبلغ المتبقي:</strong> <%= remainingAmount.toLocaleString() %> </div>
+        </div>
+      </div>
+
+      <!-- تفاصيل المورد -->
+      <div class="row m-1 mb-3">
         <div class="col-12 p-2">
           <div class="card shade">
-            <div class="card-header">
-              معلومات الوارد
-            </div>
+            <div class="card-header bg-secondary text-white"><i class="fas fa-info-circle"></i> تفاصيل المورد والوارد</div>
             <div class="card-body">
-              <p><strong>المورد:</strong> <%= income.supplierId?.name || '—' %></p>
-              <p><strong>المبلغ:</strong> <%= income.amount %></p>
-              <p><strong>الوصف:</strong> <%= income.description || '—' %></p>
-              <p><strong>تاريخ التسجيل:</strong> <%= income.createdAt.toLocaleDateString() %></p>
+              <p><strong>اسم المورد:</strong> <%= income.supplierId?.name || '—' %></p>
+              <p><strong>البريد الإلكتروني:</strong> <%= income.supplierId?.email || '—' %></p>
+              <p><strong>الهاتف:</strong> <%= income.supplierId?.phone || '—' %></p>
+              <p><strong>العنوان:</strong> <%= income.supplierId?.address || '—' %></p>
+              <p><strong>الوصف الأصلي للوارد:</strong> <%= income.description || '—' %></p>
+              <p><strong>تاريخ التسجيل:</strong> <%= income.createdAt.toLocaleDateString('ar-EG') %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- إنشاء صادر جديد -->
+      <% if(remainingAmount > 0) { %>
+      <div class="row m-1 mb-3">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-header bg-primary text-white"><i class="fas fa-plus-circle"></i> إنشاء صادر جديد</div>
+            <div class="card-body">
+              <form id="createExpenseForm">
+                <div class="form-group mb-3">
+                  <label>الوصف</label>
+                  <input type="text" name="description" class="form-control" placeholder="وصف الصادر">
+                </div>
+                <div class="form-group mb-3">
+                  <label>المبلغ</label>
+                  <input type="number" name="amount" max="<%= remainingAmount %>" class="form-control" placeholder="0">
+                  <small class="text-muted">لا يمكن إدخال مبلغ أكبر من <%= remainingAmount %></small>
+                </div>
+                <button type="submit" class="btn btn-success">إنشاء صادر</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- جدول الصادرات الموزعة -->
+      <div class="row m-1 mt-4">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-header bg-secondary text-white"><i class="fas fa-history"></i> الصادرات الموزعة</div>
+            <div class="card-body p-0">
+              <table class="table table-bordered table-hover text-center mb-0">
+                <thead class="thead-dark">
+                  <tr>
+                    <th>#</th>
+                    
+                    <th>المبلغ</th>
+                    <th>الوصف</th>
+                    <th>التاريخ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if(distributedExpenses.length === 0){ %>
+                    <tr><td colspan="5" class="text-muted py-4">لا توجد صادرات حتى الآن</td></tr>
+                  <% } else { %>
+                    <% distributedExpenses.forEach((exp, idx)=>{ %>
+                      <tr>
+                        <td><%= idx+1 %></td>
+                       
+                        <td><strong><%= exp.amount.toLocaleString() %> </strong></td>
+                        <td><%= exp.description || '—' %></td>
+                        <td><%= exp.createdAt.toLocaleDateString('ar-EG') %></td>
+                      </tr>
+                    <% }) %>
+                  <% } %>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -54,5 +130,43 @@
 </div>
 
 <%- include('../../../partials/scripts.ejs') %>
+
+<script>
+document.getElementById('createExpenseForm')?.addEventListener('submit', async function(e){
+  e.preventDefault();
+  const form = e.target;
+  const amount = Number(form.amount.value);
+  const description = form.description.value;
+
+  if(amount <= 0 || amount > <%= remainingAmount %>){
+    alert('المبلغ غير صالح');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/school-admin/expenses/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+   incomeId: '<%= income._id %>',
+  schoolId: '<%= user.schoolId %>',
+        amount,
+        description
+      })
+    });
+    const data = await res.json();
+    if(data.success){
+      alert('تم إنشاء الصادر بنجاح');
+      window.location.reload();
+    } else {
+      alert(data.errors?.general || 'حدث خطأ');
+    }
+  } catch(err){
+    console.error(err);
+    alert('فشل الاتصال بالسيرفر');
+  }
+});
+</script>
+
 </body>
 </html>

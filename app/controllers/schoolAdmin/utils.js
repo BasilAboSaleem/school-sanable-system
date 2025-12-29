@@ -9,6 +9,7 @@ const Income = require("../../models/Income");
 const Expense = require("../../models/Expense");
 const Grade = require("../../models/Grade");
 const Exam = require("../../models/Exam");
+const Attendance = require("../../models/Attendance");
 
 module.exports = {
     Class,
@@ -21,5 +22,6 @@ module.exports = {
     Income,
     Expense,
     Grade,
-    Exam
+    Exam,
+    Attendance
 };

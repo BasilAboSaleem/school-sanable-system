@@ -1,0 +1,178 @@
+<%- include('../../../partials/head.ejs') %>
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <%- include('../../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- Breadcrumb -->
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1">سجل الحضور والغياب</h3>
+              <span class="lite-text text-gray">عرض سجلات الحضور والغياب للمدرسة</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- نموذج الفلاتر -->
+      <div class="row m-1 mb-3">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-header">فلترة السجلات</div>
+            <div class="card-body">
+              <form id="attendanceFilterForm" method="POST" action="/school-admin/attendance/filter" class="d-flex flex-wrap gap-3 align-items-end">
+                <div class="form-group flex-fill">
+                  <label>الفصل</label>
+                  <select name="classId" id="classSelect" class="form-control">
+                    <option value="">كل الفصول</option>
+                    <% classes.forEach(cls => { %>
+                      <option value="<%= cls._id %>" <%= filters.classId==cls._id?'selected':'' %>><%= cls.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <div class="form-group flex-fill">
+                  <label>الشعبة</label>
+                  <select name="sectionId" id="sectionSelect" class="form-control">
+                    <option value="">كل الشعب</option>
+                    <% sections.forEach(sec => { %>
+                      <option value="<%= sec._id %>" <%= filters.sectionId==sec._id?'selected':'' %>><%= sec.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <div class="form-group flex-fill">
+                  <label>الحالة</label>
+                  <select name="status" class="form-control">
+                    <option value="">كل الحالات</option>
+                    <option value="present" <%= filters.status=='present'?'selected':'' %>>حاضر</option>
+                    <option value="absent" <%= filters.status=='absent'?'selected':'' %>>غائب</option>
+                    <option value="late" <%= filters.status=='late'?'selected':'' %>>متأخر</option>
+                    <option value="excused" <%= filters.status=='excused'?'selected':'' %>>مبرر</option>
+                  </select>
+                </div>
+
+                <div class="form-group flex-fill">
+                  <label>التاريخ *</label>
+                  <input type="date" name="date" required class="form-control" value="<%= filters.date || '' %>">
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-success mt-2">عرض السجلات</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- البحث الداخلي -->
+      <div class="row m-1 mb-3">
+        <div class="col-12 p-2">
+          <div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
+            <input type="text" id="searchStudent" class="form-control form-control-lg" style="min-width:250px;" placeholder="بحث باسم الطالب">
+          </div>
+        </div>
+      </div>
+
+      <!-- جدول السجلات -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-header">سجلات الحضور والغياب</div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover text-center mb-0">
+                  <thead class="thead-light">
+                    <tr>
+                      <th>#</th>
+                      <th>الطالب</th>
+                      <th>الفصل</th>
+                      <th>الشعبة</th>
+                      <th>الحالة</th>
+                      <th>سبب الغياب / التأخير</th>
+                      <th>ملاحظات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if(attendanceRecords.length===0){ %>
+                      <tr><td colspan="7">لا توجد سجلات</td></tr>
+                    <% } %>
+                    <% attendanceRecords.forEach((record, index) => { %>
+                      <tr>
+                        <td><%= index+1 %></td>
+                        <td class="studentName"><%= record.studentId.fullName %></td>
+                        <td><%= record.classId.name %></td>
+                        <td><%= record.sectionId.name %></td>
+                        <td>
+                          <% if(record.status === 'present'){ %>
+                            <span class="badge badge-success">حاضر</span>
+                          <% } else if(record.status === 'absent'){ %>
+                            <span class="badge badge-danger">غائب</span>
+                          <% } else if(record.status === 'late'){ %>
+                            <span class="badge badge-warning">متأخر</span>
+                          <% } else if(record.status === 'excused'){ %>
+                            <span class="badge badge-info">مبرر</span>
+                          <% } %>
+                        </td>
+                        <td><%= record.reason || '—' %></td>
+                        <td><%= record.notes || '—' %></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<script>
+  // البحث الداخلي باسم الطالب
+  const searchInput = document.getElementById('searchStudent');
+  searchInput.addEventListener('input', () => {
+    const filter = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll('table tbody tr');
+
+    rows.forEach(row => {
+      const nameCell = row.querySelector('.studentName');
+      if(nameCell){
+        const text = nameCell.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+      }
+    });
+  });
+
+  // عند اختيار فصل، جلب الشعب تلقائياً
+  document.getElementById('classSelect').addEventListener('change', async function(){
+    const classId = this.value;
+    const sectionSelect = document.getElementById('sectionSelect');
+    sectionSelect.innerHTML = '<option value="">كل الشعب</option>';
+    if(!classId) return;
+
+    const res = await fetch(`/school-admin/attendance/sections/${classId}`);
+    const data = await res.json();
+    data.forEach(sec => {
+      const opt = document.createElement('option');
+      opt.value = sec._id;
+      opt.textContent = sec.name;
+      sectionSelect.appendChild(opt);
+    });
+  });
+</script>
+
+</body>
+</html>

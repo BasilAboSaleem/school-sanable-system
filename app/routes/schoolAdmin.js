@@ -69,24 +69,23 @@ router.post("/incomes/create", schoolAdminController.Income.addIncome);
 router.get("/incomes/:id/edit", schoolAdminController.Income.renderEditIncomeForm);
 router.post("/incomes/:id/edit", schoolAdminController.Income.updateIncome);
 router.get("/incomes/:id/view", schoolAdminController.Income.viewIncomeDetails);
-router.get("/incomes/:id/delete", schoolAdminController.Income.deleteIncome);
 // صفحة عرض كل الصادرات
-router.get("/expenses", schoolAdminController.Expense.listExpenses);
+//router.get("/expenses", schoolAdminController.Expense.listExpenses);
 
 // صفحة إضافة صادر
-router.get("/expenses/create", schoolAdminController.Expense.renderAddExpenseForm);
+//router.get("/expenses/create", schoolAdminController.Expense.renderAddExpenseForm);
 
 // إنشاء صادر جديد (AJAX)
 router.post("/expenses/create", schoolAdminController.Expense.createExpense);
 
 // صفحة تعديل الصادر
-router.get("/expenses/:id/edit", schoolAdminController.Expense.renderEditExpenseForm);
+//router.get("/expenses/:id/edit", schoolAdminController.Expense.renderEditExpenseForm);
 
 // تحديث الصادر (AJAX)
-router.post("/expenses/:id/edit", schoolAdminController.Expense.updateExpense);
+//router.post("/expenses/:id/edit", schoolAdminController.Expense.updateExpense);
 
 // صفحة عرض تفاصيل الصادر
-router.get("/expenses/:id/view", schoolAdminController.Expense.viewExpense);
+//router.get("/expenses/:id/view", schoolAdminController.Expense.viewExpense);
 
 router.get(
   "/attendance-users/create",
@@ -116,5 +115,14 @@ router.post(
   schoolAdminController.Attendance.updateAttendanceUser
 );
 router.get('/sections/:sectionId/students', schoolAdminController.Section.listStudentsBySection);
+
+// صفحة إدارة الحضور والغياب
+router.get("/attendance/logs", schoolAdminController.Attendance.renderAttendancePage);
+
+// جلب الشعب حسب الفصل (AJAX)
+router.get("/attendance/sections/:classId", schoolAdminController.Attendance.getSectionsByClassJSON);
+
+// فلترة وعرض السجلات حسب التاريخ والفصل والشعبة والحالة
+router.post("/attendance/filter", schoolAdminController.Attendance.filterAttendance);
 
 module.exports = router;   

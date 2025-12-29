@@ -1,9 +1,66 @@
 const{
     Expense,
+    Income
+
 } = require("./utils");
 
+
+
+exports.createExpense = async (req, res) => {
+  try {
+    const { incomeId, amount, description } = req.body;
+
+    if (!incomeId || !amount || amount <= 0) {
+      return res.status(400).json({
+        errors: { general: "بيانات غير صحيحة" }
+      });
+    }
+
+    const income = await Income.findById(incomeId);
+
+    if (!income) {
+      return res.status(404).json({
+        errors: { general: "الوارد غير موجود" }
+      });
+    }
+
+    // ✅ جلب فقط الصادرات الخاصة بهذا الوارد وهذه المدرسة
+    const expenses = await Expense.find({
+      incomeId,
+      schoolId: req.user.schoolId
+    });
+
+    const totalDistributed = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const remainingAmount = income.amount - totalDistributed;
+
+    if (amount > remainingAmount) {
+      return res.status(400).json({
+        errors: { general: "المبلغ أكبر من المتبقي" }
+      });
+    }
+
+    const expense = new Expense({
+      amount,
+      description,
+      incomeId,
+      schoolId: req.user.schoolId,
+      source: "school"
+    });
+
+    await expense.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      errors: { general: "حدث خطأ أثناء إنشاء الصادر" }
+    });
+  }
+};
+
+
 // عرض كل الصادرات
-exports.listExpenses = async (req, res) => {
+/*exports.listExpenses = async (req, res) => {
   try {
     const expenses = await Expense.find({
       schoolId: req.user.schoolId,
@@ -129,3 +186,4 @@ exports.viewExpense = async (req, res) => {
     res.redirect("/school-admin/expenses");
   }
 };
+*/

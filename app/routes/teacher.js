@@ -3,7 +3,7 @@ const router = express.Router();
 const teacherController = require('../controllers/teacher/Classes');
 const { showMySubjects } = require('../controllers/teacher/Subjects');
 const { showTeacherStudentsPage,  getTeacherSectionsByClass,
-     getTeacherStudentsBySection, showStudentDetails} = require('../controllers/teacher/students');
+     getTeacherStudentsBySection, showStudentDetails} = require('../controllers/teacher/Students');
      const { showAddExamPage, getSectionsByClass, createExam } = require("../controllers/teacher/Exams");
 
 const { showExamList, showExamDetails ,showGradesPage, saveGrades } = require("../controllers/teacher/Exams");     

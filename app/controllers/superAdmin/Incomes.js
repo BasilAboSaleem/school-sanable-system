@@ -10,7 +10,8 @@ const{
 // عرض جميع الواردات
 exports.listIncomes = async (req, res) => {
   try {
-    const incomes = await Income.find()
+    // فقط الواردات التي تم إنشاؤها بواسطة السوبر أدمن (createdBy موجود) أو حسب المدرسة إذا تحتاج
+    const incomes = await Income.find({ createdBy: req.user._id })
       .populate("supplierId")
       .sort({ createdAt: -1 });
 
@@ -275,22 +276,32 @@ exports.viewAllSchoolIncomes = async (req, res) => {
     const schools = await School.find().lean();
 
     for (let school of schools) {
-      // جلب جميع Expense الخاصة بالمدرسة
-      const expenses = await Expense.find({ schoolId: school._id }).lean();
+      // 1. كل الواردات الأصلية للمدرسة
+      const schoolIncomes = await Income.find({ schoolId: school._id })
+        .populate('supplierId')
+        .sort({ createdAt: -1 })
+        .lean();
 
-      // لكل Expense، جيب الـ Income اللي منها للحصول على المورد
-      const incomes = await Promise.all(expenses.map(async (exp) => {
-        const income = await Income.findById(exp.incomeId).populate('supplierId').lean();
-        return {
-          _id: exp._id,
-          amount: exp.amount,
-          description: exp.description,
-          createdAt: exp.createdAt,
-          supplier: income ? income.supplierId : null
-        };
+      // 2. كل الواردات الموزعة من السوبر (تتحول لصادرات)
+      const distributedExpenses = await Expense.find({ schoolId: school._id, source: 'institution' })
+        .populate({
+          path: 'incomeId',
+          populate: { path: 'supplierId' }
+        })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      const superAdminIncomes = distributedExpenses.map(exp => ({
+        _id: exp._id,
+        amount: exp.amount,
+        description: exp.description,
+        createdAt: exp.createdAt,
+        supplier: exp.incomeId?.supplierId || null,
+        fromSuperAdmin: true
       }));
 
-      school.incomes = incomes;
+      // دمج الواردات الأصلية مع واردات السوبر
+      school.incomes = [...schoolIncomes, ...superAdminIncomes].sort((a, b) => b.createdAt - a.createdAt);
     }
 
     res.render('dashboard/super-admin/income/schools-incomes', { schools });
@@ -300,6 +311,7 @@ exports.viewAllSchoolIncomes = async (req, res) => {
     res.json({ errors: { general: 'حدث خطأ أثناء جلب البيانات' } });
   }
 };
+
 
 
 

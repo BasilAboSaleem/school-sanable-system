@@ -42,18 +42,31 @@ exports.renderAddIncome = async (req, res) => {
 // إنشاء وارد جديد (مع إنشاء مورد إذا كان جديد)
 exports.createIncome = async (req, res) => {
   try {
-    const { supplierId, supplierName, email, phone, address, notes, amount, description } = req.body;
-    const userId = req.user._id; // السوبر أدمن الحالي
+    const {
+      supplierId,
+      supplierName,
+      email,
+      phone,
+      address,
+      notes,
+      amount,
+      description,
+      incomeType
+    } = req.body;
+
+    const userId = req.user._id;
+
+    // تحقق من النوع
+    if (!incomeType || !['financial','physical'].includes(incomeType)) {
+      return res.json({ errors: { general: "يرجى تحديد نوع الوارد الصحيح (مالي أو عيني)" } });
+    }
 
     let supplier;
-
     if (supplierId && supplierId !== 'new') {
-      // مورد موجود
       supplier = await Supplier.findById(supplierId);
       if (!supplier) return res.json({ errors: { general: "المورد غير موجود" } });
     } else {
-      // مورد جديد
-      if (!supplierName || !amount) return res.json({ errors: { general: "اسم المورد والمبلغ مطلوبان" } });
+      if (!supplierName) return res.json({ errors: { general: "اسم المورد مطلوب" } });
       supplier = new Supplier({
         name: supplierName,
         email,
@@ -66,21 +79,34 @@ exports.createIncome = async (req, res) => {
       await supplier.save();
     }
 
-    // إنشاء الوارد
+    // تحقق من الحقول حسب النوع
+    if (!description || description.trim() === '') {
+      return res.json({ errors: { general: "الوصف مطلوب" } });
+    }
+    if (!amount || Number(amount) <= 0) {
+      return res.json({ errors: { general: incomeType === 'financial' ? "المبلغ المالي مطلوب" : "الكمية مطلوبة للوارد العيني" } });
+    }
+
     const income = new Income({
       supplierId: supplier._id,
-      amount,
+      amount,          // سواء مبلغ أو كمية
       description,
+      incomeType,
       createdBy: userId
     });
-    await income.save();
 
+    await income.save();
     res.json({ success: "تم إضافة الوارد بنجاح", redirect: "/super-admin/incomes" });
+
   } catch (err) {
     console.error(err);
     res.json({ errors: { general: "حدث خطأ أثناء إضافة الوارد" } });
   }
 };
+
+
+
+
 
 // صفحة عرض تفاصيل وارد + توزيع على المدارس
 // عرض تفاصيل الوارد + صفحة التوزيع

@@ -8,7 +8,7 @@
   <main class="bmd-layout-content">
     <div class="container-fluid">
 
-      <!-- Page Header -->
+      <!-- Header -->
       <div class="row m-1 pb-3 mb-3">
         <div class="col-12 p-2">
           <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
@@ -25,11 +25,10 @@
         </div>
       </div>
 
-      <!-- Form Card -->
+      <!-- Card -->
       <div class="row m-1">
         <div class="col-12 p-2">
           <div class="card shade">
-
             <div class="card-header bg-primary text-white">
               <i class="fas fa-plus-circle"></i> بيانات المورد والوارد
             </div>
@@ -37,9 +36,10 @@
             <div class="card-body">
               <form id="addIncomeForm">
 
-                <!-- ================= STEP 1 ================= -->
+                <!-- STEP 1 -->
                 <div id="step1">
                   <h5 class="mb-3 text-primary"><i class="fas fa-user-tie"></i> اختيار المورد</h5>
+
                   <div class="row">
                     <div class="col-md-6 form-group">
                       <label>المورد *</label>
@@ -84,17 +84,32 @@
                   </button>
                 </div>
 
-                <!-- ================= STEP 2 ================= -->
+                <!-- STEP 2 -->
                 <div id="step2" style="display:none;">
                   <h5 class="mb-3 text-success"><i class="fas fa-coins"></i> بيانات الوارد</h5>
+
                   <div class="row">
                     <div class="col-md-6 form-group">
+                      <label>نوع الوارد *</label>
+                      <select name="incomeType" id="incomeType" class="form-control" required>
+                        <option value="">اختر النوع</option>
+                        <option value="financial">وارد مالي</option>
+                        <option value="physical">وارد عيني</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <!-- المبلغ / الكمية -->
+                    <div class="col-md-6 form-group" id="amountWrapper">
                       <label>المبلغ *</label>
-                      <input type="number" name="amount" class="form-control" required>
+                      <input type="number" name="amount" class="form-control">
                       <small class="text-danger" id="amountError"></small>
                     </div>
-                    <div class="col-md-6 form-group">
-                      <label>الوصف</label>
+
+                    <!-- الوصف -->
+                    <div class="col-md-12 form-group">
+                      <label>الوصف *</label>
                       <textarea name="description" class="form-control"></textarea>
                     </div>
                   </div>
@@ -126,22 +141,23 @@ const step1 = document.getElementById('step1');
 const step2 = document.getElementById('step2');
 const supplierSelect = document.getElementById('supplierSelect');
 const newSupplierFields = document.getElementById('newSupplierFields');
+const amountWrapper = document.getElementById('amountWrapper');
+const amountInput = amountWrapper.querySelector('input[name="amount"]');
+const incomeType = document.getElementById('incomeType');
 
 supplierSelect.addEventListener('change', () => {
-  if (supplierSelect.value === 'new') {
-    newSupplierFields.style.display = 'block';
-  } else {
-    newSupplierFields.style.display = 'none';
-  }
+  newSupplierFields.style.display = supplierSelect.value === 'new' ? 'block' : 'none';
 });
 
 document.getElementById('nextBtn').addEventListener('click', () => {
   const supplierError = document.getElementById('supplierError');
   supplierError.textContent = '';
+
   if (!supplierSelect.value) {
     supplierError.textContent = 'اختر مورد أو أضف مورد جديد';
     return;
   }
+
   if (supplierSelect.value === 'new') {
     const name = document.querySelector('[name="supplierName"]').value.trim();
     if (!name) {
@@ -149,6 +165,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
       return;
     }
   }
+
   step1.style.display = 'none';
   step2.style.display = 'block';
 });
@@ -158,18 +175,35 @@ function prevStep() {
   step1.style.display = 'block';
 }
 
+// تغيير label حسب النوع
+incomeType.addEventListener('change', () => {
+  if (incomeType.value === 'financial') {
+    amountWrapper.querySelector('label').textContent = 'المبلغ *';
+  } else if (incomeType.value === 'physical') {
+    amountWrapper.querySelector('label').textContent = 'الكمية *';
+  }
+});
+
+// submit
 document.getElementById('addIncomeForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const amountError = document.getElementById('amountError');
-  amountError.textContent = '';
 
-  const amount = document.querySelector('[name="amount"]').value.trim();
-  if (!amount || Number(amount) <= 0) {
-    amountError.textContent = 'المبلغ مطلوب ويجب أن يكون أكبر من صفر';
+  const type = incomeType.value;
+  const amountValue = amountInput.value;
+  const description = document.querySelector('textarea[name="description"]').value.trim();
+
+  if (!description) {
+    alert('الوصف مطلوب');
+    return;
+  }
+
+  if (!amountValue || Number(amountValue) <= 0) {
+    alert(type === 'financial' ? 'المبلغ المالي مطلوب' : 'الكمية مطلوبة للوارد العيني');
     return;
   }
 
   const formData = Object.fromEntries(new FormData(e.target).entries());
+
   const res = await fetch('/super-admin/incomes/create', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
@@ -177,8 +211,8 @@ document.getElementById('addIncomeForm').addEventListener('submit', async e => {
   });
 
   const data = await res.json();
-  if(data.success) window.location.href = data.redirect;
-  if(data.errors) alert(data.errors.general);
+  if (data.success) window.location.href = data.redirect;
+  if (data.errors) alert(data.errors.general);
 });
 </script>
 </body>

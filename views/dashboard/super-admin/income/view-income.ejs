@@ -28,11 +28,51 @@
         </div>
       </div>
 
-      <!-- تفاصيل المبالغ -->
+      <!-- تفاصيل المبالغ / الكميات -->
       <div class="row m-1 mb-3">
-        <div class="col-md-4"><div class="alert alert-primary"><strong>المبلغ الكلي:</strong> <%= income.amount.toLocaleString() %> </div></div>
-        <div class="col-md-4"><div class="alert alert-success"><strong>المبلغ الموزع:</strong> <%= distributedExpenses.reduce((sum,e)=>sum+e.amount,0).toLocaleString() %> </div></div>
-        <div class="col-md-4"><div class="alert alert-info"><strong>المبلغ المتبقي:</strong> <%= (income.amount - distributedExpenses.reduce((sum,e)=>sum+e.amount,0)).toLocaleString() %> </div></div>
+
+        <% if (income.incomeType === 'financial') { %>
+
+          <div class="col-md-4">
+            <div class="alert alert-primary">
+              <strong>المبلغ الكلي:</strong> <%= income.amount.toLocaleString() %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="alert alert-success">
+              <strong>المبلغ الموزع:</strong> <%= distributedExpenses.reduce((sum,e)=>sum+e.amount,0).toLocaleString() %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="alert alert-info">
+              <strong>المبلغ المتبقي:</strong> <%= (income.amount - distributedExpenses.reduce((sum,e)=>sum+e.amount,0)).toLocaleString() %>
+            </div>
+          </div>
+
+        <% } else { %>
+
+          <div class="col-md-4">
+            <div class="alert alert-primary">
+              <strong>الكمية الكلية:</strong> <%= income.amount.toLocaleString() %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="alert alert-success">
+              <strong>الكمية الموزعة:</strong> <%= distributedExpenses.reduce((sum,e)=>sum+e.amount,0).toLocaleString() %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="alert alert-info">
+              <strong>الكمية المتبقية:</strong> <%= (income.amount - distributedExpenses.reduce((sum,e)=>sum+e.amount,0)).toLocaleString() %>
+            </div>
+          </div>
+
+        <% } %>
+
       </div>
 
       <!-- تفاصيل المورد -->
@@ -61,7 +101,7 @@
 
               <form id="distributeForm">
 
-                <!-- خانة الوصف المخصص رجعت وأحسن من الأول -->
+                <!-- خانة الوصف المخصص -->
                 <div class="form-group mb-4">
                   <label for="distributionDescription"><strong>الوصف الخاص بهذا التوزيع (اختياري)</strong></label>
                   <textarea 
@@ -78,7 +118,7 @@
                     <tr>
                       <th>#</th>
                       <th>المدرسة</th>
-                      <th>المبلغ للتوزيع</th>
+                      <th><%= income.incomeType === 'financial' ? 'المبلغ للتوزيع' : 'الكمية للتوزيع' %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -102,7 +142,8 @@
                 <div class="alert alert-warning mb-3" id="allocationWarning" style="display:none;"></div>
 
                 <button type="submit" class="btn btn-success btn-lg px-5">
-                  <i class="fas fa-share-square"></i> توزيع المبلغ
+                  <i class="fas fa-share-square"></i>
+                  <%= income.incomeType === 'financial' ? 'توزيع المبلغ' : 'توزيع الكمية' %>
                 </button>
 
               </form>
@@ -111,7 +152,7 @@
         </div>
       </div>
 
-      <!-- التوزيعات السابقة - مع عرض الفئة والوصف بالعربي بشكل أجمل -->
+      <!-- التوزيعات السابقة -->
       <div class="row m-1 mt-4">
         <div class="col-12 p-2">
           <div class="card shade">
@@ -122,7 +163,7 @@
                   <tr>
                     <th>#</th>
                     <th>المدرسة</th>
-                    <th>المبلغ</th>
+                    <th><%= income.incomeType === 'financial' ? 'المبلغ' : 'الكمية' %></th>
                     <th>الفئة</th>
                     <th>الوصف</th>
                     <th>التاريخ</th>
@@ -161,7 +202,6 @@
   const allocationInputs = document.querySelectorAll('.allocationInput');
   const warningBox = document.getElementById('allocationWarning');
 
-  // تحذير فوري
   allocationInputs.forEach(input => {
     input.addEventListener('input', () => {
       let total = 0;
@@ -175,7 +215,6 @@
     });
   });
 
-  // التوزيع
   document.getElementById('distributeForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 

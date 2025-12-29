@@ -17,24 +17,42 @@ exports.renderAddIncomeForm = async (req, res) => {
   }
 };
 
-// Add Income
 exports.addIncome = async (req, res) => {
   try {
-    const { amount, supplierId, description } = req.body;
+    const { supplierId, incomeType, amount, description } = req.body;
 
-    if (!amount || !supplierId) {
-      return res.status(400).json({ errors: { general: "Amount and Supplier are required" } });
+    // التحقق من الحقول الأساسية
+    if (!supplierId) {
+      return res.status(400).json({ errors: { general: "Supplier is required" } });
     }
 
+    if (!incomeType || !['financial','physical'].includes(incomeType)) {
+      return res.status(400).json({ errors: { general: "Please specify a valid income type (financial or physical)" } });
+    }
+
+    if (!description || description.trim() === '') {
+      return res.status(400).json({ errors: { general: "Description is required" } });
+    }
+
+    if (!amount || Number(amount) <= 0) {
+      return res.status(400).json({ 
+        errors: { general: incomeType === 'financial' ? "Amount is required for financial income" : "Quantity is required for physical income" } 
+      });
+    }
+
+    // إنشاء الوارد
     const income = new Income({
-      amount,
       supplierId,
+      amount, // سواء مالي أو عيني، نحفظه في الحقل amount
       description,
+      incomeType,
       schoolId: req.user.schoolId,
+      createdBy: req.user._id
     });
 
     await income.save();
     return res.json({ success: "Income added successfully", redirect: "/school-admin/incomes" });
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ errors: { general: "Error adding income" } });

@@ -1,6 +1,3 @@
-<!doctype html>
-<html class="no-js" lang="ar">
-
 <%- include('../../../partials/head.ejs') %>
 <body class="rtl">
 <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
@@ -11,35 +8,98 @@
 
   <main class="bmd-layout-content">
     <div class="container-fluid">
-      <h3>إضافة وارد جديد</h3>
 
-      <% if (locals.success && locals.success.length > 0) { %>
-        <div class="alert alert-success"><%= locals.success %></div>
-      <% } %>
-      <% if (locals.error && locals.error.length > 0) { %>
-        <div class="alert alert-danger"><%= locals.error %></div>
-      <% } %>
+      <!-- Header -->
+      <div class="row m-1 pb-3 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1"><i class="fas fa-money-bill-wave"></i> إضافة وارد جديد</h3>
+              <span class="lite-text text-gray">اختيار مورد موجود</span>
+            </div>
+            <div>
+              <a href="/school-admin/incomes" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <form id="addIncomeForm" class="text-right">
-        <div class="form-group">
-          <label>المورد *</label>
-          <select name="supplierId" id="supplierSelect" class="form-control" required>
-            <option value="">اختر المورد</option>
-            <% suppliers.forEach(s => { %>
-              <option value="<%= s._id %>"><%= s.name %></option>
-            <% }) %>
-          </select>
+      <!-- Card -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-header bg-primary text-white">
+              <i class="fas fa-plus-circle"></i> بيانات المورد والوارد
+            </div>
+            <div class="card-body">
+              <form id="addIncomeForm">
+
+                <!-- STEP 1: اختيار المورد -->
+                <div id="step1">
+                  <h5 class="mb-3 text-primary"><i class="fas fa-user-tie"></i> اختيار المورد</h5>
+                  <div class="row">
+                    <div class="col-md-6 form-group">
+                      <label>المورد *</label>
+                      <select name="supplierId" id="supplierSelect" class="form-control" required>
+                        <option value="">اختر مورد</option>
+                        <% suppliers.forEach(s => { %>
+                          <option value="<%= s._id %>"><%= s.name %></option>
+                        <% }) %>
+                      </select>
+                      <small class="text-danger" id="supplierError"></small>
+                    </div>
+                  </div>
+
+                  <button type="button" class="btn btn-primary mt-2" id="nextBtn">
+                    التالي <i class="fas fa-arrow-left"></i>
+                  </button>
+                </div>
+
+                <!-- STEP 2: بيانات الوارد -->
+                <div id="step2" style="display:none;">
+                  <h5 class="mb-3 text-success"><i class="fas fa-coins"></i> بيانات الوارد</h5>
+
+                  <div class="row">
+                    <div class="col-md-6 form-group">
+                      <label>نوع الوارد *</label>
+                      <select name="incomeType" id="incomeType" class="form-control" required>
+                        <option value="">اختر النوع</option>
+                        <option value="financial">وارد مالي</option>
+                        <option value="physical">وارد عيني</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row mt-2">
+                    <div class="col-md-6 form-group" id="amountWrapper">
+                      <label>المبلغ *</label>
+                      <input type="number" name="amount" class="form-control">
+                      <small class="text-danger" id="amountError"></small>
+                    </div>
+
+                    <div class="col-md-12 form-group">
+                      <label>الوصف *</label>
+                      <textarea name="description" class="form-control"></textarea>
+                    </div>
+                  </div>
+
+                  <hr>
+                  <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                    <i class="fas fa-arrow-right"></i> السابق
+                  </button>
+                  <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> إضافة الوارد
+                  </button>
+                </div>
+
+              </form>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label>المبلغ *</label>
-          <input type="number" name="amount" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label>الوصف</label>
-          <textarea name="description" class="form-control"></textarea>
-        </div>
-        <button type="submit" class="btn btn-success">إضافة الوارد</button>
-      </form>
+      </div>
+
     </div>
   </main>
 </div>
@@ -47,14 +107,56 @@
 <%- include('../../../partials/scripts.ejs') %>
 
 <script>
+const step1 = document.getElementById('step1');
+const step2 = document.getElementById('step2');
+const supplierSelect = document.getElementById('supplierSelect');
+const amountWrapper = document.getElementById('amountWrapper');
+const amountInput = amountWrapper.querySelector('input[name="amount"]');
+const incomeType = document.getElementById('incomeType');
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  const supplierError = document.getElementById('supplierError');
+  supplierError.textContent = '';
+
+  if (!supplierSelect.value) {
+    supplierError.textContent = 'اختر مورد';
+    return;
+  }
+
+  step1.style.display = 'none';
+  step2.style.display = 'block';
+});
+
+function prevStep() {
+  step2.style.display = 'none';
+  step1.style.display = 'block';
+}
+
+// تغيير label حسب النوع
+incomeType.addEventListener('change', () => {
+  if (incomeType.value === 'financial') {
+    amountWrapper.querySelector('label').textContent = 'المبلغ *';
+  } else if (incomeType.value === 'physical') {
+    amountWrapper.querySelector('label').textContent = 'الكمية *';
+  }
+});
+
+// submit
 document.getElementById('addIncomeForm').addEventListener('submit', async e => {
   e.preventDefault();
 
-  const formData = {
-    supplierId: document.getElementById('supplierSelect').value,
-    amount: document.querySelector('input[name="amount"]').value,
-    description: document.querySelector('textarea[name="description"]').value
-  };
+  const type = incomeType.value;
+  const amountValue = amountInput.value;
+  const description = document.querySelector('textarea[name="description"]').value.trim();
+
+  if (!type) { alert('اختر نوع الوارد'); return; }
+  if (!amountValue || Number(amountValue) <= 0) {
+    alert(type === 'financial' ? 'المبلغ المالي مطلوب' : 'الكمية مطلوبة للوارد العيني');
+    return;
+  }
+  if (!description) { alert('الوصف مطلوب'); return; }
+
+  const formData = Object.fromEntries(new FormData(e.target).entries());
 
   const res = await fetch('/school-admin/incomes/create', {
     method: 'POST',
@@ -63,13 +165,8 @@ document.getElementById('addIncomeForm').addEventListener('submit', async e => {
   });
 
   const data = await res.json();
-  if(data.errors){
-    alert(data.errors.general || "Error");
-  } else if(data.success){
-    alert(data.success);
-    if(data.redirect) window.location.href = data.redirect;
-  }
+  if (data.success) window.location.href = data.redirect;
+  if (data.errors) alert(data.errors.general);
 });
 </script>
 </body>
-</html>

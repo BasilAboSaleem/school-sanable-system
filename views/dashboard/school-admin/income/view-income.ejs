@@ -33,18 +33,28 @@
         </div>
       </div>
 
-      <!-- مبالغ الوارد -->
-      <div class="row m-1 mb-3">
-        <div class="col-md-4">
-          <div class="alert alert-primary"><strong>المبلغ الكلي:</strong> <%= income.amount.toLocaleString() %> </div>
-        </div>
-        <div class="col-md-4">
-          <div class="alert alert-success"><strong>المبلغ الموزع:</strong> <%= totalDistributed.toLocaleString() %> </div>
-        </div>
-        <div class="col-md-4">
-          <div class="alert alert-info"><strong>المبلغ المتبقي:</strong> <%= remainingAmount.toLocaleString() %> </div>
-        </div>
-      </div>
+     <!-- مبالغ أو كميات الوارد -->
+<div class="row m-1 mb-3">
+  <div class="col-md-4">
+    <div class="alert alert-primary">
+      <strong><%= income.incomeType === 'financial' ? 'المبلغ الكلي:' : 'الكمية الكلية:' %></strong> 
+      <%= income.amount.toLocaleString() %>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="alert alert-success">
+      <strong><%= income.incomeType === 'financial' ? 'المبلغ الموزع:' : 'الكمية الموزعة:' %></strong> 
+      <%= totalDistributed.toLocaleString() %>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="alert alert-info">
+      <strong><%= income.incomeType === 'financial' ? 'المبلغ المتبقي:' : 'الكمية المتبقية:' %></strong> 
+      <%= remainingAmount.toLocaleString() %>
+    </div>
+  </div>
+</div>
+
 
       <!-- تفاصيل المورد -->
       <div class="row m-1 mb-3">
@@ -99,7 +109,7 @@
                   <tr>
                     <th>#</th>
                     
-                    <th>المبلغ</th>
+                    <th>المبلغ / الكمية</th>
                     <th>الوصف</th>
                     <th>التاريخ</th>
                   </tr>

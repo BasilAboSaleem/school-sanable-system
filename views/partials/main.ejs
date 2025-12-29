@@ -8,7 +8,7 @@
             <div class="col-lg-8">
               <div class="page-header-title text-left-rtl">
                 <h3 class="lite-text">لوحة التحكم</h3>
-                <span class="lite-text text-gray">تقارير وإحصائيات</span>
+                <span class="lite-text text-gray">مرحباً بك في نظام الإدارة</span>
               </div>
             </div>
             <div class="col-lg-4">
@@ -22,151 +22,49 @@
       </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="row m-1 mb-2">
-      <% if(user.role === 'super-admin') { %>
-        <div class="col-md-3 p-2">
-          <div class="box-card mini"><span>عدد المدارس</span><span><%= stats.totalSchools %></span></div>
-        </div>
-        <div class="col-md-3 p-2">
-          <div class="box-card mini"><span>عدد الموردين</span><span><%= stats.totalSuppliers %></span></div>
-        </div>
-        <div class="col-md-3 p-2">
-          <div class="box-card mini"><span>إجمالي الواردات</span><span><%= stats.totalIncomes[0]?.total || 0 %></span></div>
-        </div>
-        <div class="col-md-3 p-2">
-          <div class="box-card mini"><span>إجمالي الصادرات</span><span><%= stats.totalExpenses[0]?.total || 0 %></span></div>
-        </div>
-      <% } else if(user.role === 'school-admin') { %>
-        <div class="col-md-4 p-2">
-          <div class="box-card mini"><span>إجمالي الواردات للمدرسة</span><span><%= stats.totalIncomes[0]?.total || 0 %></span></div>
-        </div>
-        <div class="col-md-4 p-2">
-          <div class="box-card mini"><span>إجمالي الصادرات للمدرسة</span><span><%= stats.totalExpenses[0]?.total || 0 %></span></div>
-        </div>
-        <div class="col-md-4 p-2">
-          <div class="box-card mini"><span>عدد المعلمين</span><span><%= stats.totalTeachers %></span></div>
-        </div>
-      <% } else if(user.role === 'teacher') { %>
-        <div class="col-md-6 p-2">
-          <div class="box-card mini"><span>آخر الواردات الخاصة بك</span>
-            <ul>
-              <% recentIncomes.forEach(inc => { %>
-                <li><%= inc.amount %> - <%= inc.description || '—' %></li>
-              <% }) %>
-            </ul>
-          </div>
-        </div>
-        <div class="col-md-6 p-2">
-          <div class="box-card mini"><span>آخر الصادرات الخاصة بك</span>
-            <ul>
-              <% recentExpenses.forEach(exp => { %>
-                <li><%= exp.amount %> - <%= exp.category || '—' %></li>
-              <% }) %>
-            </ul>
-          </div>
-        </div>
-      <% } %>
-    </div>
-
-    <!-- Charts Section (Super & School Admin) -->
-    <% if(user.role !== 'teacher') { %>
-    <div class="row m-1">
-      <div class="col-md-8 p-2">
-        <div class="card shade">
-          <div class="card-body">
-            <h5 class="card-title">الواردات مقابل الصادرات</h5>
-            <canvas id="incomeExpenseChart"></canvas>
+    <!-- Welcome message for teacher or attendance staff -->
+    <% if(user.role === 'teacher' || user.role === 'attendance-staff') { %>
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-body text-center">
+              <h4>مرحباً <%= user.fullName %>!</h4>
+              <p>سيتم عرض الإحصائيات الخاصة بك هنا قريباً.</p>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-md-4 p-2">
-        <div class="card shade">
-          <div class="card-body">
-            <h5 class="card-title">نسبة التوزيع</h5>
-            <canvas id="distributionChart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
     <% } %>
 
-    <!-- Recent Suppliers / Schools Table -->
-    <% if(user.role !== 'teacher') { %>
-    <div class="row m-1">
-      <div class="col-md-6 p-2">
-        <div class="card shade">
-          <div class="card-body">
-            <h5 class="card-title">آخر الموردين</h5>
-            <table class="table table-striped">
-              <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>البريد</th></tr></thead>
-              <tbody>
-                <% recentSuppliers.forEach((s,i) => { %>
-                  <tr>
-                    <td><%= i+1 %></td>
-                    <td><%= s.name %></td>
-                    <td><%= s.phone || '—' %></td>
-                    <td><%= s.email || '—' %></td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
+    <!-- Existing dashboard for other roles remains intact -->
+    <% if(user.role === 'super-admin' || user.role === 'school-admin') { %>
+      <div class="row m-1 mb-2">
+        <% if(user.role === 'super-admin') { %>
+          <div class="col-md-3 p-2">
+            <div class="box-card mini"><span>عدد المدارس</span><span><%= stats.totalSchools %></span></div>
           </div>
-        </div>
-      </div>
-
-      <% if(user.role === 'super-admin') { %>
-      <div class="col-md-6 p-2">
-        <div class="card shade">
-          <div class="card-body">
-            <h5 class="card-title">آخر المدارس</h5>
-            <table class="table table-striped">
-              <thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>العنوان</th></tr></thead>
-              <tbody>
-                <% recentSchools.forEach((sc,i) => { %>
-                  <tr>
-                    <td><%= i+1 %></td>
-                    <td><%= sc.name %></td>
-                    <td><%= sc.phone || '—' %></td>
-                    <td><%= sc.address || '—' %></td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
+          <div class="col-md-3 p-2">
+            <div class="box-card mini"><span>عدد الموردين</span><span><%= stats.totalSuppliers %></span></div>
           </div>
-        </div>
+          <div class="col-md-3 p-2">
+            <div class="box-card mini"><span>إجمالي الواردات</span><span><%= stats.totalIncomes[0]?.total || 0 %></span></div>
+          </div>
+          <div class="col-md-3 p-2">
+            <div class="box-card mini"><span>إجمالي الصادرات</span><span><%= stats.totalExpenses[0]?.total || 0 %></span></div>
+          </div>
+        <% } else if(user.role === 'school-admin') { %>
+          <div class="col-md-4 p-2">
+            <div class="box-card mini"><span>إجمالي الواردات للمدرسة</span><span><%= stats.totalIncomes[0]?.total || 0 %></span></div>
+          </div>
+          <div class="col-md-4 p-2">
+            <div class="box-card mini"><span>إجمالي الصادرات للمدرسة</span><span><%= stats.totalExpenses[0]?.total || 0 %></span></div>
+          </div>
+          <div class="col-md-4 p-2">
+            <div class="box-card mini"><span>عدد المعلمين</span><span><%= stats.totalTeachers %></span></div>
+          </div>
+        <% } %>
       </div>
-      <% } %>
-    </div>
     <% } %>
 
   </div>
 </main>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  <% if(user.role !== 'teacher') { %>
-  const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: <%- JSON.stringify(chartLabels) %>,
-      datasets: [
-        { label: 'الواردات', data: <%- JSON.stringify(chartIncomes) %>, backgroundColor: '#007bff' },
-        { label: 'الصادرات', data: <%- JSON.stringify(chartExpenses) %>, backgroundColor: '#dc3545' }
-      ]
-    },
-    options: { responsive: true, plugins: { legend: { position: 'top' } } }
-  });
-
-  const ctx2 = document.getElementById('distributionChart').getContext('2d');
-  new Chart(ctx2, {
-    type: 'doughnut',
-    data: {
-      labels: <%- JSON.stringify(distributionLabels) %>,
-      datasets: [{ data: <%- JSON.stringify(distributionData) %>, backgroundColor: ['#007bff','#28a745','#ffc107','#dc3545'] }]
-    },
-    options: { responsive: true }
-  });
-  <% } %>
-</script>

@@ -4,6 +4,7 @@ const Student = require("../../models/Student");
 const Exam = require("../../models/Exam");
 const Subject = require("../../models/Subject");
 const User = require("../../models/User");
+const Grade = require("../../models/Grade");
 
 /**
  * صفحة طلابي
@@ -73,7 +74,7 @@ exports.getTeacherStudentsBySection = async (req, res) => {
   }
 };
 
-// صفحة عرض طالب
+
 exports.showStudentDetails = async (req, res) => {
   try {
     const studentId = req.params.id;
@@ -83,20 +84,23 @@ exports.showStudentDetails = async (req, res) => {
 
     if (!student) return res.status(404).send("الطالب غير موجود"); 
 
-    // جلب المواد التي يدرسها المعلم (المعلم الحالي هو req.user)
+    // جلب المواد التي يدرسها المعلم الحالي
     const teacher = await User.findById(req.user._id); 
     const subjects = await Subject.find({ _id: { $in: teacher.subjects } });
 
     // جلب جميع الدرجات للطالب حسب المواد المرتبطة بالمعلم
-    const exams = await Exam.find({
+    const grades = await Grade.find({
       studentId,
+      teacherId: req.user._id, // العلامات الخاصة بهذا المعلم فقط
       subjectId: { $in: subjects.map(s => s._id) }
-    }).populate("subjectId");
+    })
+    .populate("subjectId")
+    .populate("examId");
 
     res.render("dashboard/teacher/student-details", {
       student,
       subjects,
-      exams
+      exams: grades // نرسلها للفرونت كـ exams
     });
 
   } catch (err) {
@@ -104,3 +108,4 @@ exports.showStudentDetails = async (req, res) => {
     res.status(500).send("حدث خطأ أثناء جلب بيانات الطالب");
   }
 };
+

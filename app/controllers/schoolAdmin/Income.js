@@ -108,19 +108,46 @@ exports.updateIncome = async (req, res) => {
       return res.status(404).json({ errors: { general: "الوارد غير موجود" } });
     }
 
-    income.supplierId = req.body.supplierId || income.supplierId;
-    income.amount = req.body.amount || income.amount;
-    income.description = req.body.description || income.description;
+    // منع التعديل إذا حصل أي توزيع
+    const hasDistributions = await Expense.exists({ incomeId: income._id });
+    if (hasDistributions) {
+      return res.status(400).json({
+        errors: { general: "لا يمكن تعديل الوارد بعد بدء أي توزيع" }
+      });
+    }
+
+    const { supplierId, incomeType, amount, description } = req.body;
+
+    // التحقق من الحقول الأساسية
+    if (!supplierId) {
+      return res.status(400).json({ errors: { general: "Supplier is required" } });
+    }
+
+    if (!incomeType || !['financial','physical'].includes(incomeType)) {
+      return res.status(400).json({ errors: { general: "Please specify a valid income type (financial or physical)" } });
+    }
+
+    if (!amount || Number(amount) <= 0) {
+      return res.status(400).json({ 
+        errors: { general: incomeType === 'financial' ? "Amount is required for financial income" : "Quantity is required for physical income" } 
+      });
+    }
+
+    // حفظ البيانات
+    income.supplierId = supplierId;
+    income.incomeType = incomeType;
+    income.amount = amount;
+    income.description = description;
 
     await income.save();
+    return res.json({ success: "تم تعديل الوارد بنجاح", redirect: "/school-admin/incomes" });
 
-    // Send JSON response for AJAX
-    res.json({ success: "Income updated successfully", redirect: "/school-admin/incomes" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ errors: { general: "حدث خطأ أثناء تحديث الوارد" } });
+    return res.status(500).json({ errors: { general: "حدث خطأ أثناء تعديل الوارد" } });
   }
 };
+
 
 // View Income Details
 exports.viewIncomeDetails = async (req, res) => {

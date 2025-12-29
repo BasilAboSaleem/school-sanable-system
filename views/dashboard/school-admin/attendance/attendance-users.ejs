@@ -64,8 +64,8 @@
                     <th>الاسم</th>
                     <th>البريد الإلكتروني</th>
                     <th>الهاتف</th>
-                    <th>الحالة</th>
-                    <th>العمليات</th>
+                    
+                    
                   </tr>
                 </thead>
                 <tbody>
@@ -79,11 +79,8 @@
                     <td><%= user.name %></td>
                     <td><%= user.email %></td>
                     <td><%= user.phone || '—' %></td>
-                    <td><%= user.status === 'active' ? 'نشط' : 'غير نشط' %></td>
-                    <td>
-                      <a href="/school-admin/attendance-users/<%= user._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
-                      <a href="/school-admin/attendance-users/<%= user._id %>/delete" class="btn btn-sm btn-danger">حذف</a>
-                    </td>
+              
+                
                   </tr>
                 <% }) %>
                 </tbody>

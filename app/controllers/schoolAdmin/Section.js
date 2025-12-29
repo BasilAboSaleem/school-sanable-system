@@ -53,7 +53,7 @@ await Class.findByIdAndUpdate(classId, { $push: { sections: newSection._id } });
     req.flash("success", "تم إضافة الشعبة بنجاح");
     return res.json({
   success: "تم إضافة الشعبة بنجاح",
-  redirect: "/school-admin/sections"
+  redirect: "/school-admin/classes"
 });
 
   } catch(err){

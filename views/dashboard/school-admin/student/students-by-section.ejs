@@ -19,7 +19,7 @@
           <span class="lite-text text-gray">عرض جميع الطلاب في هذه الشعبة</span>
         </div>
         <div>
-          <a href="/school-admin/sections" class="btn btn-secondary">
+          <a href="/school-admin/classes/<%= section.classId ? section.classId._id : '' %>/sections" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> العودة للشعب
           </a>
         </div>

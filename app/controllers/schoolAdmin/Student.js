@@ -2,7 +2,9 @@ const{
     Student,
     Class,
     Section,
-    Grade
+    Grade,
+    User,
+    ParentProfile
 } = require("./utils");
 
 
@@ -23,6 +25,7 @@ exports.renderCreateStudentForm = async (req, res) => {
 exports.createStudent = async (req, res) => {
   const {
     fullName,
+    nationalId,
     phoneOfParents,
     address,
     dateOfBirth,
@@ -33,6 +36,7 @@ exports.createStudent = async (req, res) => {
   } = req.body;
 
   try {
+    // ====== VALIDATIONS ======
     if (!fullName || !fullName.trim())
       return res.json({ errors: { fullName: "اسم الطالب مطلوب" } });
 
@@ -43,23 +47,19 @@ exports.createStudent = async (req, res) => {
       return res.json({ errors: { sectionId: "يجب اختيار الشعبة" } });
 
     // تحقق أن الفصل تابع للمدرسة
-    const cls = await Class.findOne({
-      _id: classId,
-      schoolId: req.user.schoolId
-    });
+    const cls = await Class.findOne({ _id: classId, schoolId: req.user.schoolId });
     if (!cls)
       return res.json({ errors: { classId: "الفصل غير صالح" } });
 
     // تحقق أن الشعبة تابعة للفصل
-    const section = await Section.findOne({
-      _id: sectionId,
-      classId: classId
-    });
+    const section = await Section.findOne({ _id: sectionId, classId });
     if (!section)
       return res.json({ errors: { sectionId: "الشعبة غير تابعة لهذا الفصل" } });
 
+    // ====== CREATE STUDENT ======
     const newStudent = new Student({
       fullName: fullName.trim(),
+      nationalId: nationalId ? nationalId.trim() : undefined,
       phoneOfParents,
       address,
       dateOfBirth,
@@ -73,8 +73,44 @@ exports.createStudent = async (req, res) => {
 
     await newStudent.save();
 
+    // ====== CREATE / LINK PARENT ======
+    if (phoneOfParents && nationalId) {
+      let parentUser = await User.findOne({ phone: phoneOfParents, role: "parent" });
+
+      if (!parentUser) {
+        // إنشاء Parent جديد
+        const email = `${nationalId}@school.com`;
+        const password = `School@${phoneOfParents}`;
+
+        parentUser = new User({
+          name: `ولي أمر ${fullName}`,
+          email,
+          password,
+          role: "parent",
+          phone: phoneOfParents
+        });
+
+        await parentUser.save();
+
+        // إنشاء ParentProfile وربط الطالب
+        const parentProfile = new ParentProfile({
+          userId: parentUser._id,
+          phone: phoneOfParents,
+          students: [newStudent._id]
+        });
+
+        await parentProfile.save();
+      } else {
+        // لو Parent موجود مسبقًا → أضف الطالب للقائمة
+        await ParentProfile.findOneAndUpdate(
+          { userId: parentUser._id },
+          { $addToSet: { students: newStudent._id } }
+        );
+      }
+    }
+
     return res.json({
-      success: "تم إضافة الطالب بنجاح",
+      success: "تم إضافة الطالب وانشاء حساب ولي الامر بنجاح",
       redirect: "/school-admin/students"
     });
 

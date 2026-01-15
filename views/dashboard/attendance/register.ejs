@@ -12,6 +12,7 @@
 <body class="rtl">
 <main class="bmd-layout-content">
 <div class="container-fluid mt-3">
+  <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
 
   <h3>تسجيل الحضور اليومي</h3>
 
@@ -64,6 +65,7 @@ const classSelect = document.getElementById('classSelect');
 const sectionSelect = document.getElementById('sectionSelect');
 const studentsContainer = document.getElementById('studentsContainer');
 const studentsTable = document.getElementById('studentsTable');
+const csrfToken = document.getElementById('csrfToken').value;
 
 let currentClassId = '';
 let currentSectionId = '';
@@ -153,7 +155,7 @@ document.getElementById('saveAttendanceBtn').addEventListener('click', async () 
   try {
     const res = await fetch('/attendance/save', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
       body: JSON.stringify({ attendances, date: new Date() })
     });
 

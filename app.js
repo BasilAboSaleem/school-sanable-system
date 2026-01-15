@@ -10,6 +10,9 @@ const morgan = require("morgan");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
+const helmet = require("helmet");
+const compression = require("compression");
+const csurf = require("csurf");
 
 // Config / DB
 const connectDB = require("./app/config/db"); 
@@ -31,34 +34,53 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({ origin: process.env.BASE_URL || "*", credentials: true }));
+app.use(compression());
+
+// Security Headers (Helmet) - Disable CSP for inline scripts compat
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
 
-app.use(
+/*app.use(
   rateLimit({
-    windowMs: 1000,
-    max: 50,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
     message: "Too many requests, please slow down.",
   })
-);
+);*/
 
-// Session + Flash
+// Session + Flash 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "superSecret",
+    secret: process.env.SESSION_SECRET || "superSecretKeyForSession",
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 },
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Secure in production
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      sameSite: "lax", // Protect against CSRF
+    },
   })
 );
 app.use(flash());
 
-// Make flash available in views
+// CSRF Protection (must be after cookie-parser/session and before routes)
+const csrfProtection = csurf({ cookie: { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: 'lax' } });
+app.use(csrfProtection);
+
+// Make flash & CSRF available in views
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  res.locals.csrfToken = req.csrfToken();
+  res.locals.user = req.user || null;
   next();
 });
 
@@ -87,9 +109,13 @@ app.use("/attendance", attendanceRoutes);
 app.use("/teacher", teacherRoutes);
 
 // Health Check
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "ok", timestamp: new Date() });
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
 });
+
+app.use("/profile", require("./app/routes/profile"));
+
+app.use("/", require("./app/routes/index"));
 
 // 404 Handler
 app.use((req, res) => {
@@ -97,11 +123,25 @@ app.use((req, res) => {
 });
 
 // Global Error Handler
+// Global Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   const status = err.status || 500;
   const message = err.message || "Internal Server Error";
-  res.status(status).json({ error: message });
+
+  if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.path.startsWith('/api')) {
+      return res.status(status).json({ error: message });
+  }
+
+  res.status(status).render("errors/error", { 
+      // Assuming you have an error view, if not we'll render a simple one or redirect
+      // For now, let's keep it simple or use a generic error view if it exists
+      message: message,
+      error: process.env.NODE_ENV === 'development' ? err : {}
+  }, (err2, html) => {
+      if (err2) return res.status(status).send(message); // Fallback
+      res.send(html);
+  });
 });
 
 module.exports = app;

@@ -54,6 +54,7 @@
             <% } %>
 
             <form id="editTeacherForm" class="text-right">
+              <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
 
               <div class="row">
 
@@ -156,6 +157,7 @@
     const sectionsSelect = document.getElementById('sectionsSelect');
     const subjectsSelect = document.getElementById('subjectsSelect');
     const statusSelect = document.getElementById('statusSelect');
+    const csrfToken = document.getElementById('csrfToken').value;
 
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
@@ -210,7 +212,7 @@
       if(!email) return;
       const res = await fetch('/school-admin/teachers/<%= teacher._id %>/edit', {
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{'Content-Type':'application/json', 'CSRF-Token': csrfToken},
         body: JSON.stringify({ email, checkField:'email' })
       });
       const data = await res.json();
@@ -248,7 +250,7 @@
       // تحقق البريد قبل الإرسال
       const emailCheckRes = await fetch('/school-admin/teachers/<%= teacher._id %>/edit',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{'Content-Type':'application/json', 'CSRF-Token': csrfToken},
         body: JSON.stringify({ email, checkField:'email' })
       });
       const emailData = await emailCheckRes.json();
@@ -267,7 +269,7 @@
 
       const res = await fetch('/school-admin/teachers/<%= teacher._id %>/edit',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{'Content-Type':'application/json', 'CSRF-Token': csrfToken},
         body: JSON.stringify(formData)
       });
       const data = await res.json();

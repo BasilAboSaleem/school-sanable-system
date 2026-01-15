@@ -27,6 +27,7 @@
           <div class="card shade h-100">
             <div class="card-body">
               <form action="/school-admin/employees/<%= employee._id %>/edit" method="POST">
+                <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
                 <div class="form-group">
                   <label>الاسم *</label>
                   <input type="text" name="name" value="<%= employee.name %>" required class="form-control">

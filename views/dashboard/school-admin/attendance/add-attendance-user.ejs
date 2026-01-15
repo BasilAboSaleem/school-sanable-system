@@ -36,6 +36,7 @@
             <div class="card-body">
 
               <form id="addAttendanceUserForm">
+                <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
 
                 <div class="form-group">
                   <label>الاسم *</label>
@@ -88,6 +89,7 @@ const phoneInput = form.querySelector("input[name='phone']");
 const nameError = document.getElementById("nameError");
 const emailError = document.getElementById("emailError");
 const passwordError = document.getElementById("passwordError");
+const csrfToken = document.getElementById('csrfToken').value; // قراءة الـ token
 
 // submit
 form.addEventListener("submit", async e => {
@@ -117,7 +119,7 @@ form.addEventListener("submit", async e => {
   // إرسال البيانات للسيرفر
   const res = await fetch("/school-admin/attendance-users/create", {
     method:"POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", 'CSRF-Token': csrfToken },
     body: JSON.stringify({ name: nameVal, email: emailVal, password: passwordVal, phone: phoneInput.value.trim() })
   });
 

@@ -1,125 +1,143 @@
 <%- include('../../../partials/head.ejs') %>
 
 <body class="rtl">
-<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
 
-<%- include('../../../partials/header.ejs') %>
-<div id="dw-s1" class="bmd-layout-drawer bg-faded">
-  <%- include('../../../partials/sidebar/index.ejs') %>
-</div>
-
-<main class="bmd-layout-content">
-<div class="container-fluid">
-
-<!-- Page Header -->
-<div class="row m-1 pb-3 mb-3">
-  <div class="col-12 p-2">
-    <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
-      <div>
-        <h3 class="lite-text mb-1"><i class="fas fa-book"></i> تعديل المادة</h3>
-        <span class="lite-text text-gray">تعديل اسم، رمز وحالة المادة</span>
-      </div>
-      <div>
-        <a href="/school-admin/subjects" class="btn btn-secondary">
-          <i class="fas fa-arrow-left"></i> العودة للمواد
-        </a>
-      </div>
+    <%- include('../../../partials/header.ejs') %>
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../../partials/sidebar/index.ejs') %>
     </div>
-  </div>
-</div>
 
-<!-- Alerts -->
-<% if (locals.error && locals.error.length > 0) { %>
-  <div class="alert alert-danger"><%= locals.error %></div>
-<% } %>
-<% if (locals.success && locals.success.length > 0) { %>
-  <div class="alert alert-success"><%= locals.success %></div>
-<% } %>
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
 
-<!-- Form Card -->
-<div class="row m-1 justify-content-center">
-  <div class="col-lg-6 col-md-8 col-12 p-2">
-    <div class="card shade">
-      <div class="card-header bg-primary text-white">
-        <i class="fas fa-edit"></i> بيانات المادة
+        <!-- Page Header -->
+        <div class="row m-1 pb-3 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+              <div>
+                <h3 class="lite-text mb-1"><i class="fas fa-edit"></i> تعديل المادة</h3>
+                <span class="lite-text text-gray">تعديل اسم، رمز وحالة المادة</span>
+              </div>
+              <div>
+                <a href="/school-admin/subjects" class="btn btn-secondary">
+                  <i class="fas fa-arrow-left"></i> العودة للمواد
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerts -->
+        <% if (locals.error && locals.error.length> 0) { %>
+          <div class="alert alert-danger">
+            <%= locals.error %>
+          </div>
+        <% } %>
+        <% if (locals.success && locals.success.length> 0) { %>
+          <div class="alert alert-success">
+            <%= locals.success %>
+          </div>
+        <% } %>
+
+        <!-- Form Card -->
+        <div class="row m-1 justify-content-center">
+          <div class="col-lg-6 col-md-8 col-12 p-2">
+            <div class="card shade">
+              <div class="card-header bg-primary text-white">
+                <i class="fas fa-edit"></i> بيانات المادة
+              </div>
+              <div class="card-body">
+                <form id="editSubjectForm" class="text-right">
+                  <!-- CSRF Token Hidden Input -->
+                  <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
+                  <div class="form-group">
+                    <label>اسم المادة *</label>
+                    <input type="text" name="name" id="subjectNameInput" required class="form-control"
+                      value="<%= subject.name %>">
+                    <small class="text-danger" id="nameError"></small>
+                  </div>
+
+                  <div class="form-group">
+                    <label>رمز المادة</label>
+                    <input type="text" name="code" id="subjectCodeInput" class="form-control"
+                      value="<%= subject.code %>">
+                  </div>
+
+                  <div class="form-group">
+                    <label>الحالة</label>
+                    <select name="status" class="form-control">
+                      <option value="active" <%=subject.status==='active' ? 'selected' : '' %>>نشط</option>
+                      <option value="inactive" <%=subject.status==='inactive' ? 'selected' : '' %>>غير نشط</option>
+                    </select>
+                  </div>
+
+                  <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-success">
+                      <i class="fas fa-save"></i> حفظ التعديلات
+                    </button>
+                    <a href="/school-admin/subjects" class="btn btn-secondary">
+                      <i class="fas fa-times"></i> إلغاء
+                    </a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
-      <div class="card-body">
-        <form id="editSubjectForm" class="text-right">
-          <div class="form-group">
-            <label>اسم المادة *</label>
-            <input type="text" name="name" id="subjectNameInput" required class="form-control" value="<%= subject.name %>">
-            <small class="text-danger" id="nameError"></small>
-          </div>
-
-          <div class="form-group">
-            <label>رمز المادة</label>
-            <input type="text" name="code" id="subjectCodeInput" class="form-control" value="<%= subject.code %>">
-          </div>
-
-          <div class="form-group">
-            <label>الحالة</label>
-            <select name="status" class="form-control">
-              <option value="active" <%= subject.status==='active' ? 'selected' : '' %>>نشط</option>
-              <option value="inactive" <%= subject.status==='inactive' ? 'selected' : '' %>>غير نشط</option>
-            </select>
-          </div>
-
-          <div class="d-flex justify-content-between mt-3">
-            <button type="submit" class="btn btn-success">
-              <i class="fas fa-save"></i> حفظ التعديلات
-            </button>
-            <a href="/school-admin/subjects" class="btn btn-secondary">
-              <i class="fas fa-times"></i> إلغاء
-            </a>
-          </div>
-        </form>
-      </div>
-    </div>
+    </main>
   </div>
-</div>
 
-</div>
-</main>
-</div>
+  <%- include('../../../partials/scripts.ejs') %>
 
-<%- include('../../../partials/scripts.ejs') %>
+  <script>
+    const subjectNameInput = document.getElementById('subjectNameInput');
+    const subjectCodeInput = document.getElementById('subjectCodeInput');
+    const nameError = document.getElementById('nameError');
+    const csrfToken = document.getElementById('csrfToken').value; // قراءة الـ token
 
-<script>
-const subjectNameInput = document.getElementById('subjectNameInput');
-const subjectCodeInput = document.getElementById('subjectCodeInput');
-const nameError = document.getElementById('nameError');
+    document.getElementById('editSubjectForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      nameError.textContent = '';
 
-document.getElementById('editSubjectForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  nameError.textContent = '';
+      if (!subjectNameInput.value.trim()) {
+        nameError.textContent = "اسم المادة مطلوب";
+        return;
+      }
 
-  if(!subjectNameInput.value.trim()){
-    nameError.textContent = "اسم المادة مطلوب";
-    return;
-  }
+      const formData = {
+        name: subjectNameInput.value.trim(),
+        code: subjectCodeInput.value.trim(),
+        status: document.querySelector('select[name="status"]').value
+      };
 
-  const formData = {
-    name: subjectNameInput.value.trim(),
-    code: subjectCodeInput.value.trim(),
-    status: document.querySelector('select[name="status"]').value
-  };
+      try {
+        const res = await fetch(window.location.pathname, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken // إرسال token في headers
+          },
+          body: JSON.stringify(formData)
+        });
 
-  const res = await fetch(window.location.pathname, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(formData)
-  });
-
-  const data = await res.json();
-  if(data.errors){
-    if(data.errors.name) nameError.textContent = data.errors.name;
-    if(data.errors.general) alert(data.errors.general);
-  } else if(data.success){
-    alert(data.success);
-    window.location.href = data.redirect;
-  }
-});
-</script>
+        const data = await res.json();
+        if (data.errors) {
+          if (data.errors.name) nameError.textContent = data.errors.name;
+          if (data.errors.general) alert(data.errors.general);
+        } else if (data.success) {
+          alert(data.success);
+          window.location.href = data.redirect;
+        }
+      } catch(err){
+        alert("حدث خطأ أثناء الاتصال بالسيرفر.");
+        console.error(err);
+      }
+    });
+  </script>
 
 </body>
 </html>

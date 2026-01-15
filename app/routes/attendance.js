@@ -1,9 +1,23 @@
 const express = require("express");
 const router = express.Router();
+
+const authorize = require("../middlewares/authorize");
 const attendanceController = require("../controllers/attendance");
 
-// صفحة تسجيل الحضور
+// ==================================================
+// Attendance Authorization (Protect All Routes)
+// ==================================================
+router.use(authorize(["attendance"]));
+
+// ==================================================
+// Attendance Registration
+// ==================================================
 router.get("/register", attendanceController.showRegisterPage);
+router.post("/save", attendanceController.saveAttendance);
+
+// ==================================================
+// Data Fetching (AJAX)
+// ==================================================
 
 // جلب الشعب حسب الفصل
 router.get("/sections/:classId", attendanceController.getSectionsByClass);
@@ -11,14 +25,10 @@ router.get("/sections/:classId", attendanceController.getSectionsByClass);
 // جلب الطلاب حسب الشعبة
 router.get("/students/:sectionId", attendanceController.getStudentsBySection);
 
-// حفظ الحضور دفعة واحدة
-router.post("/save", attendanceController.saveAttendance);
-
-// صفحة سجلات الحضور
+// ==================================================
+// Attendance Logs
+// ==================================================
 router.get("/logs", attendanceController.showAttendanceLogs);
-
-// جلب سجلات حسب الفلترة (AJAX)
 router.post("/logs/data", attendanceController.getAttendanceLogs);
-
 
 module.exports = router;

@@ -10,6 +10,13 @@ exports.renderAddEmployeeForm = (req, res) => {
 
 exports.createEmployee = async (req, res) => {
   try {
+    const { validationResult } = require("express-validator");
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       req.flash("error", errors.array()[0].msg);
+       return res.redirect("/school-admin/employees/create");
+    }
+
     const { name, email, phone, jobTitle, address, salary } = req.body;
     const newEmployee = new Employee({
       name,

@@ -45,6 +45,7 @@
               </div>
               <div class="card-body">
                 <form action="/school-admin/employees/create" method="POST">
+                  <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
                   <div class="form-group">
                     <label>الاسم الكامل *</label>
                     <input type="text" name="name" required class="form-control">

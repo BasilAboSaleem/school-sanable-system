@@ -8,9 +8,17 @@ exports.getLogin = (req, res) => {
 
 // POST /auth/login
 exports.postLogin = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { validationResult } = require("express-validator");
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+       req.flash("error", errors.array()[0].msg);
+       return res.redirect("/auth/login");
+    }
+
+    const { email, password } = req.body;
+
     // التحقق من وجود المستخدم
     const user = await User.findOne({ email });
     if (!user) {
@@ -33,7 +41,7 @@ exports.postLogin = async (req, res) => {
     );
 
     // حفظ التوكن في cookie
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
 
     
     return res.redirect("/");

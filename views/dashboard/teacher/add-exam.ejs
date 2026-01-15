@@ -8,6 +8,7 @@
 
 <main class="bmd-layout-content">
 <div class="container-fluid mt-3">
+  <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
   <h3>إضافة اختبار جديد</h3>
 
   <div class="row mb-3">
@@ -66,6 +67,7 @@ const subjectSelect = document.getElementById('subjectSelect');
 const examDate = document.getElementById('examDate');
 const fileUrl = document.getElementById('fileUrl');
 const addExamBtn = document.getElementById('addExamBtn');
+const csrfToken = document.getElementById('csrfToken').value;
 
 classSelect.addEventListener('change', async () => {
   sectionSelect.innerHTML = '<option value="">-- اختر الشعبة --</option>';
@@ -88,7 +90,7 @@ addExamBtn.addEventListener('click', async () => {
 
   const res = await fetch('/teacher/exams/add', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
     body: JSON.stringify({
       title: `اختبار ${subjectSelect.options[subjectSelect.selectedIndex].text}`,
       classId: classSelect.value,

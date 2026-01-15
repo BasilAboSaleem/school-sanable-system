@@ -11,6 +11,7 @@
       <h3>إضافة صادر جديد</h3>
 
       <form id="addExpenseForm" class="text-right">
+        <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
         <div class="form-group">
           <label>اختر المدرسة *</label>
           <select name="schoolId" class="form-control" required>
@@ -44,12 +45,13 @@
 <%- include('../../../partials/scripts.ejs') %>
 
 <script>
+const csrfToken = document.getElementById('csrfToken').value;
 document.getElementById('addExpenseForm').addEventListener('submit', async e => {
   e.preventDefault();
   const formData = Object.fromEntries(new FormData(e.target).entries());
   const res = await fetch('/super-admin/expenses/create', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json', 'CSRF-Token': csrfToken},
     body: JSON.stringify(formData)
   });
   const data = await res.json();

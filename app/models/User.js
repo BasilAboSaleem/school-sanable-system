@@ -10,14 +10,15 @@ role: {
   type: String,
   enum: ["super-admin", "school-admin", "teacher", "attendance"],
   default: "school-admin"
-},  schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
+}, 
+ schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
   phone: { type: String },
   classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }], // الفصول المرتبطة بالمعلم
   subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }], // المواد المرتبطة بالمعلم
   sections: [{ type: mongoose.Schema.Types.ObjectId, ref: "Section" }],
   createdAt: { type: Date, default: Date.now },
 });
-
+ 
 // Hash password before saving
 userSchema.pre('save', async function() {
   if (!this.isModified('password')) return;

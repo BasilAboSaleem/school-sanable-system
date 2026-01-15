@@ -50,6 +50,7 @@
               <div class="card-body">
 
                 <form id="editSupplierForm" class="text-right">
+                  <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
                   <div class="form-group">
                     <label>اسم المورد *</label>
                     <input type="text" name="name" id="supplierNameInput" value="<%= supplier.name %>" required class="form-control">
@@ -95,6 +96,7 @@
 const supplierForm = document.getElementById('editSupplierForm');
 const nameInput = document.getElementById('supplierNameInput');
 const nameError = document.getElementById('nameError');
+const csrfToken = document.getElementById('csrfToken').value; // قراءة الـ token
 
 supplierForm.addEventListener('submit', async e => {
   e.preventDefault();
@@ -118,7 +120,7 @@ supplierForm.addEventListener('submit', async e => {
   try {
     const res = await fetch(`/school-admin/suppliers/${supplierId}/edit`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'CSRF-Token': csrfToken},
       body: JSON.stringify(formData)
     });
 

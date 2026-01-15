@@ -38,6 +38,7 @@
             <div class="card-body">
 
               <form id="editClassForm" class="text-right">
+                <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
                 <div class="form-group">
                   <label>اسم الفصل *</label>
                   <input type="text" name="name" id="classNameInput" required class="form-control" value="<%= cls.name %>">
@@ -72,6 +73,7 @@
 <script>
 const classNameInput = document.getElementById('classNameInput');
 const nameError = document.getElementById('nameError');
+const csrfToken = document.getElementById('csrfToken').value; // قراءة الـ token
 
 // التحقق من الاسم الفريد عند الخروج من الحقل
 classNameInput.addEventListener('blur', async () => {
@@ -80,7 +82,7 @@ classNameInput.addEventListener('blur', async () => {
 
   const res = await fetch(`/school-admin/classes/<%= cls._id %>/edit`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json', 'CSRF-Token': csrfToken},
     body: JSON.stringify({ name, checkField: 'name' })
   });
   const data = await res.json();

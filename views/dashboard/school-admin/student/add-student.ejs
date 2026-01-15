@@ -55,6 +55,8 @@
 <% } %>
 
                 <form id="addStudentForm" action="/school-admin/students/create" method="POST" class="text-right">
+                
+                  <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
                   <div class="form-group">
                     <label>الاسم الكامل *</label>
                     <input type="text" name="fullName" id="studentNameInput" required class="form-control">
@@ -136,6 +138,7 @@
   const sectionSelect = document.getElementById('sectionSelect');
   const classError = document.getElementById('classError');
   const sectionError = document.getElementById('sectionError');
+  const csrfToken = document.getElementById('csrfToken').value; // قراءة الـ token
 
   // فلترة الشعب حسب الفصل المختار
   classSelect.addEventListener('change', () => {
@@ -187,7 +190,7 @@
 
     const res = await fetch('/school-admin/students/create', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json', 'CSRF-Token': csrfToken},
       body: JSON.stringify(formData)
     });
 

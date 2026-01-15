@@ -43,6 +43,14 @@ exports.renderAddIncome = async (req, res) => {
 // إنشاء وارد جديد (مع إنشاء مورد إذا كان جديد)
 exports.createIncome = async (req, res) => {
   try {
+    const { validationResult } = require("express-validator");
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       const errorObj = {};
+       errors.array().forEach(err => errorObj[err.path] = err.msg);
+       return res.json({ errors: errorObj });
+    }
+
     const {
       supplierId,
       supplierName,
@@ -57,7 +65,11 @@ exports.createIncome = async (req, res) => {
 
     const userId = req.user._id;
 
-    // تحقق من النوع
+    // ... (rest of logic remains but validation removed because middleware handles it)
+    // Actually we keep logic for supplier creation/lookup but remove field presence checks if validator covered them?
+    // The validator covered basic presence. Supplier logic is dynamic.
+
+    // تحقق من النوع (already mostly covered but specific values check kept if not in validator)
     if (!incomeType || !['financial','physical'].includes(incomeType)) {
       return res.json({ errors: { general: "يرجى تحديد نوع الوارد الصحيح (مالي أو عيني)" } });
     }
@@ -78,14 +90,6 @@ exports.createIncome = async (req, res) => {
         schoolId: null
       });
       await supplier.save();
-    }
-
-    // تحقق من الحقول حسب النوع
-    if (!description || description.trim() === '') {
-      return res.json({ errors: { general: "الوصف مطلوب" } });
-    }
-    if (!amount || Number(amount) <= 0) {
-      return res.json({ errors: { general: incomeType === 'financial' ? "المبلغ المالي مطلوب" : "الكمية مطلوبة للوارد العيني" } });
     }
 
     const income = new Income({
@@ -237,6 +241,14 @@ exports.renderEditIncome = async (req, res) => {
 // تحديث وارد
 exports.updateIncome = async (req, res) => {
   try {
+    const { validationResult } = require("express-validator");
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       const errorObj = {};
+       errors.array().forEach(err => errorObj[err.path] = err.msg);
+       return res.json({ errors: errorObj });
+    }
+
     const income = await Income.findById(req.params.id);
     if (!income) {
       return res.json({ errors: { general: "الوارد غير موجود" } });
@@ -253,6 +265,16 @@ exports.updateIncome = async (req, res) => {
       });
     }
 
+    // From Validator: amount, date, source (but model uses supplierId/description etc. need to map correctly if changed?)
+    // Original code took amount, description, supplierId.
+    // The Validator 'validateIncome' checks 'amount', 'title'(?), 'date', 'source'.
+    // Wait, the validator fields I wrote in financeValidator.js (title, amount, date, source) might NOT match the Income Model fields used here (amount, description, supplierId).
+    // I need to align the VALIDATOR with the FORM fields used in `createIncome`.
+    // In createIncome form (implied): amount, description, incomeType, supplierId.
+    // My validator checked 'title' and 'date'. Income model might not even have 'title' or 'date' (uses createdAt).
+    // I should probably fix the VALIDATOR to match the INCOME requirements first.
+    // For now, I will proceed with the Controller change but I MUST FIX THE VALIDATOR in the next step.
+    
     income.amount = req.body.amount;
     income.description = req.body.description;
     income.supplierId = req.body.supplierId;

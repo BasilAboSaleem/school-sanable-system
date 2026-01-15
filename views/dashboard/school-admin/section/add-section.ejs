@@ -49,7 +49,7 @@
               <div class="card-body">
 
                 <form id="addSectionForm" action="/school-admin/sections/create" method="POST" class="text-right">
-
+                  <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
                   <!-- اختيار الفصل -->
                   <div class="form-group">
                     <label>اختر الفصل *</label>
@@ -98,6 +98,7 @@ const sectionNameInput = document.getElementById('sectionNameInput');
 const classSelect = document.getElementById('classSelect');
 const nameError = document.getElementById('nameError');
 const classError = document.getElementById('classError');
+const csrfToken = document.getElementById('csrfToken').value; // قراءة الـ token
 
 // AJAX للتحقق من الاسم الفريد داخل الفصل عند blur
 sectionNameInput.addEventListener('blur', async () => {
@@ -107,7 +108,7 @@ sectionNameInput.addEventListener('blur', async () => {
   
   const res = await fetch('/school-admin/sections/create', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json', 'CSRF-Token': csrfToken},
     body: JSON.stringify({ name, classId, checkField: 'name' })
   });
   const data = await res.json();
@@ -143,7 +144,7 @@ document.getElementById('addSectionForm').addEventListener('submit', async e => 
 
   const res = await fetch('/school-admin/sections/create', {
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json', 'CSRF-Token': csrfToken},
     body: JSON.stringify(formData)
   });
   const data = await res.json();

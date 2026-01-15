@@ -36,6 +36,9 @@
           <div class="alert alert-success"><%= locals.success %></div>
         <% } %>
 
+        <!-- CSRF Token Hidden -->
+        <input type="hidden" id="csrfToken" value="<%= csrfToken %>">
+
         <!-- Form Card -->
         <div class="row m-1 justify-content-center">
           <div class="col-lg-6 col-md-8 col-12 p-2">
@@ -87,19 +90,28 @@
 <script>
 const subjectNameInput = document.getElementById('subjectNameInput');
 const nameError = document.getElementById('nameError');
+const csrfToken = document.getElementById('csrfToken').value;
 
 // AJAX للتحقق من الاسم الفريد عند الخروج من الحقل
 subjectNameInput.addEventListener('blur', async () => {
   const name = subjectNameInput.value.trim();
   if(!name) return;
-  
-  const res = await fetch('/school-admin/subjects/create', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ name, checkField: 'name' })
-  });
-  const data = await res.json();
-  nameError.textContent = data.error || '';
+
+  try {
+    const res = await fetch('/school-admin/subjects/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({ name, checkField: 'name' })
+    });
+    const data = await res.json();
+    nameError.textContent = data.error || '';
+  } catch(err) {
+    console.error(err);
+    nameError.textContent = "حدث خطأ أثناء التحقق";
+  }
 });
 
 // إرسال الفورم
@@ -119,19 +131,28 @@ document.getElementById('addSubjectForm').addEventListener('submit', async e => 
     status: document.querySelector('select[name="status"]').value
   };
 
-  const res = await fetch('/school-admin/subjects/create', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(formData)
-  });
-  const data = await res.json();
+  try {
+    const res = await fetch('/school-admin/subjects/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'CSRF-Token': csrfToken
+      },
+      body: JSON.stringify(formData)
+    });
 
-  if(data.errors){
-    if(data.errors.name) nameError.textContent = data.errors.name;
-    if(data.errors.general) alert(data.errors.general);
-  } else if(data.success){
-    alert(data.success);
-    window.location.href="/school-admin/subjects";
+    const data = await res.json();
+
+    if(data.errors){
+      if(data.errors.name) nameError.textContent = data.errors.name;
+      if(data.errors.general) alert(data.errors.general);
+    } else if(data.success){
+      alert(data.success);
+      window.location.href="/school-admin/subjects";
+    }
+  } catch(err){
+    console.error(err);
+    alert("حدث خطأ أثناء الإرسال");
   }
 });
 </script>

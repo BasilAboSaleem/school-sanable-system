@@ -1,40 +1,60 @@
 const express = require("express");
 const router = express.Router();
-const schoolAdminController = require("../controllers/schoolAdmin/schoolAdmin");
 
-// Routes for Class Management
+const authorize = require("../middlewares/authorize");
+const schoolAdminController = require("../controllers/schoolAdmin/schoolAdmin");
+const schoolAdminValidator = require("../validators/schoolAdminValidator");
+
+// ==================================================
+// School Admin Authorization (Protect All Routes)
+// ==================================================
+router.use(authorize(["school-admin"]));
+
+// ==================================================
+// Classes Management
+// ==================================================
 router.get("/classes/create", schoolAdminController.Class.renderCreateClassForm);
 router.post("/classes/create", schoolAdminController.Class.createClass);
 router.get("/classes", schoolAdminController.Class.listClasses);
 router.get("/classes/:id/edit", schoolAdminController.Class.renderEditClassForm);
 router.post("/classes/:id/edit", schoolAdminController.Class.updateClass);
 
-
-// Routes for Section Management
+// ==================================================
+// Sections Management
+// ==================================================
 router.get("/sections/create", schoolAdminController.Section.renderCreateSectionForm);
 router.post("/sections/create", schoolAdminController.Section.createSection);
 router.get("/classes/:classId/sections", schoolAdminController.Section.listSectionsByClass);
 router.get(
   "/classes/:classId/sections/json",
   schoolAdminController.Section.getSectionsByClassJSON
-)
+);
+router.get(
+  "/sections/:sectionId/students",
+  schoolAdminController.Section.listStudentsBySection
+);
 
-// Routes for Teacher Management
+// ==================================================
+// Teachers Management
+// ==================================================
 router.get("/teachers/create", schoolAdminController.Teacher.renderCreateTeacherForm);
 router.post("/teachers/create", schoolAdminController.Teacher.createTeacher);
 router.get("/teachers", schoolAdminController.Teacher.listTeachers);
 router.get("/teachers/:id/edit", schoolAdminController.Teacher.renderEditTeacherForm);
 router.post("/teachers/:id/edit", schoolAdminController.Teacher.updateTeacher);
 
-
-// Routes for Subject Management
+// ==================================================
+// Subjects Management
+// ==================================================
 router.get("/subjects/create", schoolAdminController.Subject.renderCreateSubjectForm);
 router.post("/subjects/create", schoolAdminController.Subject.createSubject);
 router.get("/subjects", schoolAdminController.Subject.listSubjects);
 router.get("/subjects/:id/edit", schoolAdminController.Subject.renderEditSubjectForm);
 router.post("/subjects/:id/edit", schoolAdminController.Subject.updateSubject);
 
-// Routes for Student Management
+// ==================================================
+// Students Management
+// ==================================================
 router.get("/students/create", schoolAdminController.Student.renderCreateStudentForm);
 router.post("/students/create", schoolAdminController.Student.createStudent);
 router.get("/students", schoolAdminController.Student.listStudents);
@@ -42,87 +62,92 @@ router.get("/students/:id", schoolAdminController.Student.viewStudentDetails);
 router.get("/students/:id/edit", schoolAdminController.Student.renderEditStudentForm);
 router.post("/students/:id/edit", schoolAdminController.Student.updateStudent);
 
-// Routes for Employee Management
+// ==================================================
+// Employees Management
+// ==================================================
 router.get("/employees", schoolAdminController.Employee.listEmployees);
 router.get("/employees/create", schoolAdminController.Employee.renderAddEmployeeForm);
-router.post("/employees/create", schoolAdminController.Employee.createEmployee);
-
+router.post("/employees/create", schoolAdminValidator.validateEmployee, schoolAdminController.Employee.createEmployee);
 router.get("/employees/:id/edit", schoolAdminController.Employee.renderEditEmployeeForm);
-router.post("/employees/:id/edit", schoolAdminController.Employee.updateEmployee);
-
+router.post("/employees/:id/edit", schoolAdminValidator.validateEmployee, schoolAdminController.Employee.updateEmployee);
 router.get("/employees/:id/delete", schoolAdminController.Employee.deleteEmployee);
 
-
-// الموردين
+// ==================================================
+// Suppliers Management
+// ==================================================
 router.get("/suppliers", schoolAdminController.Supplier.listSuppliers);
 router.get("/suppliers/create", schoolAdminController.Supplier.renderAddSupplierForm);
-router.post("/suppliers/create", schoolAdminController.Supplier.createSupplier);
+router.post("/suppliers/create", schoolAdminValidator.validateSupplier, schoolAdminController.Supplier.createSupplier);
 router.get("/suppliers/:id/edit", schoolAdminController.Supplier.renderEditSupplierForm);
-router.post("/suppliers/:id/edit", schoolAdminController.Supplier.updateSupplier);
+router.post("/suppliers/:id/edit", schoolAdminValidator.validateSupplier, schoolAdminController.Supplier.updateSupplier);
 router.get("/suppliers/:id/delete", schoolAdminController.Supplier.deleteSupplier);
 router.get("/suppliers/:id/view", schoolAdminController.Supplier.viewSupplierDetails);
 
-// Incomes
+// ==================================================
+// Incomes Management
+// ==================================================
 router.get("/incomes", schoolAdminController.Income.listIncomes);
 router.get("/incomes/create", schoolAdminController.Income.renderAddIncomeForm);
 router.post("/incomes/create", schoolAdminController.Income.addIncome);
 router.get("/incomes/:id/edit", schoolAdminController.Income.renderEditIncomeForm);
 router.post("/incomes/:id/edit", schoolAdminController.Income.updateIncome);
 router.get("/incomes/:id/view", schoolAdminController.Income.viewIncomeDetails);
-// صفحة عرض كل الصادرات
-//router.get("/expenses", schoolAdminController.Expense.listExpenses);
 
-// صفحة إضافة صادر
-//router.get("/expenses/create", schoolAdminController.Expense.renderAddExpenseForm);
+// ==================================================
+// Expenses (Partially Disabled)
+// ==================================================
+
+// router.get("/expenses", schoolAdminController.Expense.listExpenses);
+// router.get("/expenses/create", schoolAdminController.Expense.renderAddExpenseForm);
+// router.get("/expenses/:id/edit", schoolAdminController.Expense.renderEditExpenseForm);
+// router.post("/expenses/:id/edit", schoolAdminController.Expense.updateExpense);
+// router.get("/expenses/:id/view", schoolAdminController.Expense.viewExpense);
 
 // إنشاء صادر جديد (AJAX)
 router.post("/expenses/create", schoolAdminController.Expense.createExpense);
 
-// صفحة تعديل الصادر
-//router.get("/expenses/:id/edit", schoolAdminController.Expense.renderEditExpenseForm);
-
-// تحديث الصادر (AJAX)
-//router.post("/expenses/:id/edit", schoolAdminController.Expense.updateExpense);
-
-// صفحة عرض تفاصيل الصادر
-//router.get("/expenses/:id/view", schoolAdminController.Expense.viewExpense);
-
+// ==================================================
+// Attendance Users Management
+// ==================================================
 router.get(
   "/attendance-users/create",
   schoolAdminController.Attendance.renderCreateAttendanceUser
 );
-
-
 router.post(
   "/attendance-users/create",
   schoolAdminController.Attendance.createAttendanceUser
 );
-
-router.get('/attendance-users', schoolAdminController.Attendance.listAttendanceUsers);
-
 router.get(
-  '/attendance-users/:id/delete',
+  "/attendance-users",
+  schoolAdminController.Attendance.listAttendanceUsers
+);
+router.get(
+  "/attendance-users/:id/delete",
   schoolAdminController.Attendance.deleteAttendanceUser
 );
-
 router.get(
-  '/attendance-users/:id/edit',
+  "/attendance-users/:id/edit",
   schoolAdminController.Attendance.renderEditForm
 );
-
 router.post(
-  '/attendance-users/:id/edit',
+  "/attendance-users/:id/edit",
   schoolAdminController.Attendance.updateAttendanceUser
 );
-router.get('/sections/:sectionId/students', schoolAdminController.Section.listStudentsBySection);
 
-// صفحة إدارة الحضور والغياب
-router.get("/attendance/logs", schoolAdminController.Attendance.renderAttendancePage);
+// ==================================================
+// Attendance Logs
+// ==================================================
+router.get(
+  "/attendance/logs",
+  schoolAdminController.Attendance.renderAttendancePage
+);
+router.get(
+  "/attendance/sections/:classId",
+  schoolAdminController.Attendance.getSectionsByClassJSON
+);
+router.post(
+  "/attendance/filter",
+  schoolAdminController.Attendance.filterAttendance
+);
 
-// جلب الشعب حسب الفصل (AJAX)
-router.get("/attendance/sections/:classId", schoolAdminController.Attendance.getSectionsByClassJSON);
-
-// فلترة وعرض السجلات حسب التاريخ والفصل والشعبة والحالة
-router.post("/attendance/filter", schoolAdminController.Attendance.filterAttendance);
-
-module.exports = router;   
+module.exports = router;

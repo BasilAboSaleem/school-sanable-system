@@ -9,6 +9,7 @@
 
 <main class="bmd-layout-content">
 <div class="container-fluid mt-3">
+  <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
 
   <h3>سجلات الحضور والغياب</h3>
 
@@ -91,6 +92,7 @@ const studentName = document.getElementById('studentName');
 const statusSelect = document.getElementById('statusSelect');
 const filterBtn = document.getElementById('filterBtn');
 const logsTable = document.getElementById('logsTable');
+const csrfToken = document.getElementById('csrfToken').value;
 
 let logsData = [];
 
@@ -154,7 +156,7 @@ filterBtn.addEventListener('click', async () => {
 
   const res = await fetch('/attendance/logs/data', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
     body: JSON.stringify({ classId, sectionId, date })
   });
 

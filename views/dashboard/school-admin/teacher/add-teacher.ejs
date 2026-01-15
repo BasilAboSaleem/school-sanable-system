@@ -56,7 +56,7 @@
             <% } %>
 
             <form id="addTeacherForm" action="/school-admin/teachers/create" method="POST" class="text-right">
-
+              <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
               <div class="row">
 
                 <div class="col-md-6 form-group">
@@ -149,6 +149,7 @@
   const passwordError = document.getElementById('passwordError');
   const classesSelect = document.querySelector('select[name="classes[]"]');
   const sectionsSelect = document.querySelector('select[name="sections[]"]');
+  const csrfToken = document.getElementById('csrfToken').value; // قراءة الـ token
 
   const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
@@ -186,7 +187,7 @@
     if(!email) return;
     const res = await fetch('/school-admin/teachers/create', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {'Content-Type':'application/json', 'CSRF-Token': csrfToken},
       body: JSON.stringify({ email, checkField: 'email' })
     });
     const data = await res.json();
@@ -235,7 +236,7 @@
     // تحقق البريد الإلكتروني قبل الإرسال
     const emailCheckRes = await fetch('/school-admin/teachers/create', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {'Content-Type':'application/json', 'CSRF-Token': csrfToken},
       body: JSON.stringify({ email, checkField: 'email' })
     });
     const emailData = await emailCheckRes.json();
@@ -258,7 +259,7 @@
 
     const res = await fetch('/school-admin/teachers/create', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json', 'CSRF-Token': csrfToken},
       body: JSON.stringify(formData)
     });
 

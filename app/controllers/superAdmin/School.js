@@ -13,8 +13,9 @@ exports.getAddSchool = (req, res) => {
 exports.postAddSchool = async (req, res) => {
   try {
     const { name, address, phone, email, code, status, adminName, adminEmail, adminPassword, checkField } = req.body;
+    const { validationResult } = require('express-validator');
 
-    // verify individual field if requested AJAX validation
+    // AJAX Field Check (Keep manual or move to separate route? Keeping here for compatibility)
     if (checkField) {
       let exists = false;
       let errorMessage = "";
@@ -37,29 +38,13 @@ exports.postAddSchool = async (req, res) => {
       return res.json({ error: errorMessage });
     }
 
-    // validate all fields
-    let errors = {};
-
-    if (!name) errors.name = "اسم المدرسة مطلوب";
-    if (!code) errors.code = "كود المدرسة مطلوب";
-    if (!adminName) errors.adminName = "اسم المدير مطلوب";
-    if (!adminEmail) errors.adminEmail = "ايميل المدير مطلوب";
-    if (!adminPassword) errors.adminPassword = "كلمة المرور مطلوبة";
-
-    if (adminPassword && !strongPasswordRegex.test(adminPassword)) {
-      errors.adminPassword = "كلمة المرور غير قوية";
-    }
-
-    if (code && await School.findOne({ code })) {
-      errors.code = "كود المدرسة مستخدم مسبقًا";
-    }
-
-    if (adminEmail && await User.findOne({ email: adminEmail })) {
-      errors.adminEmail = "البريد الإلكتروني مستخدم مسبقًا";
-    }
-
-    if (Object.keys(errors).length > 0) {
-      return res.json({ errors });
+    // Full Submission Validation
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       // Convert array to object for frontend compatibility { field: msg }
+       const errorObj = {};
+       errors.array().forEach(err => errorObj[err.path] = err.msg); // err.param is now err.path in v7
+       return res.json({ errors: errorObj });
     }
 
     // create school
@@ -68,7 +53,7 @@ exports.postAddSchool = async (req, res) => {
     // create school admin user
     await User.create({ name: adminName, email: adminEmail, password: adminPassword, role: "school-admin", schoolId: school._id, phone: "-" });
 
-return res.json({ success: "تم إضافة المدرسة ومديرها بنجاح" });
+    return res.json({ success: "تم إضافة المدرسة ومديرها بنجاح" });
 
   } catch (err) {
     console.error(err);

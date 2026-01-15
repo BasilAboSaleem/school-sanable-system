@@ -16,12 +16,13 @@ exports.renderAddSupplierForm = (req, res) => {
 
 exports.createSupplier = async (req, res) => {
   try {
-    const { name, email, phone, address, notes } = req.body;
-
-    // تحقق من الاسم الفارغ
-    if (!name || !name.trim()) {
-      return res.json({ errors: { name: "اسم المورد مطلوب" } });
+    const { validationResult } = require("express-validator");
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       return res.json({ errors: { general: errors.array()[0].msg } });
     }
+
+    const { name, email, phone, address, notes } = req.body;
 
     // تحقق من التكرار بنفس المدرسة
     const existing = await Supplier.findOne({ name: name.trim(), schoolId: req.user.schoolId });

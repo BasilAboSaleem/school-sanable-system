@@ -35,6 +35,7 @@
 
             <div class="card-body">
               <form id="addIncomeForm">
+                <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
 
                 <!-- STEP 1 -->
                 <div id="step1">
@@ -144,6 +145,7 @@ const newSupplierFields = document.getElementById('newSupplierFields');
 const amountWrapper = document.getElementById('amountWrapper');
 const amountInput = amountWrapper.querySelector('input[name="amount"]');
 const incomeType = document.getElementById('incomeType');
+const csrfToken = document.getElementById('csrfToken').value;
 
 supplierSelect.addEventListener('change', () => {
   newSupplierFields.style.display = supplierSelect.value === 'new' ? 'block' : 'none';
@@ -206,7 +208,7 @@ document.getElementById('addIncomeForm').addEventListener('submit', async e => {
 
   const res = await fetch('/super-admin/incomes/create', {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    headers: {'Content-Type':'application/json', 'CSRF-Token': csrfToken},
     body: JSON.stringify(formData)
   });
 

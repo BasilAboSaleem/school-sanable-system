@@ -40,6 +40,7 @@
 
             <div class="card-body">
               <form id="editAdminForm" action="/super-admin/school-admins/<%= admin._id %>/edit" method="POST">
+                <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
 
                 <div class="row">
 
@@ -94,6 +95,7 @@
 
 <script>
 const editForm = document.getElementById('editAdminForm');
+const csrfToken = document.getElementById('csrfToken').value;
 
 editForm.addEventListener('submit', async e => {
   e.preventDefault();
@@ -107,7 +109,7 @@ editForm.addEventListener('submit', async e => {
 
   const res = await fetch(editForm.action, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
     body: JSON.stringify(formData)
   });
 

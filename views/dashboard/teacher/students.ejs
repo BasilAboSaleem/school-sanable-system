@@ -11,6 +11,7 @@
 
 <main class="bmd-layout-content">
   <div class="container-fluid">
+    <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
     <h3>طلابي</h3>
 
     <div class="row mb-3">
@@ -49,7 +50,6 @@
           <tr>
             <th>#</th>
             <th>اسم الطالب</th>
-            <th>المستوى</th>
             <th>العمليات</th>
           </tr>
         </thead>
@@ -71,6 +71,7 @@ const sectionSelect = document.getElementById('sectionSelect');
 const filterBtn = document.getElementById('filterBtn');
 const studentSearch = document.getElementById('studentSearch');
 const studentsTable = document.getElementById('studentsTable');
+const csrfToken = document.getElementById('csrfToken').value;
 
 // جلب الشعب عند اختيار الفصل
 classSelect.addEventListener('change', async () => {
@@ -93,7 +94,7 @@ filterBtn.addEventListener('click', async () => {
 
   const res = await fetch('/teacher/students/data', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json'  , 'CSRF-Token': csrfToken },
     body: JSON.stringify({ sectionId: sectionSelect.value })
   });
 
@@ -120,7 +121,6 @@ function renderStudents() {
       <tr>
         <td>${i + 1}</td>
         <td>${s.fullName}</td>
-        <td>${s.grade || '-'}</td>
         <td>
           <a href="/teacher/students/${s._id}" class="btn btn-sm btn-info">
             عرض
@@ -141,7 +141,6 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   const excelData = studentsData.map((s, i) => ({
     "الرقم": i + 1,
     "اسم الطالب": s.fullName,
-    "الصف": s.grade || '-'
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(excelData);

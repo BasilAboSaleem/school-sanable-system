@@ -8,6 +8,8 @@
 
   <main class="bmd-layout-content">
     <div class="container-fluid mt-3">
+          <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
       <h3>تفاصيل الاختبار: <%= exam.title %></h3>
       <% if (!isUpcoming) { %>
   <a href="/teacher/exams/<%= exam._id %>/grades"
@@ -17,6 +19,18 @@
 <% } %>
       <p>المادة: <%= exam.subjectId.name %></p>
       <p>الفصل: <%= exam.classId.name %> - الشعبة: <%= exam.sectionId.name %></p>
+      <p>نوع الاختبار: 
+        <%= 
+          exam.type === 'quiz' ? 'اختبار سريع' :
+          exam.type === 'monthly' ? 'شهري' :
+          exam.type === 'midterm' ? 'نصفي' :
+          exam.type === 'final' ? 'نهائي' :
+          '-' 
+        %>
+      </p>
+      <p>
+        الدرجة القصوى: <%= exam.maxScore %>
+      </p>
       <p>تاريخ الاختبار: <%= new Date(exam.examDate).toLocaleDateString('ar-EG') %></p>
       <% if (exam.fileUrl) { %>
         <p>ملف الاختبار: <a href="<%= exam.fileUrl %>" target="_blank">عرض / تحميل</a></p>
@@ -31,7 +45,7 @@
             <tr>
               <th>#</th>
               <th>اسم الطالب</th>
-              <th>الدرجة</th>
+              <th>الدرجة / <%= exam.maxScore %></th>
               <th>ملاحظات</th>
             </tr>
           </thead>
@@ -62,6 +76,7 @@
 <script>
   const exportBtn = document.getElementById('exportBtn');
   const printBtn = document.getElementById('printBtn');
+  const csrfToken = document.getElementById('csrfToken').value;
 
   if(exportBtn){
     exportBtn.addEventListener('click', () => {

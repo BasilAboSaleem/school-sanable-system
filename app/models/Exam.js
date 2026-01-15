@@ -1,10 +1,20 @@
 const mongoose = require("mongoose");
 
 const examSchema = new mongoose.Schema({
-  title: {
+  // نوع الاختبار بدل التايتل
+  type: {
     type: String,
+    enum: ["monthly", "midterm", "final", "quiz"],
     required: true
   },
+
+  // العلامة القصوى للاختبار
+  maxScore: {
+    type: Number,
+    required: true,
+    default: 20 // مثال: إذا ما تم تحديد العلامة تكون 20
+  },
+
   classId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",

@@ -91,6 +91,7 @@ const superAdminRoutes = require("./app/routes/superAdmin");
 const schoolAdminRoutes = require("./app/routes/schoolAdmin");
 const attendanceRoutes = require("./app/routes/attendance");
 const teacherRoutes = require("./app/routes/teacher");
+const parentRoutes = require("./app/routes/parent");
 
 // Public Routes
 app.use("/auth", authRoutes);
@@ -107,6 +108,7 @@ app.use("/super-admin", superAdminRoutes);
 app.use("/school-admin", schoolAdminRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/teacher", teacherRoutes);
+app.use("/parent", parentRoutes);
 
 // Health Check
 app.get("/health", (req, res) => {

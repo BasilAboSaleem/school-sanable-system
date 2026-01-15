@@ -44,14 +44,15 @@ exports.getSectionsByClass = async (req, res) => {
 
 exports.createExam = async (req, res) => {
   try {
-    const { title, classId, sectionId, subjectId, examDate, fileUrl } = req.body;
+    const { type, maxScore, classId, sectionId, subjectId, examDate, fileUrl } = req.body;
 
-    if (!title || !classId || !sectionId || !subjectId || !examDate) {
+    if (!type || !maxScore || !classId || !sectionId || !subjectId || !examDate) {
       return res.status(400).json({ error: "جميع الحقول مطلوبة" });
     }
 
     const exam = new Exam({
-      title,
+      type,
+      maxScore,
       classId,
       sectionId,
       subjectId,

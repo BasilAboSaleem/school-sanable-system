@@ -8,6 +8,8 @@
 
   <main class="bmd-layout-content">
     <div class="container-fluid mt-3">
+          <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
       <h3>الاختبارات</h3>
       
 
@@ -15,10 +17,11 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>العنوان</th>
+            
             <th>المادة</th>
             <th>الفصل</th>
             <th>الشعبة</th>
+            <th>نوع الاختبار</th>
             <th>تاريخ الاختبار</th>
             <th>الحالة</th>
             <th>العمليات</th>
@@ -33,10 +36,20 @@
             <% exams.forEach((e, i) => { %>
               <tr>
                 <td><%= i + 1 %></td>
-                <td><%= e.title %></td>
+               
                 <td><%= e.subjectId.name %></td>
                 <td><%= e.classId.name %></td>
                 <td><%= e.sectionId.name %></td>
+                <td>
+  <%= 
+    e.type === 'quiz' ? 'اختبار سريع' :
+    e.type === 'monthly' ? 'شهري' :
+    e.type === 'midterm' ? 'نصفي' :
+    e.type === 'final' ? 'نهائي' :
+    '-' 
+  %>
+</td>
+
                 <td><%= new Date(e.examDate).toLocaleDateString('ar-EG') %></td>
                 <td>
                   <% 
@@ -62,5 +75,8 @@
   </main>
 </div>
 <%- include('../../partials/scripts.ejs') %>
+<script>
+  const csrfToken = document.getElementById('csrfToken').value;
+</script>
 </body>
 </html>

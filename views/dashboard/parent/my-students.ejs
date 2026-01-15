@@ -1,0 +1,61 @@
+<%- include('../../partials/head.ejs') %>
+
+<body class="rtl">
+
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../partials/header.ejs') %>
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../partials/sidebar/index.ejs') %>
+  </div>
+
+<main class="bmd-layout-content">
+  <div class="container-fluid">
+    <h3>أولادي الطلاب</h3>
+
+    <div id="studentsContainer">
+      <table class="table table-bordered text-center">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>اسم الطالب</th>
+            <th>المدرسة</th>
+            <th>الصف</th>
+            <th>الشعبة</th>
+            <th>العمليات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(students && students.length > 0){ %>
+            <% students.forEach((s, i) => { %>
+              <tr>
+                <td><%= i + 1 %></td>
+                <td><%= s.fullName %></td>
+                <td><%= s.schoolId?.name || '-' %></td>
+                <td><%= s.classId?.name || '-' %></td>
+                <td><%= s.sectionId?.name || '-' %></td>
+                <td>
+                  <a href="/parent/students/<%= s._id %>" class="btn btn-sm btn-info">
+                    عرض
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="6">لا يوجد طلاب</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<%- include('../../partials/scripts.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+</body>
+</html>

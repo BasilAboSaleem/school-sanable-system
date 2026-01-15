@@ -87,7 +87,7 @@ exports.showStudentDetails = async (req, res) => {
     // جلب المواد التي يدرسها المعلم الحالي
     const teacher = await User.findById(req.user._id); 
     const subjects = await Subject.find({ _id: { $in: teacher.subjects } });
-
+    
     // جلب جميع الدرجات للطالب حسب المواد المرتبطة بالمعلم
     const grades = await Grade.find({
       studentId,
@@ -95,12 +95,16 @@ exports.showStudentDetails = async (req, res) => {
       subjectId: { $in: subjects.map(s => s._id) }
     })
     .populate("subjectId")
-    .populate("examId");
+    .populate({
+      path: "examId",
+      select: "type maxScore" // نجلب النوع والدرجة القصوى
+    });
 
     res.render("dashboard/teacher/student-details", {
       student,
       subjects,
-      exams: grades // نرسلها للفرونت كـ exams
+      exams: grades, // نرسلها للفرونت كـ exams
+      
     });
 
   } catch (err) {
@@ -108,4 +112,5 @@ exports.showStudentDetails = async (req, res) => {
     res.status(500).send("حدث خطأ أثناء جلب بيانات الطالب");
   }
 };
+
 

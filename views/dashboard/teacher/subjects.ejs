@@ -11,6 +11,8 @@
 
   <main class="bmd-layout-content">
     <div class="container-fluid">
+          <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
 
       <!-- Breadcrumb -->
       <div class="row m-1 pb-4 mb-3">
@@ -93,5 +95,8 @@
 </div>
 
 <%- include('../../partials/scripts.ejs') %>
+<script>  
+  const csrfToken = document.getElementById('csrfToken').value;
+  </script>
 </body>
 </html>

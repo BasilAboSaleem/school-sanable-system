@@ -9,6 +9,8 @@
 
 <main class="bmd-layout-content">
 <div class="container-fluid mt-3">
+      <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
   <h3>بيانات الطالب: <%= student.fullName %></h3>
 
   <div class="row mb-3">
@@ -20,7 +22,6 @@
   <div class="row mb-3">
     <div class="col-md-4"><strong>تاريخ الميلاد:</strong> <%= student.dateOfBirth ? student.dateOfBirth.toLocaleDateString('ar-EG') : '-' %></div>
     <div class="col-md-4"><strong>العنوان:</strong> <%= student.address || '-' %></div>
-    <div class="col-md-4"><strong>الدرجة:</strong> <%= student.grade || '-' %></div>
   </div>
 
   <h4 class="mt-4">كشف درجات الطالب</h4>
@@ -44,8 +45,16 @@
         <tr>
           <td><%= i+1 %></td>
           <td><%= e.subjectId.name %></td>
-          <td><%= e.examType || '-' %></td>
-          <td><%= e.score || '-' %></td>
+       <td>
+  <%= 
+    e.examId.type === 'quiz' ? 'اختبار سريع' :
+    e.examId.type === 'monthly' ? 'شهري' :
+    e.examId.type === 'midterm' ? 'نصفي' :
+    e.examId.type === 'final' ? 'نهائي' :
+    '-' 
+  %>
+</td>
+      <td><%= e.score || '-' %> / <%= e.examId.maxScore || '-' %></td>
           <td><%= e.notes || '-' %></td>
         </tr>
       <% }) %>
@@ -58,6 +67,7 @@
 <%- include('../../partials/scripts.ejs') %>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
+  const csrfToken = document.getElementById('csrfToken').value;
 // تصدير Excel
 document.getElementById('exportBtn').addEventListener('click', () => {
   const table = document.getElementById('gradesTable');

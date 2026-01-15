@@ -11,6 +11,8 @@
 
   <main class="bmd-layout-content">
     <div class="container-fluid">
+          <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
 
       <!-- Breadcrumb -->
       <div class="row m-1 pb-4 mb-3">
@@ -116,6 +118,7 @@
 <script>
   const searchInput = document.getElementById('classSearch');
   const rows = document.querySelectorAll('tbody tr');
+  const csrfToken = document.getElementById('csrfToken').value;
 
   searchInput.addEventListener('keyup', () => {
     const value = searchInput.value.toLowerCase().trim();

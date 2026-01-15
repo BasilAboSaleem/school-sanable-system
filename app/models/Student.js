@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
+    nationalId: {type: String,index: true },
   phoneOfParents: { type: String },
   address: { type: String },
   dateOfBirth: { type: Date },
@@ -9,13 +10,8 @@ const studentSchema = new mongoose.Schema({
   schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School", required: true },
   classId: { type: mongoose.Schema.Types.ObjectId, ref: "Class", required: true },
   sectionId: { type: mongoose.Schema.Types.ObjectId, ref: "Section", required: true },
-  grade: {type : String },
   status: { type: String, enum: ["active", "inactive"], default: "active" },
-  createdFrom: {
-  type: String,
-  enum: ["excel", "manual"],
-  default: "manual"
-},
+  createdFrom: {type: String,enum: ["excel", "manual"],default: "manual"},
   
   createdAt: { type: Date, default: Date.now },
 });

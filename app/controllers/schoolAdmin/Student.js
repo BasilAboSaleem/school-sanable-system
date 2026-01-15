@@ -79,7 +79,7 @@ exports.createStudent = async (req, res) => {
 
       if (!parentUser) {
         // إنشاء Parent جديد
-        const email = `${nationalId}@school.com`;
+        const email = `${phoneOfParents}@school.com`;
         const password = `School@${phoneOfParents}`;
 
         parentUser = new User({

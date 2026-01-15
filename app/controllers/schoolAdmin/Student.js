@@ -74,11 +74,12 @@ exports.createStudent = async (req, res) => {
     await newStudent.save();
 
     // ====== CREATE / LINK PARENT ======
-    if (phoneOfParents && nationalId) {
+    if (phoneOfParents) {
+      // تحقق من وجود User parent حسب الهاتف
       let parentUser = await User.findOne({ phone: phoneOfParents, role: "parent" });
 
       if (!parentUser) {
-        // إنشاء Parent جديد
+        // إنشاء Parent User جديد
         const email = `${phoneOfParents}@school.com`;
         const password = `School@${phoneOfParents}`;
 
@@ -91,34 +92,39 @@ exports.createStudent = async (req, res) => {
         });
 
         await parentUser.save();
+      }
 
-        // إنشاء ParentProfile وربط الطالب
-        const parentProfile = new ParentProfile({
+      // تحقق أو إنشاء ParentProfile مرتبط بالمدرسة
+      let parentProfile = await ParentProfile.findOne({
+        userId: parentUser._id,
+        schoolId: req.user.schoolId
+      });
+
+      if (!parentProfile) {
+        parentProfile = new ParentProfile({
           userId: parentUser._id,
           phone: phoneOfParents,
+          schoolId: req.user.schoolId,
           students: [newStudent._id]
         });
 
         await parentProfile.save();
       } else {
-        // لو Parent موجود مسبقًا → أضف الطالب للقائمة
-        await ParentProfile.findOneAndUpdate(
-          { userId: parentUser._id },
-          { $addToSet: { students: newStudent._id } }
-        );
+        // إضافة الطالب للقائمة إذا موجود Profile
+        await ParentProfile.findByIdAndUpdate(parentProfile._id, {
+          $addToSet: { students: newStudent._id }
+        });
       }
     }
 
     return res.json({
-      success: "تم إضافة الطالب وانشاء حساب ولي الامر بنجاح",
+      success: "تم إضافة الطالب وانشاء حساب ولي الأمر بنجاح",
       redirect: "/school-admin/students"
     });
 
   } catch (err) {
     console.error(err);
-    return res.json({
-      errors: { general: "حدث خطأ أثناء إضافة الطالب" }
-    });
+    return res.json({ errors: { general: "حدث خطأ أثناء إضافة الطالب" } });
   }
 };
 
@@ -210,12 +216,37 @@ exports.updateStudent = async (req, res) => {
       return res.redirect("/school-admin/students");
     }
 
+    // ====== تحديث بيانات الطالب ======
     student.fullName = req.body.fullName || student.fullName;
+    student.nationalId = req.body.nationalId || student.nationalId;
     student.dateOfBirth = req.body.dateOfBirth || student.dateOfBirth;
     student.gender = req.body.gender || student.gender;
-    student.phoneOfParents = req.body.phoneOfParents || student.phoneOfParents;
     student.address = req.body.address || student.address;
 
+    // تحقق من تغيير رقم ولي الأمر
+    const newPhone = req.body.phoneOfParents?.trim();
+    if (newPhone && newPhone !== student.phoneOfParents) {
+      const oldPhone = student.phoneOfParents;
+      student.phoneOfParents = newPhone;
+
+      // ====== تحديث حساب ولي الأمر ======
+      let parentUser = await User.findOne({ phone: oldPhone, role: "parent" });
+      if (parentUser) {
+        parentUser.phone = newPhone;
+        parentUser.email = `${newPhone}@school.com`;
+        parentUser.password = `School@${newPhone}`; // سيتم هاش تلقائياً
+        await parentUser.save();
+
+        // ====== تحديث ParentProfile ======
+        const parentProfile = await ParentProfile.findOne({ userId: parentUser._id });
+        if (parentProfile) {
+          parentProfile.phone = newPhone;
+          await parentProfile.save();
+        }
+      }
+    }
+
+    // ====== تحديث الفصل والشعبة ======
     if (req.body.classId) {
       const cls = await Class.findOne({
         _id: req.body.classId,
@@ -236,9 +267,11 @@ exports.updateStudent = async (req, res) => {
 
     req.flash("success", "تم تحديث بيانات الطالب بنجاح");
     res.redirect(`/school-admin/students/${student._id}`);
+
   } catch (err) {
     console.error(err);
     req.flash("error", "حدث خطأ أثناء تحديث بيانات الطالب");
     res.redirect("/school-admin/students");
   }
 };
+

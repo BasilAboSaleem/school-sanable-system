@@ -68,6 +68,18 @@ if (user.role === "teacher") {
       return next();
     }
 
+    //parent
+    if (user.role === "parent") {
+      req.user = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: "parent",
+       
+      };
+      return next();
+    }
+
     // Any other role → unauthorized
     return handleUnauthorized(req, res);
   } catch (err) {

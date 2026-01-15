@@ -20,5 +20,8 @@
   <% if (user?.role === 'attendance') { %>
     <%- include('./attendance.ejs') %>
   <% } %>
+  <% if (user?.role === 'parent') { %>
+    <%- include('./parent.ejs') %>
+  <% } %>
 
 </div>

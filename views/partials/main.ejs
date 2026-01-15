@@ -36,6 +36,20 @@
       </div>
     <% } %>
 
+    <!-- Welcome message for parent -->
+    <% if(user.role === 'parent' || user.role === 'parent') { %>
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-body text-center">
+              <h4>مرحباً!</h4>
+              <p>سيتم عرض الإحصائيات الخاصة بك هنا قريباً.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
     <!-- Existing dashboard for other roles remains intact -->
     <% if(user.role === 'super-admin' || user.role === 'school-admin') { %>
       <div class="row m-1 mb-2">
@@ -62,7 +76,8 @@
           <div class="col-md-4 p-2">
             <div class="box-card mini"><span>عدد المعلمين</span><span><%= stats.totalTeachers %></span></div>
           </div>
-        <% } %>
+        <% } %> 
+
       </div>
     <% } %>
 

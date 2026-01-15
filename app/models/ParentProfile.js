@@ -4,11 +4,15 @@ const parentProfileSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    unique: true,
     required: true
   },
   phone: {
     type: String,
+    required: true
+  },
+  schoolId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "School",
     required: true
   },
   students: [{
@@ -20,5 +24,8 @@ const parentProfileSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+// Optional: ensure unique ParentProfile per (user + school)
+parentProfileSchema.index({ userId: 1, schoolId: 1 }, { unique: true });
 
 module.exports = mongoose.model("ParentProfile", parentProfileSchema);

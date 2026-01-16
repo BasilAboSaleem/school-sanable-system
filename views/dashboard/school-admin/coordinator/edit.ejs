@@ -1,0 +1,153 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../../partials/header.ejs') %>
+
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- Page Header -->
+      <div class="row m-1 pb-3 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="lite-text mb-1">
+                <i class="fas fa-user-edit"></i> تعديل منسق المدرسة
+              </h3>
+            </div>
+            <div>
+              <a href="/school-admin/coordinator" class="btn btn-secondary">
+                رجوع
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade">
+            <div class="card-header bg-warning text-white">
+              بيانات المنسق
+            </div>
+
+            <div class="card-body">
+              <form id="editCoordinatorForm">
+                <input type="hidden" id="csrfToken" value="<%= csrfToken %>">
+                <input type="hidden" id="coordinatorId" value="<%= coordinator._id %>">
+
+                <div class="row">
+
+                  <div class="col-md-6 form-group">
+                    <label>الاسم الكامل *</label>
+                    <input type="text" id="name" class="form-control" value="<%= coordinator.name %>">
+                    <small class="text-danger" id="nameError"></small>
+                  </div>
+
+                  <div class="col-md-6 form-group">
+                    <label>البريد الإلكتروني *</label>
+                    <input type="email" id="email" class="form-control" value="<%= coordinator.email %>">
+                    <small class="text-danger" id="emailError"></small>
+                  </div>
+
+                  <div class="col-md-6 form-group">
+                    <label>كلمة المرور (اختياري)</label>
+                    <input type="password" id="password" class="form-control">
+                    <small class="text-danger" id="passwordError"></small>
+                  </div>
+
+                  <div class="col-md-6 form-group">
+                    <label>رقم الهاتف *</label>
+                    <input type="text" id="phone" class="form-control" value="<%= coordinator.phone %>">
+                    <small class="text-danger" id="phoneError"></small>
+                  </div>
+
+                </div>
+
+                <hr>
+
+                <button type="submit" class="btn btn-success">
+                  حفظ التعديلات
+                </button>
+
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+
+<script>
+const form = document.getElementById('editCoordinatorForm');
+const csrfToken = document.getElementById('csrfToken').value;
+const coordinatorId = document.getElementById('coordinatorId').value;
+const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  // Reset errors
+  ['name','email','password','phone'].forEach(f => document.getElementById(f+'Error').textContent='');
+
+  const data = {
+    name: document.getElementById('name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    password: document.getElementById('password').value.trim()
+  };
+
+  // تحقق كلمة المرور فقط إذا تم إدخالها
+  if(data.password && !strongPasswordRegex.test(data.password)){
+    document.getElementById('passwordError').textContent = 
+      "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز خاص";
+    return;
+  }
+
+  try {
+    const res = await fetch(`/school-admin/coordinator/${coordinatorId}/edit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'CSRF-Token': csrfToken
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if(result.errors){
+      Object.keys(result.errors).forEach(k=>{
+        const el = document.getElementById(k+'Error');
+        if(el) el.textContent = result.errors[k].msg;
+      });
+    } else if(result.success){
+      // إعادة التوجيه بعد التعديل
+      window.location.href = result.redirect || '/school-admin/coordinator';
+    } else if(result.flashError){
+      alert(result.flashError);
+    }
+
+  } catch(err){
+    console.error(err);
+    alert('حدث خطأ أثناء الحفظ');
+  }
+});
+</script>
+
+</body>
+</html>

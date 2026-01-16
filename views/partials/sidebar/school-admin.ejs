@@ -73,7 +73,12 @@
   </a>
   <div class="side-item-container">
     <li class="side-item"><a href="/school-admin/employees">جميع الموظفين</a></li>
-    <li class="side-item"><a href="/school-admin/employees/create">اضافة موظف جديد</a></li>
+    <% if (user.role === 'school-admin') { %>
+      <li class="side-item">
+        <a href="/school-admin/employees/create">اضافة موظف جديد</a>
+      </li>
+    <% } %>
+
   </div>
 </ul>
 
@@ -121,3 +126,15 @@
     <li class="side-item"><a href="/school-admin/suppliers/create">اضافة مورد جديد</a></li>
   </div>
 </ul>
+
+<% if (user.role === 'school-admin') { %>
+<ul class="side a-collapse">
+  <a class="ul-text">
+    <i class="fas fa-cogs mr-1"></i> اعدادات المدرسة
+    <i class="fas fa-chevron-down arrow"></i>
+  </a>
+  <div class="side-item-container">
+    <li class="side-item"><a href="/school-admin/coordinator">منسق المدرسة</a></li>
+  </div>
+</ul>
+<% } %>

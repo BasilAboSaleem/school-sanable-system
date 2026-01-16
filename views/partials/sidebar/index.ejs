@@ -10,7 +10,7 @@
     <%- include('./super-admin.ejs') %>
   <% } %>
 
-  <% if (user?.role === 'school-admin') { %>
+  <% if (user?.role === 'school-admin' || user?.role === 'school-coordinator') { %>
     <%- include('./school-admin.ejs') %>
   <% } %>
 

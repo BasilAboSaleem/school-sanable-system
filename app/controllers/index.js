@@ -39,7 +39,7 @@ exports.dashboard = async (req, res) => {
       distributionData = [chartIncomes.reduce((a,b)=>a+b,0), chartExpenses.reduce((a,b)=>a+b,0)];
     }
 
-    if(user.role === "school-admin") {
+    if(user.role === "school-admin" || user.role === "school-coordinator") {
       stats.totalIncomes = await Income.aggregate([
         { $match: { schoolId: user.schoolId } },
         { $group: { _id: null, total: { $sum: "$amount" } } }

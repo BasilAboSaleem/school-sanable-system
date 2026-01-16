@@ -1,0 +1,136 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+  <%- include('../../../partials/header.ejs') %>
+
+  <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+    <%- include('../../../partials/sidebar/index.ejs') %>
+  </div>
+
+  <main class="bmd-layout-content">
+    <div class="container-fluid">
+
+      <!-- Breadcrumb -->
+      <div class="row m-1 pb-4 mb-3">
+        <div class="col-12 p-2">
+          <div class="page-header breadcrumb-header d-flex justify-content-between align-items-end">
+            <div>
+              <h3 class="lite-text">منسق المدرسة</h3>
+              <span class="lite-text text-gray">إدارة منسق المدرسة</span>
+            </div>
+
+            <% if (!coordinator) { %>
+              <div>
+                <a href="/school-admin/coordinator/create" class="btn btn-success">
+                  <i class="fas fa-plus"></i> إضافة منسق
+                </a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      <% if (locals.error && locals.error.length > 0) { %>
+        <div class="alert alert-danger"><%= locals.error %></div>
+      <% } %>
+      <% if (locals.success && locals.success.length > 0) { %>
+        <div class="alert alert-success"><%= locals.success %></div>
+      <% } %>
+
+      <!-- المحتوى -->
+      <div class="row m-1">
+        <div class="col-12 p-2">
+          <div class="card shade h-100">
+            <div class="card-body">
+
+              <% if (!coordinator) { %>
+                <!-- ❌ لا يوجد منسق -->
+                <div class="text-center py-5">
+                  <i class="fas fa-user-shield fa-3x text-muted mb-3"></i>
+                  <h5 class="text-muted">لا يوجد منسق مدرسة حالياً</h5>
+                  <p class="text-gray">قم بإضافة منسق لإدارة شؤون المدرسة</p>
+                </div>
+
+              <% } else { %>
+                <!-- ✅ يوجد منسق -->
+                <div class="row">
+
+                  <div class="col-md-6 mb-3">
+                    <strong>الاسم:</strong>
+                    <p class="mb-0"><%= coordinator.name %></p>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <strong>البريد الإلكتروني:</strong>
+                    <p class="mb-0"><%= coordinator.email %></p>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <strong>رقم الهاتف:</strong>
+                    <p class="mb-0"><%= coordinator.phone || '—' %></p>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <strong>تاريخ الإضافة:</strong>
+                    <p class="mb-0">
+                      <%= coordinator.createdAt.toLocaleDateString('ar-EG') %>
+                    </p>
+                  </div>
+
+                </div>
+
+                <hr>
+
+                <!-- Actions -->
+                <div class="d-flex gap-2">
+                  <a href="/school-admin/coordinator/<%= coordinator._id %>/edit" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> تعديل
+                  </a>
+
+                  <button id="deleteCoordinatorBtn" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> حذف
+                  </button>
+                </div>
+
+                <script>
+                  document.getElementById('deleteCoordinatorBtn').addEventListener('click', async () => {
+                    if(!confirm('هل أنت متأكد من حذف منسق المدرسة؟')) return;
+
+                    try {
+                      const res = await fetch(`/school-admin/coordinator/<%= coordinator._id %>/delete`, {
+                        method: 'GET', // حسب الكنترولر ممكن POST أو GET
+                        headers: { 'Content-Type':'application/json' }
+                      });
+
+                      const result = await res.json();
+                      if(result.success){
+                        window.location.reload();
+                      } else if(result.flashError){
+                        alert(result.flashError);
+                      }
+                    } catch(err){
+                      console.error(err);
+                      alert('حدث خطأ أثناء الحذف');
+                    }
+                  });
+                </script>
+
+              <% } %>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
+</body>
+</html>

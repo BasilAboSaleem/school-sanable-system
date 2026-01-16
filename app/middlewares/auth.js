@@ -31,12 +31,12 @@ module.exports = async function (req, res, next) {
     }
 
     // School Admin
-    if (user.role === "school-admin") {
+    if (user.role === "school-admin" || user.role === "school-coordinator") {
       req.user = {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: "school-admin",
+        role: user.role,
         schoolId: user.schoolId,
       };
       return next();

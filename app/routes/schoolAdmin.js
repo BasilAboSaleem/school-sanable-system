@@ -8,7 +8,7 @@ const schoolAdminValidator = require("../validators/schoolAdminValidator");
 // ==================================================
 // School Admin Authorization (Protect All Routes)
 // ==================================================
-router.use(authorize(["school-admin"]));
+router.use(authorize(["school-admin", "school-coordinator"]));
 
 // ==================================================
 // Classes Management
@@ -149,5 +149,48 @@ router.post(
   "/attendance/filter",
   schoolAdminController.Attendance.filterAttendance
 );
+
+// ==================================================
+// Coordinators Management (School Admin ONLY)
+// ==================================================
+
+router.get(
+  "/coordinator",
+  authorize(["school-admin"]),
+  schoolAdminController.Coordinator.index
+);
+
+router.get(
+  "/coordinator/create",
+  authorize(["school-admin"]),
+  schoolAdminController.Coordinator.renderCreate
+);
+
+router.post(
+  "/coordinator/create",
+  authorize(["school-admin"]),
+  schoolAdminValidator.validateCoordinator,
+  schoolAdminController.Coordinator.create
+);
+
+router.get(
+  "/coordinator/:id/edit",
+  authorize(["school-admin"]),
+  schoolAdminController.Coordinator.renderEdit
+);
+
+router.post(
+  "/coordinator/:id/edit",
+  authorize(["school-admin"]),
+  schoolAdminValidator.validateCoordinator,
+  schoolAdminController.Coordinator.update
+);
+
+router.get(
+  "/coordinator/:id/delete",
+  authorize(["school-admin"]),
+  schoolAdminController.Coordinator.delete
+);
+
 
 module.exports = router;

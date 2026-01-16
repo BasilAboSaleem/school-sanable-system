@@ -51,7 +51,7 @@
     <% } %>
 
     <!-- Existing dashboard for other roles remains intact -->
-    <% if(user.role === 'super-admin' || user.role === 'school-admin') { %>
+    <% if(user.role === 'super-admin' || user.role === 'school-admin' || user.role === 'school-coordinator') { %>
       <div class="row m-1 mb-2">
         <% if(user.role === 'super-admin') { %>
           <div class="col-md-3 p-2">
@@ -66,7 +66,7 @@
           <div class="col-md-3 p-2">
             <div class="box-card mini"><span>إجمالي الصادرات</span><span><%= stats.totalExpenses[0]?.total || 0 %></span></div>
           </div>
-        <% } else if(user.role === 'school-admin') { %>
+        <% } else if(user.role === 'school-admin' || user.role === 'school-coordinator') { %>
           <div class="col-md-4 p-2">
             <div class="box-card mini"><span>إجمالي الواردات للمدرسة</span><span><%= stats.totalIncomes[0]?.total || 0 %></span></div>
           </div>

@@ -35,7 +35,7 @@ exports.postLogin = async (req, res) => {
 
     // إنشاء JWT
     const token = jwt.sign(
-      { id: user._id, role: user.role, school: user.schoolId },
+      { id: user._id, role: user.role, schoolId: user.schoolId },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );

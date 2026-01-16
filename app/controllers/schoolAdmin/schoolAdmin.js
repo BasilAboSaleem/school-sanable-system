@@ -8,6 +8,7 @@ const Subject = require("./Subject");
 const Employee = require("./Employee");
 const Supplier  = require("./Supplier");
 const Attendance = require("./Attendance");
+const Coordinator = require("./Coordinator");
 module.exports = {
     Class,
     Teacher,
@@ -18,5 +19,6 @@ module.exports = {
     Subject,
     Supplier,
     Employee,
-    Attendance
+    Attendance,
+    Coordinator
 };

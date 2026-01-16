@@ -38,3 +38,29 @@ exports.validateSupplier = [
     body("phone").optional(),
     body("address").optional()
 ];
+
+exports.validateCoordinator = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("اسم المنسق مطلوب"),
+
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("البريد الإلكتروني غير صالح"),
+
+  body("password")
+    .optional({ checkFalsy: true }) // مطلوب في الإضافة – اختياري في التعديل
+    .custom(value => {
+      if (value && !strongPasswordRegex.test(value)) {
+        throw new Error("كلمة المرور يجب أن تكون قوية");
+      }
+      return true;
+    }),
+
+  body("phone")
+    .trim()
+    .notEmpty()
+    .withMessage("رقم الهاتف مطلوب"),
+];

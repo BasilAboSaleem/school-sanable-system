@@ -106,7 +106,9 @@
                       <td><%= student.classId ? student.classId.name : '—' %></td>
                       <td><%= student.sectionId ? student.sectionId.name : '—' %></td>
                       <td><%= student.phoneOfParents || '—' %></td>
-                      <td><%= student.gender || '—' %></td>
+                                  <td>
+  <%= student.gender === 'Male' ? 'ذكر' : student.gender === 'Female' ? 'أنثى' : '—' %>
+</td>
                       <td>
                         <a href="/school-admin/students/<%= student._id %>" class="btn btn-sm btn-info">
                           عرض

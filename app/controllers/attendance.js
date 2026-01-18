@@ -10,58 +10,113 @@ exports.showRegisterPage = async (req, res) => {
   res.render("dashboard/attendance/register", { classes });
 };
 
-// جلب الشعب حسب الفصل فقط
+const getUTCDayRange = (date = new Date()) => {
+  const start = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    0, 0, 0, 0
+  ));
+
+  const end = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    23, 59, 59, 999
+  ));
+
+  return { start, end };
+};
+
+
+// جلب الشعب
 exports.getSectionsByClass = async (req, res) => {
   try {
     const sections = await Section.find({ classId: req.params.classId });
     res.json(sections);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "فشل جلب الشعب" });
   }
 };
 
-// جلب الطلاب حسب الشعبة
+// جلب الطلاب + منع التحميل إذا مسجّل
 exports.getStudentsBySection = async (req, res) => {
   try {
-    const students = await Student.find({ sectionId: req.params.sectionId });
-    res.json(students);
+    const { start, end } = getUTCDayRange();
+    const sectionId = req.params.sectionId;
+
+    const attendanceExists = await Attendance.findOne({
+      schoolId: req.user.schoolId,
+      sectionId,
+      date: { $gte: start, $lte: end }
+    });
+
+    if (attendanceExists) {
+      return res.json({
+        alreadyRecorded: true,
+        message: "تم تسجيل الحضور اليومي لهذه الشعبة سابقاً"
+      });
+    }
+
+    const students = await Student.find({ sectionId });
+    res.json({ students });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "فشل جلب الطلاب" });
   }
 };
 
-// حفظ الحضور دفعة واحدة
+
+// حفظ الحضور
+
 exports.saveAttendance = async (req, res) => {
-  const { attendances, date } = req.body;
+  const { attendances } = req.body;
+
+  if (!attendances || attendances.length === 0) {
+    return res.json({ error: "لا توجد بيانات للحفظ" });
+  }
+
   try {
-    const ops = attendances.map(a => ({
-      updateOne: {
-        filter: { studentId: a.studentId, date: new Date(date) },
-        update: {
-          studentId: a.studentId,
-          schoolId: req.user.schoolId,
-          classId: a.classId,
-          sectionId: a.sectionId,
-          date: new Date(date),
-          status: a.status,
-          reason: a.reason || "",
-          notes: a.notes || "",
-          recordedBy: req.user._id,
-          recordedAt: new Date()
-        },
-        upsert: true
-      }
+    const { start, end } = getUTCDayRange();
+    const { classId, sectionId } = attendances[0];
+
+    const exists = await Attendance.findOne({
+      schoolId: req.user.schoolId,
+      classId,
+      sectionId,
+      date: { $gte: start, $lte: end }
+    });
+
+    if (exists) {
+      return res.status(400).json({
+        error: "تم تسجيل الحضور لهذه الشعبة اليوم مسبقاً"
+      });
+    }
+
+    const docs = attendances.map(a => ({
+      studentId: a.studentId,
+      schoolId: req.user.schoolId,
+      classId: a.classId,
+      sectionId: a.sectionId,
+      date: new Date(), // UTC تلقائياً
+      status: a.status,
+      reason: a.reason || "",
+      notes: a.notes || "",
+      recordedBy: req.user._id
     }));
 
-    await Attendance.bulkWrite(ops);
-    res.json({ success: "تم حفظ الحضور بنجاح" });
+    await Attendance.insertMany(docs);
+
+    res.json({ success: "تم تسجيل الحضور بنجاح" });
+
   } catch (err) {
     console.error(err);
-    res.json({ error: "حدث خطأ أثناء الحفظ" });
+    res.status(500).json({ error: "حدث خطأ أثناء حفظ الحضور" });
   }
 };
+
+
 // صفحة سجلات الحضور
 exports.showAttendanceLogs = async (req, res) => {
   const classes = await Class.find({ schoolId: req.user.schoolId });
@@ -90,12 +145,8 @@ exports.getAttendanceLogs = async (req, res) => {
     }
 
     if (date) {
-      const start = new Date(date);
-      start.setHours(0, 0, 0, 0);
-
-      const end = new Date(date);
-      end.setHours(23, 59, 59, 999);
-
+      // ✅ توحيد المنطق مع باقي النظام (UTC)
+      const { start, end } = getUTCDayRange(new Date(date));
       filter.date = { $gte: start, $lte: end };
     }
 
@@ -107,10 +158,12 @@ exports.getAttendanceLogs = async (req, res) => {
       .sort({ date: -1 });
 
     res.json(logs);
+
   } catch (err) {
     console.error(err);
-    res.json([]);
+    res.status(500).json([]);
   }
 };
+
 
 

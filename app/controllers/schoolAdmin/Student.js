@@ -6,6 +6,7 @@ const{
     User,
     ParentProfile
 } = require("./utils");
+const XLSX = require("xlsx");
 
 
 
@@ -128,6 +129,131 @@ exports.createStudent = async (req, res) => {
   }
 };
 
+exports.renderImportExcelForm = async (req, res) => {
+  try {
+    const classes = await Class.find({ schoolId: req.user.schoolId });
+    const sections = await Section.find({ classId: { $in: classes.map(c => c._id) } });
+    res.render("dashboard/school-admin/student/import-excel", { title: "استيراد طلاب من ملف Excel", classes, sections, csrfToken: req.csrfToken() });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء جلب البيانات");
+    res.redirect("/school-admin");
+  }
+};
+
+exports.importStudentsExcel = async (req, res) => {
+  try {
+    const { classId, sectionId } = req.body;
+
+    // ====== VALIDATIONS ======
+    if (!req.file)
+      return res.json({ error: "يرجى رفع ملف Excel" });
+
+    if (!classId || !sectionId)
+      return res.json({ error: "الفصل والشعبة مطلوبة" });
+
+    const cls = await Class.findOne({ _id: classId, schoolId: req.user.schoolId });
+    if (!cls) return res.json({ error: "الفصل غير صالح" });
+
+    const section = await Section.findOne({ _id: sectionId, classId });
+    if (!section) return res.json({ error: "الشعبة غير صالحة" });
+
+    // ====== READ EXCEL ======
+    const workbook = XLSX.readFile(req.file.path);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet);
+
+    let studentsToInsert = [];
+    let skippedRows = 0;
+
+    // ====== PREPARE STUDENTS ======
+    for (const row of rows) {
+      if (!row.fullName || !row.phoneOfParents) {
+        skippedRows++;
+        continue;
+      }
+
+      // ====== GENDER TRANSFORM ======
+      let gender = undefined;
+      if (row.gender) {
+        const g = row.gender.toString().trim().toLowerCase();
+        if (g === "male" || g === "ذكر") gender = "Male";
+        else if (g === "female" || g === "أنثى") gender = "Female";
+      }
+
+      // ====== AGE CALCULATION ======
+      let age = undefined;
+      let dateOfBirth = undefined;
+      if (row.dateOfBirth) {
+        dateOfBirth = new Date(row.dateOfBirth);
+        if (!isNaN(dateOfBirth)) {
+          const diff = Date.now() - dateOfBirth.getTime();
+          age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+        }
+      } else if (row.age) {
+        age = Number(row.age);
+      }
+
+      const student = {
+        fullName: row.fullName.toString().trim(),
+        nationalId: row.nationalId?.toString(),
+        phoneOfParents: row.phoneOfParents.toString().trim(),
+        address: row.address,
+        dateOfBirth,
+        age,
+        gender,
+        schoolId: req.user.schoolId,
+        classId,
+        sectionId,
+        status: "active",
+        createdFrom: "excel"
+      };
+
+      studentsToInsert.push(student);
+    }
+
+    if (!studentsToInsert.length) {
+      return res.json({ error: "لا يوجد طلاب صالحين للاستيراد" });
+    }
+
+    // ====== INSERT STUDENTS ======
+    const insertedStudents = await Student.insertMany(studentsToInsert);
+
+    // ====== CREATE / LINK PARENTS ======
+    for (const student of insertedStudents) {
+      const phone = student.phoneOfParents;
+
+      let parentUser = await User.findOne({ phone, role: "parent" });
+
+      if (!parentUser) {
+        parentUser = await User.create({
+          name: `ولي أمر ${student.fullName}`,
+          email: `${phone}@school.com`,
+          password: `School@${phone}`,
+          role: "parent",
+          phone
+        });
+      }
+
+      await ParentProfile.findOneAndUpdate(
+        { userId: parentUser._id, schoolId: req.user.schoolId },
+        { phone, $addToSet: { students: student._id } },
+        { upsert: true, new: true }
+      );
+    }
+
+    return res.json({
+      success: "تم استيراد الطلاب بنجاح",
+      totalRows: rows.length,
+      imported: insertedStudents.length,
+      skipped: skippedRows
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.json({ error: "حدث خطأ أثناء استيراد ملف Excel" });
+  }
+};
 
 exports.listStudents = async (req, res) => {
   try {

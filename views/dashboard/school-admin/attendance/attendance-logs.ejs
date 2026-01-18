@@ -28,6 +28,7 @@
             <div class="card-header">فلترة السجلات</div>
             <div class="card-body">
               <form id="attendanceFilterForm" method="POST" action="/school-admin/attendance/filter" class="d-flex flex-wrap gap-3 align-items-end">
+                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <div class="form-group flex-fill">
                   <label>الفصل</label>
                   <select name="classId" id="classSelect" class="form-control">
@@ -141,6 +142,7 @@
 <%- include('../../../partials/scripts.ejs') %>
 
 <script>
+  const csrfToken = document.getElementById('csrfToken').value;
   // البحث الداخلي باسم الطالب
   const searchInput = document.getElementById('searchStudent');
   searchInput.addEventListener('input', () => {

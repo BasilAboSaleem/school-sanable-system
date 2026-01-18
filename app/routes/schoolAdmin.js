@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
-
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 const authorize = require("../middlewares/authorize");
 const schoolAdminController = require("../controllers/schoolAdmin/schoolAdmin");
 const schoolAdminValidator = require("../validators/schoolAdminValidator");
+
 
 // ==================================================
 // School Admin Authorization (Protect All Routes)
@@ -57,6 +59,13 @@ router.post("/subjects/:id/edit", schoolAdminController.Subject.updateSubject);
 // ==================================================
 router.get("/students/create", schoolAdminController.Student.renderCreateStudentForm);
 router.post("/students/create", schoolAdminController.Student.createStudent);
+router.get("/students/import-excel", schoolAdminController.Student.renderImportExcelForm);
+router.post(
+  "/students/import-excel",
+  upload.single("excelFile"),
+  schoolAdminController.Student.importStudentsExcel
+);
+
 router.get("/students", schoolAdminController.Student.listStudents);
 router.get("/students/:id", schoolAdminController.Student.viewStudentDetails);
 router.get("/students/:id/edit", schoolAdminController.Student.renderEditStudentForm);

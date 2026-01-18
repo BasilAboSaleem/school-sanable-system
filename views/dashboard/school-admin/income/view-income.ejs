@@ -10,6 +10,8 @@
   <main class="bmd-layout-content">
     <div class="container-fluid">
 
+                <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
       <!-- Breadcrumb -->
       <div class="row m-1 pb-4 mb-3">
         <div class="col-12 p-2">
@@ -86,9 +88,9 @@
                   <input type="text" name="description" class="form-control" placeholder="وصف الصادر">
                 </div>
                 <div class="form-group mb-3">
-                  <label>المبلغ</label>
+                  <label><%= income.incomeType === 'financial' ? 'المبلغ' : 'الكمية' %></label>
                   <input type="number" name="amount" max="<%= remainingAmount %>" class="form-control" placeholder="0">
-                  <small class="text-muted">لا يمكن إدخال مبلغ أكبر من <%= remainingAmount %></small>
+                  <small class="text-muted">لا يمكن إدخال مبلغ/ كمية صادر أكبر من <%= remainingAmount %></small>
                 </div>
                 <button type="submit" class="btn btn-success">إنشاء صادر</button>
               </form>
@@ -109,7 +111,7 @@
                   <tr>
                     <th>#</th>
                     
-                    <th>المبلغ / الكمية</th>
+                    <th><%= income.incomeType === 'financial' ? 'المبلغ' : 'الكمية' %></th>
                     <th>الوصف</th>
                     <th>التاريخ</th>
                   </tr>
@@ -142,6 +144,7 @@
 <%- include('../../../partials/scripts.ejs') %>
 
 <script>
+  const csrfToken = document.getElementById('csrfToken').value;
 document.getElementById('createExpenseForm')?.addEventListener('submit', async function(e){
   e.preventDefault();
   const form = e.target;
@@ -156,7 +159,10 @@ document.getElementById('createExpenseForm')?.addEventListener('submit', async f
   try {
     const res = await fetch(`/school-admin/expenses/create`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'CSRF-Token': csrfToken
+      },
       body: JSON.stringify({
    incomeId: '<%= income._id %>',
   schoolId: '<%= user.schoolId %>',

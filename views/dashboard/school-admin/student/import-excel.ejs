@@ -1,0 +1,149 @@
+<!doctype html>
+<html class="no-js" lang="ar">
+
+<%- include('../../../partials/head.ejs') %>
+
+<body class="rtl">
+
+  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+
+    <%- include('../../../partials/header.ejs') %>
+
+    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
+      <%- include('../../../partials/sidebar/index.ejs') %>
+    </div>
+
+    <main class="bmd-layout-content">
+      <div class="container-fluid">
+
+        <!-- breadcrumb -->
+        <div class="row m-1 pb-4 mb-3">
+          <div class="col-12 p-2">
+            <div class="page-header breadcrumb-header">
+              <div class="row align-items-end">
+                <div class="col-lg-8">
+                  <h3 class="lite-text">استيراد الطلاب من ملف Excel</h3>
+                  <span class="lite-text text-gray">اختر الفصل والشعبة ثم استورد ملف Excel</span>
+                </div>
+                <div class="col-lg-4">
+                  <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active">استيراد الطلاب</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Excel Import Form -->
+        <div class="row m-1">
+          <div class="col-12 p-2">
+            <div class="card shade h-100">
+              <div class="card-header">
+                استيراد الطلاب
+              </div>
+              <div class="card-body">
+
+                <% if (locals.success && locals.success.length > 0) { %>
+                  <div class="alert alert-success"><%= locals.success %></div>
+                <% } %>
+
+                <% if (locals.error && locals.error.length > 0) { %>
+                  <div class="alert alert-danger"><%= locals.error %></div>
+                <% } %>
+
+                <form id="importExcelForm" enctype="multipart/form-data" method="POST">
+                 <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
+
+                  <div class="form-group">
+                    <label>الفصل *</label>
+                    <select name="classId" id="classSelect" class="form-control" required>
+                      <option value="">اختر الفصل</option>
+                      <% classes.forEach(cls => { %>
+                        <option value="<%= cls._id %>"><%= cls.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>الشعبة *</label>
+                    <select name="sectionId" id="sectionSelect" class="form-control" required>
+                      <option value="">اختر الشعبة</option>
+                      <% sections.forEach(sec => { %>
+                        <option value="<%= sec._id %>" data-class="<%= sec.classId %>"><%= sec.name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>ملف Excel *</label>
+                    <input type="file" name="excelFile" accept=".xlsx,.xls" required class="form-control">
+                  </div>
+
+                  <button type="submit" class="btn btn-primary">استيراد الطلاب</button>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <%- include('../../../partials/scripts.ejs') %>
+
+<script>
+  const classSelect = document.getElementById('classSelect');
+  const sectionSelect = document.getElementById('sectionSelect');
+  const importExcelForm = document.getElementById('importExcelForm');
+  const csrfToken = document.getElementById('csrfToken').value;
+
+  // فلترة الشعب حسب الفصل المختار
+  classSelect.addEventListener('change', () => {
+    const selectedClass = classSelect.value;
+    Array.from(sectionSelect.options).forEach(opt => {
+      if(opt.value === "") return;
+      if(opt.dataset.class === selectedClass){
+        opt.style.display = '';
+      } else {
+        opt.style.display = 'none';
+      }
+    });
+    sectionSelect.value = "";
+  });
+
+  // إرسال الفورم عبر AJAX مع CSRF
+  importExcelForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const formData = new FormData(importExcelForm);
+
+    try {
+      const res = await fetch('/school-admin/students/import-excel', {
+        method: 'POST',
+        body: formData,
+        headers:{'CSRF-Token': csrfToken},
+        credentials: 'same-origin' // 🔑 إرسال الكوكيز
+      });
+
+      const data = await res.json();
+
+      if(data.error) {
+        alert(data.error);
+      } else {
+        alert(`${data.success}\nتم استيراد ${data.imported} من أصل ${data.totalRows} صف`);
+      }
+
+    } catch(err) {
+      console.error(err);
+      alert("حدث خطأ أثناء استيراد الملف");
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -84,6 +84,11 @@
                   </div>
 
                   <div class="form-group">
+                    <label>العمر</label>
+                    <input type="number" name="age" class="form-control" min="1">
+                  </div>
+
+                  <div class="form-group">
                     <label>الجنس</label>
                     <select name="gender" class="form-control">
                       <option value="Male">ذكر</option>
@@ -188,6 +193,7 @@
       phoneOfParents: document.querySelector('input[name="phoneOfParents"]').value,
       address: document.querySelector('input[name="address"]').value,
       dateOfBirth: document.querySelector('input[name="dateOfBirth"]').value,
+      age: document.querySelector('input[name="age"]').value,
       gender: document.querySelector('select[name="gender"]').value,
       classId: classSelect.value,
       sectionId: sectionSelect.value,

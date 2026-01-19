@@ -40,6 +40,7 @@
         <h4 class="mt-4">كشف درجات الطلاب</h4>
         <button id="exportBtn" class="btn btn-success mb-2">تصدير Excel</button>
         <button id="printBtn" class="btn btn-secondary mb-2">طباعة</button>
+        <div class="table-responsive">
         <table class="table table-bordered text-center">
           <thead>
             <tr>
@@ -64,6 +65,7 @@
             <% } %>
           </tbody>
         </table>
+        </div>
       <% } else { %>
         <div class="alert alert-info">لم يحن موعد الاختبار بعد</div>
       <% } %>

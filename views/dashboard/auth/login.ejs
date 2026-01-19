@@ -19,43 +19,48 @@
 <body class="rtl">
 
   <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="card p-4 shadow" style="width: 400px;">
+  <div class="card shadow" style="width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden;">
 
-      <% if (error && error.length> 0) { %>
-        <div class="alert alert-danger">
-          <%= error[0] %>
+    <% if (error && error.length>0) { %>
+      <div class="alert alert-danger m-3">
+        <%= error[0] %>
+      </div>
+    <% } %>
+
+    <!-- Header with logo -->
+    <div class="bg-primary text-white d-flex flex-column justify-content-center align-items-center" style="height: 150px;">
+  <img src="/logo.png" alt="شعار المؤسسة" height="90" class="mb-2">
+  <h4 class="mb-0">أهلاً بك في برنامج السنابل التعليمي</h4>
+</div>
+
+
+    <!-- Form -->
+    <div class="p-4">
+      <form action="/auth/login" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="form-group">
+          <label for="email">البريد الإلكتروني</label>
+          <input type="email" name="email" class="form-control" id="email" placeholder="أدخل بريدك الإلكتروني" required>
         </div>
-        <% } %>
 
-          <div class="text-center mb-3">
-            <img src="/logo.png" alt="شعار المؤسسة" height="100">
-            <h4 class="mt-2">مرحبا بك في لوحة التحكم</h4>
-            <hr>
-          </div>
+        <div class="form-group">
+          <label for="password">كلمة المرور</label>
+          <input type="password" name="password" class="form-control" id="password" placeholder="أدخل كلمة المرور" required>
+        </div>
 
-          <form action="/auth/login" method="POST">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <div class="form-group">
-              <label for="email">البريد الإلكتروني</label>
-              <input type="email" name="email" class="form-control" id="email" placeholder="أدخل بريدك الإلكتروني"
-                required>
-            </div>
-
-            <div class="form-group">
-              <label for="password">كلمة المرور</label>
-              <input type="password" name="password" class="form-control" id="password" placeholder="أدخل كلمة المرور"
-                required>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block">تسجيل الدخول</button>
-          </form>
-
-          <div class="text-center mt-3">
-            <small>جميع الحقوق محفوظة © مؤسسة السنابل للشباب والتنمية</small>
-          </div>
-
+        <button type="submit" class="btn btn-primary btn-block">تسجيل الدخول</button>
+      </form>
     </div>
+
+    <!-- Footer -->
+    <div class="text-center py-3 border-top">
+      <small>جميع الحقوق محفوظة © مؤسسة السنابل للشباب والتنمية</small>
+    </div>
+
   </div>
+</div>
+
 
 
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>

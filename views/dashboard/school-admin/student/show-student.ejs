@@ -49,6 +49,7 @@
             <tbody>
               <tr><th>الاسم الكامل</th><td><%= student.fullName %></td></tr>
               <tr><th>تاريخ الميلاد</th><td><%= student.dateOfBirth ? student.dateOfBirth.toLocaleDateString('ar-EG') : '—' %></td></tr>
+              <tr><th>العمر</th><td><%= student.age || '—' %></td></tr>
               <tr><th>الفصل</th><td><%= student.classId ? student.classId.name : '—' %></td></tr>
               <tr><th>الشعبة</th><td><%= student.sectionId ? student.sectionId.name : '—' %></td></tr>
               <tr>
@@ -60,7 +61,6 @@
               </tr>
               <tr><th>رقم ولي الأمر</th><td><%= student.phoneOfParents || '—' %></td></tr>
               <tr><th>العنوان</th><td><%= student.address || '—' %></td></tr>
-              <tr><th>الفئة</th><td><%= student.grade || '—' %></td></tr>
               <tr><th>تاريخ الإضافة</th><td><%= student.createdAt.toLocaleDateString('ar-EG') %></td></tr>
             </tbody>
           </table>

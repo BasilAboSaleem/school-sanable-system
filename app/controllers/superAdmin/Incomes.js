@@ -244,9 +244,9 @@ exports.updateIncome = async (req, res) => {
     const { validationResult } = require("express-validator");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-       const errorObj = {};
-       errors.array().forEach(err => errorObj[err.path] = err.msg);
-       return res.json({ errors: errorObj });
+      const errorObj = {};
+      errors.array().forEach(err => errorObj[err.path] = err.msg);
+      return res.json({ errors: errorObj });
     }
 
     const income = await Income.findById(req.params.id);
@@ -254,9 +254,9 @@ exports.updateIncome = async (req, res) => {
       return res.json({ errors: { general: "الوارد غير موجود" } });
     }
 
-    // حماية إضافية (حتى لو لعب بالـ URL)
+    // 🔒 حماية حقيقية: منع التعديل إذا حصل أي توزيع
     const hasDistributions = await Expense.exists({
-      description: `Allocated from income ${income._id}`
+      incomeId: income._id
     });
 
     if (hasDistributions) {
@@ -265,19 +265,9 @@ exports.updateIncome = async (req, res) => {
       });
     }
 
-    // From Validator: amount, date, source (but model uses supplierId/description etc. need to map correctly if changed?)
-    // Original code took amount, description, supplierId.
-    // The Validator 'validateIncome' checks 'amount', 'title'(?), 'date', 'source'.
-    // Wait, the validator fields I wrote in financeValidator.js (title, amount, date, source) might NOT match the Income Model fields used here (amount, description, supplierId).
-    // I need to align the VALIDATOR with the FORM fields used in `createIncome`.
-    // In createIncome form (implied): amount, description, incomeType, supplierId.
-    // My validator checked 'title' and 'date'. Income model might not even have 'title' or 'date' (uses createdAt).
-    // I should probably fix the VALIDATOR to match the INCOME requirements first.
-    // For now, I will proceed with the Controller change but I MUST FIX THE VALIDATOR in the next step.
-    
-    income.amount = req.body.amount;
-    income.description = req.body.description;
-    income.supplierId = req.body.supplierId;
+    income.amount = req.body.amount || income.amount;
+    income.description = req.body.description || income.description;
+    income.supplierId = req.body.supplierId || income.supplierId;
 
     await income.save();
 
@@ -291,6 +281,7 @@ exports.updateIncome = async (req, res) => {
     res.json({ errors: { general: "حدث خطأ أثناء التعديل" } });
   }
 };
+
 
 // عرض جميع واردات المدارس
 exports.viewAllSchoolIncomes = async (req, res) => {

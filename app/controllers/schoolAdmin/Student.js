@@ -27,6 +27,7 @@ exports.createStudent = async (req, res) => {
   const {
     fullName,
     nationalId,
+    age,
     phoneOfParents,
     address,
     dateOfBirth,
@@ -64,6 +65,7 @@ exports.createStudent = async (req, res) => {
       phoneOfParents,
       address,
       dateOfBirth,
+      age: age ? Number(age) : undefined,
       gender,
       schoolId: req.user.schoolId,
       classId,
@@ -346,6 +348,7 @@ exports.updateStudent = async (req, res) => {
     student.fullName = req.body.fullName || student.fullName;
     student.nationalId = req.body.nationalId || student.nationalId;
     student.dateOfBirth = req.body.dateOfBirth || student.dateOfBirth;
+    student.age = req.body.age ? Number(req.body.age) : student.age;
     student.gender = req.body.gender || student.gender;
     student.address = req.body.address || student.address;
 

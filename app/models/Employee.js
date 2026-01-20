@@ -1,14 +1,49 @@
 const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String },
-  phone: { type: String },
-  jobTitle: { type: String },
-  address: { type: String },
-  salary: { type: Number },
-  schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
-  createdAt: { type: Date, default: Date.now },
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+
+  nationalId: {
+    type: String,
+    trim: true,
+    // unique: true, // فعّلها إذا حاب تمنع التكرار
+  },
+
+  phone: {
+    type: String,
+    trim: true
+  },
+
+  jobTitle: {
+    type: String,
+    trim: true
+  },
+
+  address: {
+    type: String,
+    default: "-"
+  },
+
+  salary: {
+    type: Number,
+    min: 0,
+    default: null
+  },
+
+  schoolId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "School",
+    required: true
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 module.exports = mongoose.model("Employee", employeeSchema);

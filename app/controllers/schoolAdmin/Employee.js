@@ -17,14 +17,14 @@ exports.createEmployee = async (req, res) => {
        return res.redirect("/school-admin/employees/create");
     }
 
-    const { name, email, phone, jobTitle, address, salary } = req.body;
+    const { name, nationalId, phone, jobTitle, address, salary } = req.body;
     const newEmployee = new Employee({
       name,
-      email,
+      nationalId,
       phone,
       jobTitle,
-      address,
-      salary,
+      address: address || "-",
+      salary: salary ? Number(salary) : null,
       schoolId: req.user.schoolId
     });
     await newEmployee.save();
@@ -68,7 +68,7 @@ exports.renderEditEmployeeForm = async (req, res) => {
 // تحديث بيانات الموظف
 exports.updateEmployee = async (req, res) => {
   try {
-    const { name, email, phone, jobTitle, address, salary } = req.body;
+    const { name, nationalId, phone, jobTitle, address, salary } = req.body;
     const employee = await Employee.findById(req.params.id);
     if (!employee) {
       req.flash("error", "الموظف غير موجود");
@@ -76,7 +76,7 @@ exports.updateEmployee = async (req, res) => {
     }
 
     employee.name = name || employee.name;
-    employee.email = email || employee.email;
+    employee.nationalId = nationalId || employee.nationalId;
     employee.phone = phone || employee.phone;
     employee.jobTitle = jobTitle || employee.jobTitle;
     employee.address = address || employee.address;

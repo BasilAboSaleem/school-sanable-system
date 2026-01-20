@@ -25,11 +25,31 @@ exports.validateTeacher = [
 ];
 
 exports.validateEmployee = [
-    body("name").trim().notEmpty().withMessage("اسم الموظف مطلوب"),
-    body("email").trim().isEmail().withMessage("البريد الإلكتروني غير صالح"),
-    body("phone").trim().notEmpty().withMessage("رقم الهاتف مطلوب"),
-    body("jobTitle").trim().notEmpty().withMessage("المسمى الوظيفي مطلوب"),
-    body("salary").optional().isFloat({ min: 0 }).withMessage("الراتب يجب أن يكون رقماً موجباً")
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("اسم الموظف مطلوب"),
+
+  body("nationalId")
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^\d+$/)
+    .withMessage("رقم الهوية يجب أن يحتوي أرقام فقط"),
+
+  body("phone")
+    .trim()
+    .notEmpty()
+    .withMessage("رقم الهاتف مطلوب"),
+
+  body("jobTitle")
+    .trim()
+    .notEmpty()
+    .withMessage("المسمى الوظيفي مطلوب"),
+
+  body("salary")
+    .optional({ checkFalsy: true })
+    .isFloat({ min: 0 })
+    .withMessage("الراتب يجب أن يكون رقمًا موجبًا"),
 ];
 
 exports.validateSupplier = [

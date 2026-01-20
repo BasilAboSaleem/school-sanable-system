@@ -36,7 +36,6 @@ files.forEach(file => {
 
   content = content.replace(/headers:\s*\{\s*['"]Content-Type['"]\s*:\s*['"]application\/json['"]\s*\}/g, 
     "headers: {'Content-Type': 'application/json', 'CSRF-Token': document.getElementById('csrfToken').value}");
-
   if (content !== originalContent) {
     fs.writeFileSync(file, content, 'utf8');
     console.log(`Updated: ${file}`);

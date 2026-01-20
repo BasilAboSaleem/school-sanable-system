@@ -39,7 +39,7 @@
                   <tr>
                     <th>#</th>
                     <th>الاسم</th>
-                    <th>البريد الإلكتروني</th>
+                    <th>رقم الهوية</th>
                     <th>الهاتف</th>
                     <th>المسمى الوظيفي</th>
                     <th>العنوان</th>
@@ -55,7 +55,7 @@
                     <tr>
                       <td><%= index + 1 %></td>
                       <td><%= emp.name %></td>
-                      <td><%= emp.email || '—' %></td>
+                      <td><%= emp.nationalId || '—' %></td>
                       <td><%= emp.phone || '—' %></td>
                       <td><%= emp.jobTitle || '—' %></td>
                       <td><%= emp.address || '—' %></td>

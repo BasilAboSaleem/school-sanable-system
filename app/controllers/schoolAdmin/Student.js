@@ -273,8 +273,8 @@ exports.listStudents = async (req, res) => {
 
 exports.viewStudentDetails = async (req, res) => {
   try {
-    console.log("Student ID:", req.params.id);
-    console.log("School ID:", req.user.schoolId);
+    // console.log("Student ID:", req.params.id);
+    // console.log("School ID:", req.user.schoolId);
 
     const student = await Student.findOne({ _id: req.params.id, schoolId: req.user.schoolId })
       .populate("classId", "name")
@@ -291,7 +291,7 @@ exports.viewStudentDetails = async (req, res) => {
       .populate("teacherId", "name")
       .sort({ createdAt: -1 });
 
-    console.log("Grades fetched:", grades.length);
+    // console.log("Grades fetched:", grades.length);
 
     res.render("dashboard/school-admin/student/show-student", {
       title: "بيانات الطالب",

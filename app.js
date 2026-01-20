@@ -34,12 +34,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({ origin: process.env.BASE_URL || "*", credentials: true }));
-app.use(compression());
+app.use(compression()); // ✅ Good for Production: Reduces response body size
 
 // Security Headers (Helmet) - Disable CSP for inline scripts compat
 app.use(
   helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: false, // ⚠️ Note: CSP disabled for inline scripts compatibility. Consider configuring for strict security in production.
   })
 );
 
@@ -47,6 +47,7 @@ if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
 
+// ⚠️ Production Recommendation: Uncomment rateLimit to prevent abuse
 /*app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

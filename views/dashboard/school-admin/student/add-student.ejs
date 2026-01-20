@@ -69,8 +69,34 @@
                   </div>
 
                   <div class="form-group">
+                    <label>اسم ولي الأمر</label>
+                    <input type="text" name="nameOfParent" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>رقم هوية ولي الأمر</label>
+                    <input type="text" name="nationalIdOfParent" class="form-control">
+                  </div>
+
+                  <div class="form-group">
                     <label>هاتف ولي الأمر *</label>
                     <input type="text" name="phoneOfParents" required class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>هل الطالب سليم صحياً؟</label>
+                    <select name="isHealthy" class="form-control">
+                      <option value="true" selected>نعم</option>
+                      <option value="false">لا</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>هل الطالب يتيم؟</label>
+                    <select name="isOrphan" class="form-control">
+                      <option value="false" selected>لا</option>
+                      <option value="true">نعم</option>
+                    </select>
                   </div>
 
                   <div class="form-group">
@@ -190,7 +216,11 @@
     const formData = {
       fullName: studentNameInput.value,
       nationalId: document.querySelector('input[name="nationalId"]').value.trim(),
+      nameOfParent: document.querySelector('input[name="nameOfParent"]').value.trim(),
+      nationalIdOfParent: document.querySelector('input[name="nationalIdOfParent"]').value.trim(),
       phoneOfParents: document.querySelector('input[name="phoneOfParents"]').value,
+      isHealthy: document.querySelector('select[name="isHealthy"]').value === 'true',
+      isOrphan: document.querySelector('select[name="isOrphan"]').value === 'true',
       address: document.querySelector('input[name="address"]').value,
       dateOfBirth: document.querySelector('input[name="dateOfBirth"]').value,
       age: document.querySelector('input[name="age"]').value,

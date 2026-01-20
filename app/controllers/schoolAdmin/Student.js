@@ -7,7 +7,7 @@ const{
     ParentProfile
 } = require("./utils");
 const XLSX = require("xlsx");
-
+const fs = require('fs');
 
 
 exports.renderCreateStudentForm = async (req, res) => {
@@ -27,6 +27,10 @@ exports.createStudent = async (req, res) => {
   const {
     fullName,
     nationalId,
+    nameOfParent,
+    nationalIdOfParent,
+    isHealthy,
+    isOrphan,
     age,
     phoneOfParents,
     address,
@@ -62,7 +66,11 @@ exports.createStudent = async (req, res) => {
     const newStudent = new Student({
       fullName: fullName.trim(),
       nationalId: nationalId ? nationalId.trim() : undefined,
-      phoneOfParents,
+      nameOfParent: nameOfParent ? nameOfParent.trim() : undefined,
+      nationalIdOfParent: nationalIdOfParent ? nationalIdOfParent.trim() : undefined,
+      phoneOfParents: phoneOfParents.trim(),
+      isHealthy,
+      isOrphan,
       address,
       dateOfBirth,
       age: age ? Number(age) : undefined,
@@ -170,45 +178,49 @@ exports.importStudentsExcel = async (req, res) => {
 
     // ====== PREPARE STUDENTS ======
     for (const row of rows) {
-      if (!row.fullName || !row.phoneOfParents) {
+      if (!row['اسم الطالب'] || !row['رقم الجوال']) {
         skippedRows++;
         continue;
       }
 
       // ====== GENDER TRANSFORM ======
       let gender = undefined;
-      if (row.gender) {
-        const g = row.gender.toString().trim().toLowerCase();
-        if (g === "male" || g === "ذكر") gender = "Male";
-        else if (g === "female" || g === "أنثى") gender = "Female";
-      }
+      const g = row['الجنس']?.toString().trim();
+      if (g === 'انثى' || g === 'أنثى') gender = 'Female';
+      else if (g === 'ذكر') gender = 'Male';
 
-      // ====== AGE CALCULATION ======
+      // ====== DATE OF BIRTH AND AGE CALCULATION ======
       let age = undefined;
       let dateOfBirth = undefined;
-      if (row.dateOfBirth) {
-        dateOfBirth = new Date(row.dateOfBirth);
-        if (!isNaN(dateOfBirth)) {
+      if (row['تاريخ الميلاد']) {
+        dateOfBirth = new Date(row['تاريخ الميلاد']);
+        if (!isNaN(dateOfBirth.getTime())) {
           const diff = Date.now() - dateOfBirth.getTime();
           age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
         }
-      } else if (row.age) {
-        age = Number(row.age);
       }
 
+      // ====== HEALTH, ORPHAN, STATUS ======
+      const isHealthy = row['الحالة الصحية']?.trim() === 'سليم';
+      const isOrphan = row['حالة اليتم']?.trim() !== 'غير يتيم';
+      const status = row['حالة الطالب']?.trim() === 'معتمد' ? 'active' : 'inactive';
+
       const student = {
-        fullName: row.fullName.toString().trim(),
-        nationalId: row.nationalId?.toString(),
-        phoneOfParents: row.phoneOfParents.toString().trim(),
-        address: row.address,
+        fullName: row['اسم الطالب'].toString().trim(),
+        nationalId: row['هوية الطالب']?.toString(),
+        phoneOfParents: row['رقم الجوال'].toString().trim(),
+        nameOfParent: row['ولي الأمر']?.toString().trim(),
+        nationalIdOfParent: row['هوية ولي الأمر']?.toString(),
+        isHealthy,
+        isOrphan,
         dateOfBirth,
         age,
         gender,
         schoolId: req.user.schoolId,
         classId,
         sectionId,
-        status: "active",
-        createdFrom: "excel"
+        status,
+        createdFrom: 'excel'
       };
 
       studentsToInsert.push(student);
@@ -225,14 +237,15 @@ exports.importStudentsExcel = async (req, res) => {
     for (const student of insertedStudents) {
       const phone = student.phoneOfParents;
 
-      let parentUser = await User.findOne({ phone, role: "parent" });
+      let parentUser = await User.findOne({ phone, role: 'parent' });
 
       if (!parentUser) {
+        const parentName = student.nameOfParent || `ولي أمر ${student.fullName}`;
         parentUser = await User.create({
-          name: `ولي أمر ${student.fullName}`,
-          email: `${phone}@school.com`,
+          name: parentName,
+          email: `${phone}@parent.school.com`,
           password: `School@${phone}`,
-          role: "parent",
+          role: 'parent',
           phone
         });
       }
@@ -244,6 +257,9 @@ exports.importStudentsExcel = async (req, res) => {
       );
     }
 
+    // ====== CLEAN UP ======
+    fs.unlinkSync(req.file.path);
+
     return res.json({
       success: "تم استيراد الطلاب بنجاح",
       totalRows: rows.length,
@@ -253,6 +269,7 @@ exports.importStudentsExcel = async (req, res) => {
 
   } catch (err) {
     console.error(err);
+    if (req.file && req.file.path) fs.unlinkSync(req.file.path);
     return res.json({ error: "حدث خطأ أثناء استيراد ملف Excel" });
   }
 };
@@ -340,33 +357,40 @@ exports.updateStudent = async (req, res) => {
     });
 
     if (!student) {
-      req.flash("error", "الطالب غير موجود");
+      const msg = "الطالب غير موجود";
+      if (req.xhr || req.headers.accept.includes("json")) {
+        return res.status(404).json({ errors: { general: msg } });
+      }
+      req.flash("error", msg);
       return res.redirect("/school-admin/students");
     }
 
     // ====== تحديث بيانات الطالب ======
     student.fullName = req.body.fullName || student.fullName;
+    student.nameOfParent = req.body.nameOfParent || student.nameOfParent;
+    student.nationalIdOfParent = req.body.nationalIdOfParent || student.nationalIdOfParent;
+    student.isHealthy = typeof req.body.isHealthy !== 'undefined' ? req.body.isHealthy === true || req.body.isHealthy === 'true' : student.isHealthy;
+    student.isOrphan = typeof req.body.isOrphan !== 'undefined' ? req.body.isOrphan === true || req.body.isOrphan === 'true' : student.isOrphan;
     student.nationalId = req.body.nationalId || student.nationalId;
     student.dateOfBirth = req.body.dateOfBirth || student.dateOfBirth;
     student.age = req.body.age ? Number(req.body.age) : student.age;
     student.gender = req.body.gender || student.gender;
     student.address = req.body.address || student.address;
+    student.phoneOfParents = req.body.phoneOfParents || student.phoneOfParents;
 
-    // تحقق من تغيير رقم ولي الأمر
+    // ====== تحقق من تغيير رقم ولي الأمر ======
     const newPhone = req.body.phoneOfParents?.trim();
     if (newPhone && newPhone !== student.phoneOfParents) {
       const oldPhone = student.phoneOfParents;
       student.phoneOfParents = newPhone;
 
-      // ====== تحديث حساب ولي الأمر ======
-      let parentUser = await User.findOne({ phone: oldPhone, role: "parent" });
+      const parentUser = await User.findOne({ phone: oldPhone, role: "parent" });
       if (parentUser) {
         parentUser.phone = newPhone;
         parentUser.email = `${newPhone}@school.com`;
-        parentUser.password = `School@${newPhone}`; // سيتم هاش تلقائياً
+        parentUser.password = `School@${newPhone}`;
         await parentUser.save();
 
-        // ====== تحديث ParentProfile ======
         const parentProfile = await ParentProfile.findOne({ userId: parentUser._id });
         if (parentProfile) {
           parentProfile.phone = newPhone;
@@ -377,30 +401,36 @@ exports.updateStudent = async (req, res) => {
 
     // ====== تحديث الفصل والشعبة ======
     if (req.body.classId) {
-      const cls = await Class.findOne({
-        _id: req.body.classId,
-        schoolId: req.user.schoolId
-      });
+      const cls = await Class.findOne({ _id: req.body.classId, schoolId: req.user.schoolId });
       if (cls) student.classId = cls._id;
     }
 
     if (req.body.sectionId) {
-      const section = await Section.findOne({
-        _id: req.body.sectionId,
-        classId: student.classId
-      });
+      const section = await Section.findOne({ _id: req.body.sectionId, classId: student.classId });
       if (section) student.sectionId = section._id;
     }
 
     await student.save();
 
+    // ===== إرجاع JSON دائماً عند AJAX =====
+    if (req.xhr || req.headers.accept.includes("json")) {
+      return res.json({
+        success: "تم تحديث بيانات الطالب بنجاح",
+        redirect: `/school-admin/students/${student._id}`
+      });
+    }
+
+    // للطلبات العادية
     req.flash("success", "تم تحديث بيانات الطالب بنجاح");
     res.redirect(`/school-admin/students/${student._id}`);
 
   } catch (err) {
     console.error(err);
-    req.flash("error", "حدث خطأ أثناء تحديث بيانات الطالب");
+    const errorMsg = "حدث خطأ أثناء تحديث بيانات الطالب";
+    if (req.xhr || req.headers.accept.includes("json")) {
+      return res.status(500).json({ errors: { general: errorMsg } });
+    }
+    req.flash("error", errorMsg);
     res.redirect("/school-admin/students");
   }
 };
-

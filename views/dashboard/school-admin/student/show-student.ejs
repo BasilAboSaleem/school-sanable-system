@@ -48,6 +48,11 @@
           <table class="table table-bordered">
             <tbody>
               <tr><th>الاسم الكامل</th><td><%= student.fullName %></td></tr>
+              <tr><th>رقم الهوية</th><td><%= student.nationalId || '—' %></td></tr>
+              <tr><th>اسم ولي الأمر</th><td><%= student.nameOfParent || '—' %></td></tr>
+              <tr><th>رقم هوية ولي الأمر</th><td><%= student.nationalIdOfParent || '—' %></td></tr>
+              <tr><th>هل الطالب سليم صحياً؟</th><td><%= student.isHealthy ? 'نعم' : 'لا' %></td></tr>
+              <tr><th>هل الطالب يتيم؟</th><td><%= student.isOrphan ? 'نعم' : 'لا' %></td></tr>
               <tr><th>تاريخ الميلاد</th><td><%= student.dateOfBirth ? student.dateOfBirth.toLocaleDateString('ar-EG') : '—' %></td></tr>
               <tr><th>العمر</th><td><%= student.age || '—' %></td></tr>
               <tr><th>الفصل</th><td><%= student.classId ? student.classId.name : '—' %></td></tr>

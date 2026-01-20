@@ -2,8 +2,12 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
-    nationalId: {type: String,index: true },
+  nationalId: {type: String,index: true },
   phoneOfParents: { type: String , required: true },
+  nameOfParent: { type: String},
+  nationalIdOfParent: { type: String },
+  isHealthy: { type: Boolean, default: true },
+  isOrphan: { type: Boolean, default: false },
   address: { type: String },
   dateOfBirth: { type: Date },
   age: { type: Number },

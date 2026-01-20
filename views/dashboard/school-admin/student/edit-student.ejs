@@ -64,6 +64,32 @@
                   </div>
 
                   <div class="form-group">
+                    <label>اسم ولي الأمر</label>
+                    <input type="text" name="nameOfParent" value="<%= student.nameOfParent %>" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>رقم هوية ولي الأمر</label>
+                    <input type="text" name="nationalIdOfParent" value="<%= student.nationalIdOfParent %>" class="form-control">
+                  </div>
+
+                  <div class="form-group">
+                    <label>هل الطالب سليم صحياً؟</label>
+                    <select name="isHealthy" class="form-control">
+                      <option value="true" <%= student.isHealthy ? 'selected' : '' %>>نعم</option>
+                      <option value="false" <%= !student.isHealthy ? 'selected' : '' %>>لا</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>هل الطالب يتيم؟</label>
+                    <select name="isOrphan" class="form-control">
+                      <option value="false" <%= !student.isOrphan ? 'selected' : '' %>>لا</option>
+                      <option value="true" <%= student.isOrphan ? 'selected' : '' %>>نعم</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
                     <label>تاريخ الميلاد</label>
                     <input type="date" name="dateOfBirth" value="<%= student.dateOfBirth ? student.dateOfBirth.toISOString().substring(0,10) : '' %>" class="form-control">
                   </div>
@@ -74,6 +100,11 @@
                       <option value="Male" <%= student.gender === 'Male' ? 'selected' : '' %>>ذكر</option>
                       <option value="Female" <%= student.gender === 'Female' ? 'selected' : '' %>>أنثى</option>
                     </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>العمر</label>
+                    <input type="number" name="age" value="<%= student.age %>" class="form-control">
                   </div>
 
                   <div class="form-group">
@@ -161,30 +192,41 @@ document.getElementById('editStudentForm').addEventListener('submit', async e =>
     sectionId: document.querySelector('select[name="sectionId"]').value,
     phoneOfParents: document.querySelector('input[name="phoneOfParents"]').value,
     address: document.querySelector('input[name="address"]').value,
-    nationalId: document.querySelector('input[name="nationalId"]').value.trim()};
+    nationalId: document.querySelector('input[name="nationalId"]').value.trim(),
+    nameOfParent: document.querySelector('input[name="nameOfParent"]').value.trim(),
+    age: Number(document.querySelector('input[name="age"]').value),
+    isHealthy: document.querySelector('select[name="isHealthy"]').value === 'true',
+    isOrphan: document.querySelector('select[name="isOrphan"]').value === 'true',
+    nationalIdOfParent: document.querySelector('input[name="nationalIdOfParent"]').value.trim()
+  };
 
   try {
     const res = await fetch(window.location.pathname, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'CSRF-Token': csrfToken // إرسال token
+        'Accept': 'application/json',
+        'CSRF-Token': csrfToken
       },
       body: JSON.stringify(formData)
     });
 
+    if (!res.ok) throw new Error('HTTP error ' + res.status);
+
     const data = await res.json();
+
     if (data.errors) {
       alert(Object.values(data.errors).join('\n'));
     } else if (data.success) {
       alert(data.success);
-      window.location.href = data.redirect || "/school-admin/students";
+      window.location.href = data.redirect;
     }
   } catch(err){
     console.error(err);
     alert("حدث خطأ أثناء الاتصال بالسيرفر.");
   }
 });
+
 </script>
 
 </body>

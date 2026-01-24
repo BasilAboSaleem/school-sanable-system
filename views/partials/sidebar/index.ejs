@@ -1,24 +1,4 @@
-<style>
-  .side-item-container {
-  display: none; /* مغلقة افتراضيًا */
-}
 
-.side a.ul-text {
-  cursor: pointer;
-  user-select: none;
-}
-
-.side a.ul-text .arrow {
-  transition: transform 0.3s;
-}
-
-.side a.ul-text.active .arrow {
-  transform: rotate(90deg); /* السهم يتغير عند الفتح */
-}
-
-
-
-</style>
 <div class="container-fluid side-bar-container">
 
   <header class="pb-0">
@@ -50,32 +30,4 @@
   <% } %>
 
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // استمع للنقرات على كل العناصر داخل sidebar باستخدام delegation
-  const sidebar = document.querySelector('.side-bar-container');
 
-  sidebar.addEventListener('click', function (e) {
-    const toggle = e.target.closest('a.ul-text');
-    if (!toggle) return;
-
-    e.preventDefault();
-    const container = toggle.parentElement.querySelector('.side-item-container');
-    if (!container) return;
-
-    // إغلاق كل القوائم الأخرى (اختياري)
-    document.querySelectorAll('.side-item-container').forEach(c => {
-      if (c !== container) c.style.display = 'none';
-    });
-
-    // فتح/إغلاق القائمة الحالية
-    if (container.style.display === 'block') {
-      container.style.display = 'none';
-      toggle.classList.remove('active');
-    } else {
-      container.style.display = 'block';
-      toggle.classList.add('active');
-    }
-  });
-});
-</script>

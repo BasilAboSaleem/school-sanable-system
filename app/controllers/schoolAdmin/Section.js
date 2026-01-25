@@ -153,4 +153,47 @@ exports.listStudentsBySection = async (req, res) => {
   }
 };
 
+exports.deleteSection = async (req, res) => {
+  try {
+    const { sectionId } = req.params;
 
+    const section = await Section.findById(sectionId);
+    if (!section) {
+      req.flash("error", "الشعبة غير موجودة");
+      return res.redirect("/school-admin/classes");
+    }
+
+    // تحقق أن الشعبة مرتبطة بنفس المدرسة
+    const classData = await Class.findById(section.classId);
+    if (classData.schoolId.toString() !== req.user.schoolId.toString()) {
+      req.flash("error", "لا يمكنك حذف هذه الشعبة");
+      return res.redirect("/school-admin/classes");
+    }
+
+    // ✅ تحقق إذا كان في طلاب داخل الشعبة
+    const studentsCount = await Student.countDocuments({ sectionId });
+
+    if (studentsCount > 0) {
+      req.flash(
+        "error",
+        "لا يمكن حذف الشعبة لأنها تحتوي على طلاب. الرجاء نقل الطلاب أولاً."
+      );
+      return res.redirect(
+        `/school-admin/classes/${classData._id}/sections`
+      );
+    }
+
+    // ✅ الحذف فقط إذا ما في طلاب
+    await Section.findByIdAndDelete(sectionId);
+    await Class.findByIdAndUpdate(classData._id, {
+      $pull: { sections: sectionId },
+    });
+
+    req.flash("success", "تم حذف الشعبة بنجاح");
+    res.redirect(`/school-admin/classes/${classData._id}/sections`);
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "حدث خطأ أثناء حذف الشعبة");
+    res.redirect("/school-admin/classes");
+  }
+};

@@ -13,6 +13,8 @@ const path = require("path");
 const helmet = require("helmet");
 const compression = require("compression");
 const csurf = require("csurf");
+const methodOverride = require("method-override");
+
 
 // Config / DB
 const connectDB = require("./app/config/db"); 
@@ -35,6 +37,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({ origin: process.env.BASE_URL || "*", credentials: true }));
 app.use(compression()); // ✅ Good for Production: Reduces response body size
+app.use(methodOverride("_method"));
+
 
 // Security Headers (Helmet) - Disable CSP for inline scripts compat
 app.use(

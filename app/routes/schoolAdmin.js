@@ -35,6 +35,7 @@ router.get(
   "/sections/:sectionId/students",
   schoolAdminController.Section.listStudentsBySection
 );
+router.delete("/sections/:sectionId", schoolAdminController.Section.deleteSection);
 
 // ==================================================
 // Teachers Management

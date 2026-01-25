@@ -58,13 +58,48 @@
 
               <% sections.forEach((section, index) => { %>
                 <tr>
-                  <td><%= index + 1 %></td>
-                  <td><%= section.name %></td>
-                  <td><%= section.studentsCount %></td>
-                  <td>
-                    <a href="/school-admin/sections/<%= section._id %>/students" class="btn btn-sm btn-info">عرض الطلاب</a>
-                  </td>
-                </tr>
+  <td><%= index + 1 %></td>
+  <td><%= section.name %></td>
+  <td><%= section.studentsCount %></td>
+
+  <!-- ✅ عمود العمليات (واحد فقط) -->
+<td class="d-flex justify-content-center align-items-center">
+  <div class="d-flex align-items-center" style="gap: 0.5rem;">
+
+    <!-- زر عرض الطلاب -->
+    <a
+      href="/school-admin/sections/<%= section._id %>/students"
+      class="btn btn-sm btn-info"
+    >
+      عرض الطلاب
+    </a>
+
+    <% if (section.studentsCount > 0) { %>
+      <!-- رسالة التحذير -->
+      <span class="badge badge-danger">
+        تحتوي على طلاب
+      </span>
+    <% } else { %>
+      <!-- زر الحذف -->
+      <form
+        action="/school-admin/sections/<%= section._id %>?_method=DELETE"
+        method="POST"
+        onsubmit="return confirm('هل أنت متأكد من حذف هذه الشعبة؟');"
+        class="m-0"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn btn-sm btn-danger">
+          حذف
+        </button>
+      </form>
+    <% } %>
+
+  </div>
+</td>
+
+
+</tr>
+
               <% }) %>
             </tbody>
           </table>

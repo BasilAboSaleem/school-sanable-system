@@ -38,10 +38,7 @@
         </div>
       </div>
 
-      <!-- رسائل -->
-      <% if (error) { %>
-        <div class="alert alert-danger"><%= error %></div>
-      <% } %>
+    
 
       <!-- جدول المواد -->
       <div class="row m-1">
@@ -50,6 +47,13 @@
             <div class="card-header">قائمة موادي</div>
 
             <div class="card-body">
+ <!-- Flash messages -->
+                <% if (locals.success && locals.success.length > 0) { %>
+                  <div class="alert alert-success"><%= success %></div>
+                <% } %>
+                <% if (locals.error && locals.error.length > 0) { %>
+                  <div class="alert alert-danger"><%= error %></div>
+                <% } %>
               <div class="table-responsive">
 
               <table class="table table-bordered table-hover text-center">

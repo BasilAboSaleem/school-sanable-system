@@ -51,7 +51,7 @@ exports.addIncome = async (req, res) => {
     });
 
     await income.save();
-    return res.json({ success: "Income added successfully", redirect: "/school-admin/incomes" });
+    return res.json({  redirect: "/school-admin/incomes" });
 
   } catch (err) {
     console.error(err);
@@ -140,7 +140,7 @@ exports.updateIncome = async (req, res) => {
     income.description = description;
 
     await income.save();
-    return res.json({ success: "تم تعديل الوارد بنجاح", redirect: "/school-admin/incomes" });
+    return res.json({  redirect: "/school-admin/incomes" });
 
   } catch (err) {
     console.error(err);

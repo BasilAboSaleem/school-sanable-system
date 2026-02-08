@@ -62,7 +62,6 @@ exports.createTeacher = async (req, res) => {
     await newTeacher.save();
 
     return res.json({
-      success: "تم إضافة المدرس بنجاح",
       redirect: "/school-admin/teachers"
     });
 
@@ -158,7 +157,7 @@ exports.updateTeacher = async(req,res)=>{
     teacher.status = status || teacher.status;
 
     await teacher.save();
-    return res.json({ success: "تم تحديث بيانات المدرس بنجاح" });
+    return res.json({ redirect: "/school-admin/teachers" });
 
   }catch(err){
     console.error(err);

@@ -12,6 +12,13 @@
 <main class="bmd-layout-content">
   <div class="container-fluid">
         <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+         <!-- Flash messages -->
+                <% if (locals.success && locals.success.length > 0) { %>
+                  <div class="alert alert-success"><%= success %></div>
+                <% } %>
+                <% if (locals.error && locals.error.length > 0) { %>
+                  <div class="alert alert-danger"><%= error %></div>
+                <% } %>
 
 
 <h3>رصد الدرجات – <%= exam.title %></h3>

@@ -65,6 +65,8 @@
 
 <div class="table-responsive">
                 <table class="table table-bordered table-hover" id="classesTable">
+                  <input type="hidden" id="csrfToken" value="<%= csrfToken %>">
+
                   <thead class="thead-light text-center">
                     <tr>
                       <th>#</th>
@@ -81,10 +83,30 @@
                         <td class="cls-name"><%= cls.name %></td>
                         <td class="cls-status"><%= cls.status === 'active' ? 'نشط' : 'غير نشط' %></td>
                         <td><%= cls.sections.length %></td>
-                        <td class="text-center">
-                          <a href="/school-admin/classes/<%= cls._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
-                          <a href="/school-admin/classes/<%= cls._id %>/sections" class="btn btn-sm btn-info">عرض الشعب</a>
-                        </td>
+                       <td class="text-center">
+  <div class="btn-group btn-group-sm" role="group">
+    <a 
+      href="/school-admin/classes/<%= cls._id %>/edit"
+      class="btn btn-warning">
+      تعديل
+    </a>
+
+    <a 
+      href="/school-admin/classes/<%= cls._id %>/sections"
+      class="btn btn-info">
+      عرض الشعب
+    </a>
+
+    <button
+      type="button"
+      class="btn btn-danger btn-delete-class"
+      data-id="<%= cls._id %>"
+      data-name="<%= cls.name %>">
+      حذف
+    </button>
+  </div>
+</td>
+
                       </tr>
                     <% }) %>
                   </tbody>
@@ -100,6 +122,51 @@
     </main>
 
   </div>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteClassModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">تأكيد حذف الفصل</h5>
+      </div>
+      <div class="modal-body">
+        <p>
+          هل أنت متأكد من حذف الفصل
+          <strong id="classNameToDelete"></strong>؟
+        </p>
+        <p class="text-danger">
+          ⚠️ سيتم حذف:
+          <br>• الفصل
+          <br>• جميع الشعب
+          <br>• جميع الطلاب
+          <br>• ربط أولياء الأمور
+          <br>• جميع الحضور والدرجات والامتحانات المرتبطة
+          <br>• جميع المواد والمعلمين المرتبطين
+          <br>• جميع المستخدمين المرتبطين
+          
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+        <button class="btn btn-danger" id="confirmDeleteClass">
+          نعم، حذف
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loader -->
+<div class="modal fade" id="loadingModal" tabindex="-1"
+data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <div class="spinner-border text-danger mb-3"></div>
+      <h5>جاري حذف الفصل...</h5>
+      <p class="text-muted">يرجى عدم إغلاق الصفحة</p>
+    </div>
+  </div>
+</div>
 
   <%- include('../../../partials/scripts.ejs') %>
 
@@ -129,6 +196,46 @@
     searchName.addEventListener('input', filterRows);
     searchStatus.addEventListener('change', filterRows);
   </script>
+<script>
+let classIdToDelete = null;
+
+document.querySelectorAll('.btn-delete-class').forEach(btn => {
+  btn.addEventListener('click', () => {
+    classIdToDelete = btn.dataset.id;
+    document.getElementById('classNameToDelete').textContent = btn.dataset.name;
+    $('#deleteClassModal').modal('show');
+  });
+});
+
+document.getElementById('confirmDeleteClass').addEventListener('click', async () => {
+  $('#deleteClassModal').modal('hide');
+  $('#loadingModal').modal('show');
+
+  try {
+    const res = await fetch(`/school-admin/classes/${classIdToDelete}`, {
+      method: 'DELETE',
+      headers: {
+        'CSRF-Token': document.getElementById('csrfToken')?.value
+      },
+      credentials: 'same-origin'
+    });
+
+    const data = await res.json();
+    $('#loadingModal').modal('hide');
+
+    if (data.error) {
+      alert(data.error);
+    } else {
+      alert(data.success);
+      location.reload();
+    }
+
+  } catch (err) {
+    $('#loadingModal').modal('hide');
+    alert('حدث خطأ أثناء حذف الفصل');
+  }
+});
+</script>
 
 </body>
 </html>

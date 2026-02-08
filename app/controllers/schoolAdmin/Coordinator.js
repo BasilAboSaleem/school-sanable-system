@@ -152,7 +152,7 @@ exports.update = async (req, res) => {
     await coordinator.save();
 
     // إعادة نفس نمط Create مع redirect
-    res.json({ success: "تم تحديث بيانات المنسق بنجاح", redirect: "/school-admin/coordinator" });
+    res.json({redirect: "/school-admin/coordinator" });
 
   } catch (err) {
     console.error(err);

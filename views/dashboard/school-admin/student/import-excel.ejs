@@ -5,144 +5,192 @@
 
 <body class="rtl">
 
-  <div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
+<div class="bmd-layout-container bmd-drawer-f-l avam-container animated bmd-drawer-in">
 
-    <%- include('../../../partials/header.ejs') %>
+<%- include('../../../partials/header.ejs') %>
 
-    <div id="dw-s1" class="bmd-layout-drawer bg-faded">
-      <%- include('../../../partials/sidebar/index.ejs') %>
+<div id="dw-s1" class="bmd-layout-drawer bg-faded">
+  <%- include('../../../partials/sidebar/index.ejs') %>
+</div>
+
+<main class="bmd-layout-content">
+<div class="container-fluid">
+
+<!-- breadcrumb -->
+<div class="row m-1 pb-4 mb-3">
+  <div class="col-12 p-2">
+    <div class="page-header breadcrumb-header">
+      <h3 class="lite-text">استيراد الطلاب من ملف Excel</h3>
+      <span class="lite-text text-gray">
+        اختر الفصل والشعبة ثم استورد ملف Excel (من الجهاز أو Google Drive)
+      </span>
     </div>
-
-    <main class="bmd-layout-content">
-      <div class="container-fluid">
-
-        <!-- breadcrumb -->
-        <div class="row m-1 pb-4 mb-3">
-          <div class="col-12 p-2">
-            <div class="page-header breadcrumb-header">
-              <div class="row align-items-end">
-                <div class="col-lg-8">
-                  <h3 class="lite-text">استيراد الطلاب من ملف Excel</h3>
-                  <span class="lite-text text-gray">اختر الفصل والشعبة ثم استورد ملف Excel</span>
-                </div>
-                <div class="col-lg-4">
-                  <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="/dashboard"><i class="fas fa-home"></i></a></li>
-                    <li class="breadcrumb-item active">استيراد الطلاب</li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Excel Import Form -->
-        <div class="row m-1">
-          <div class="col-12 p-2">
-            <div class="card shade h-100">
-              <div class="card-header">
-                استيراد الطلاب
-              </div>
-              <div class="card-body">
-
-                <% if (locals.success && locals.success.length > 0) { %>
-                  <div class="alert alert-success"><%= locals.success %></div>
-                <% } %>
-
-                <% if (locals.error && locals.error.length > 0) { %>
-                  <div class="alert alert-danger"><%= locals.error %></div>
-                <% } %>
-
-                <form id="importExcelForm" enctype="multipart/form-data" method="POST">
-                 <input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
-
-
-                  <div class="form-group">
-                    <label>الفصل *</label>
-                    <select name="classId" id="classSelect" class="form-control" required>
-                      <option value="">اختر الفصل</option>
-                      <% classes.forEach(cls => { %>
-                        <option value="<%= cls._id %>"><%= cls.name %></option>
-                      <% }) %>
-                    </select>
-                  </div>
-
-                  <div class="form-group">
-                    <label>الشعبة *</label>
-                    <select name="sectionId" id="sectionSelect" class="form-control" required>
-                      <option value="">اختر الشعبة</option>
-                      <% sections.forEach(sec => { %>
-                        <option value="<%= sec._id %>" data-class="<%= sec.classId %>"><%= sec.name %></option>
-                      <% }) %>
-                    </select>
-                  </div>
-
-                  <div class="form-group">
-                    <label>ملف Excel *</label>
-                    <input type="file" name="excelFile" accept=".xlsx,.xls" required class="form-control">
-                  </div>
-
-                  <button type="submit" class="btn btn-primary">استيراد الطلاب</button>
-                </form>
-
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </main>
-
   </div>
+</div>
 
-  <%- include('../../../partials/scripts.ejs') %>
+<div class="row m-1">
+<div class="col-12 p-2">
+<div class="card shade h-100">
+<div class="card-header">استيراد الطلاب</div>
+
+<div class="card-body">
+
+<form id="importExcelForm" enctype="multipart/form-data" method="POST">
+<input type="hidden" name="_csrf" id="csrfToken" value="<%= csrfToken %>">
+
+<!-- الفصل -->
+<div class="form-group">
+<label>الفصل *</label>
+<select name="classId" id="classSelect" class="form-control" required>
+<option value="">اختر الفصل</option>
+<% classes.forEach(cls => { %>
+<option value="<%= cls._id %>"><%= cls.name %></option>
+<% }) %>
+</select>
+</div>
+
+<!-- الشعبة -->
+<div class="form-group">
+<label>الشعبة *</label>
+<select name="sectionId" id="sectionSelect" class="form-control" required>
+<option value="">اختر الشعبة</option>
+<% sections.forEach(sec => { %>
+<option value="<%= sec._id %>" data-class="<%= sec.classId %>"><%= sec.name %></option>
+<% }) %>
+</select>
+</div>
+
+<!-- طريقة الاستيراد -->
+<div class="form-group">
+<label>طريقة الاستيراد *</label>
+<select name="importType" id="importType" class="form-control">
+<option value="upload">رفع من الجهاز</option>
+<option value="drive">رابط Google Drive</option>
+</select>
+</div>
+
+<!-- رفع ملف -->
+<div class="form-group" id="uploadBox">
+<label>ملف Excel *</label>
+<input type="file" name="excelFile" accept=".xlsx,.xls" class="form-control">
+</div>
+
+<!-- رابط درايف -->
+<div class="form-group d-none" id="driveBox">
+<label>رابط Google Drive *</label>
+<input type="url" name="driveUrl" class="form-control"
+placeholder="https://drive.google.com/file/d/...">
+<small class="text-muted">
+يجب مشاركة الملف: Anyone with link → Viewer
+</small>
+</div>
+
+<!-- نطاق الصفوف -->
+<hr>
+<h6 class="text-primary">إعدادات الاستيراد (اختياري)</h6>
+
+<div class="row">
+<div class="col-md-6">
+  <div class="form-group">
+    <label>من الصف</label>
+    <input type="number" name="startRow" class="form-control" placeholder="مثال: 1">
+  </div>
+</div>
+<div class="col-md-6">
+  <div class="form-group">
+    <label>إلى الصف</label>
+    <input type="number" name="endRow" class="form-control" placeholder="مثال: 40">
+  </div>
+</div>
+</div>
+
+<button type="submit" class="btn btn-primary">
+  استيراد الطلاب
+</button>
+
+</form>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</main>
+</div>
+
+<!-- Loader -->
+<div class="modal fade" id="loadingModal" tabindex="-1"
+data-backdrop="static" data-keyboard="false">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content text-center p-4">
+<div class="spinner-border text-primary mb-3"></div>
+<h5>جاري استيراد الطلاب...</h5>
+<p class="text-muted">يرجى عدم إغلاق الصفحة</p>
+</div>
+</div>
+</div>
+
+<%- include('../../../partials/scripts.ejs') %>
 
 <script>
-  const classSelect = document.getElementById('classSelect');
-  const sectionSelect = document.getElementById('sectionSelect');
-  const importExcelForm = document.getElementById('importExcelForm');
-  const csrfToken = document.getElementById('csrfToken').value;
+const classSelect = document.getElementById('classSelect');
+const sectionSelect = document.getElementById('sectionSelect');
+const importType = document.getElementById('importType');
+const uploadBox = document.getElementById('uploadBox');
+const driveBox = document.getElementById('driveBox');
+const importExcelForm = document.getElementById('importExcelForm');
+const csrfToken = document.getElementById('csrfToken').value;
 
-  // فلترة الشعب حسب الفصل المختار
-  classSelect.addEventListener('change', () => {
-    const selectedClass = classSelect.value;
-    Array.from(sectionSelect.options).forEach(opt => {
-      if(opt.value === "") return;
-      if(opt.dataset.class === selectedClass){
-        opt.style.display = '';
-      } else {
-        opt.style.display = 'none';
-      }
+// فلترة الشعب
+classSelect.addEventListener('change', () => {
+  const selectedClass = classSelect.value;
+  [...sectionSelect.options].forEach(opt => {
+    if(!opt.value) return;
+    opt.style.display = opt.dataset.class === selectedClass ? '' : 'none';
+  });
+  sectionSelect.value = "";
+});
+
+// تبديل نوع الاستيراد
+importType.addEventListener('change', () => {
+  uploadBox.classList.toggle('d-none', importType.value === 'drive');
+  driveBox.classList.toggle('d-none', importType.value !== 'drive');
+});
+
+// إرسال AJAX + Loader
+importExcelForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  $('#loadingModal').modal('show');
+
+  const btn = importExcelForm.querySelector('button[type="submit"]');
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/school-admin/students/import-excel', {
+      method: 'POST',
+      body: new FormData(importExcelForm),
+      headers: { 'CSRF-Token': csrfToken },
+      credentials: 'same-origin'
     });
-    sectionSelect.value = "";
-  });
 
-  // إرسال الفورم عبر AJAX مع CSRF
-  importExcelForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    const formData = new FormData(importExcelForm);
+    const data = await res.json();
+    $('#loadingModal').modal('hide');
+    btn.disabled = false;
 
-    try {
-      const res = await fetch('/school-admin/students/import-excel', {
-        method: 'POST',
-        body: formData,
-        headers:{'CSRF-Token': csrfToken},
-        credentials: 'same-origin' // 🔑 إرسال الكوكيز
-      });
+    if(data.error) alert(data.error);
+    else alert(
+      `${data.success}\n` +
+      `تم استيراد: ${data.imported}\n` +
+      `تم تجاهل: ${data.skipped}`
+    );
 
-      const data = await res.json();
-
-      if(data.error) {
-        alert(data.error);
-      } else {
-        alert(`${data.success}\nتم استيراد ${data.imported} من أصل ${data.totalRows} صف`);
-      }
-
-    } catch(err) {
-      console.error(err);
-      alert("حدث خطأ أثناء استيراد الملف");
-    }
-  });
+  } catch(err) {
+    $('#loadingModal').modal('hide');
+    btn.disabled = false;
+    alert("حدث خطأ أثناء الاستيراد");
+  }
+});
 </script>
 
 </body>

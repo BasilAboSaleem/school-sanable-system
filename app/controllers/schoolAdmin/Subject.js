@@ -45,7 +45,7 @@ exports.createSubject = async (req, res) => {
 
     await newSubject.save();
 
-    return res.json({ success: "تم إضافة المادة بنجاح" });
+    return res.json();
 
   } catch(err){
     console.error(err);
@@ -129,7 +129,7 @@ exports.updateSubject = async (req, res) => {
     await subject.save();
 
     req.flash("success", "تم تعديل المادة بنجاح");
-    return res.json({ success: "تم تعديل المادة بنجاح", redirect: "/school-admin/subjects" });
+    return res.json({ redirect: "/school-admin/subjects" });
 
   } catch (err) {
     console.error(err);

@@ -8,6 +8,8 @@ const{
 } = require("./utils");
 const XLSX = require("xlsx");
 const fs = require('fs');
+const path = require('path');
+const axios = require('axios'); 
 
 
 exports.renderCreateStudentForm = async (req, res) => {
@@ -151,13 +153,23 @@ exports.renderImportExcelForm = async (req, res) => {
   }
 };
 
-exports.importStudentsExcel = async (req, res) => {
-  try {
-    const { classId, sectionId } = req.body;
+function getDriveFileId(url) {
+  const match = url.match(/\/d\/([^/]+)/);
+  return match ? match[1] : null;
+}
 
-    // ====== VALIDATIONS ======
-    if (!req.file)
-      return res.json({ error: "يرجى رفع ملف Excel" });
+exports.importStudentsExcel = async (req, res) => {
+  let filePath;
+
+  try {
+    let {
+      classId,
+      sectionId,
+      driveUrl,
+      importType,
+      startRow,
+      endRow
+    } = req.body;
 
     if (!classId || !sectionId)
       return res.json({ error: "الفصل والشعبة مطلوبة" });
@@ -168,97 +180,84 @@ exports.importStudentsExcel = async (req, res) => {
     const section = await Section.findOne({ _id: sectionId, classId });
     if (!section) return res.json({ error: "الشعبة غير صالحة" });
 
-    // ====== READ EXCEL ======
-    const workbook = XLSX.readFile(req.file.path);
+    // ===== جلب الملف =====
+    if (importType === 'drive') {
+      if (!driveUrl)
+        return res.json({ error: "يرجى إدخال رابط Google Drive" });
+
+      const fileId = getDriveFileId(driveUrl);
+      if (!fileId)
+        return res.json({ error: "رابط Google Drive غير صالح" });
+
+      const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+      filePath = path.join(__dirname, '../../tmp/import.xlsx');
+
+      const response = await axios({
+        url: downloadUrl,
+        method: 'GET',
+        responseType: 'stream'
+      });
+
+      await new Promise((resolve, reject) => {
+        const stream = fs.createWriteStream(filePath);
+        response.data.pipe(stream);
+        stream.on('finish', resolve);
+        stream.on('error', reject);
+      });
+
+    } else {
+      if (!req.file)
+        return res.json({ error: "يرجى رفع ملف Excel" });
+      filePath = req.file.path;
+    }
+
+    // ===== قراءة الإكسل =====
+    const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
+    let rows = XLSX.utils.sheet_to_json(sheet);
+
+    // ===== تطبيق النطاق =====
+    startRow = parseInt(startRow) || 1;
+    endRow = parseInt(endRow) || rows.length;
+
+    if (startRow < 1) startRow = 1;
+    if (endRow > rows.length) endRow = rows.length;
+    if (startRow > endRow)
+      return res.json({ error: "نطاق الصفوف غير صالح" });
+
+    rows = rows.slice(startRow - 1, endRow);
 
     let studentsToInsert = [];
     let skippedRows = 0;
 
-    // ====== PREPARE STUDENTS ======
     for (const row of rows) {
       if (!row['اسم الطالب'] || !row['رقم الجوال']) {
         skippedRows++;
         continue;
       }
 
-      // ====== GENDER TRANSFORM ======
-      let gender = undefined;
-      const g = row['الجنس']?.toString().trim();
-      if (g === 'انثى' || g === 'أنثى') gender = 'Female';
-      else if (g === 'ذكر') gender = 'Male';
+      let gender;
+      if (['انثى','أنثى'].includes(row['الجنس']?.trim())) gender = 'Female';
+      else if (row['الجنس'] === 'ذكر') gender = 'Male';
 
-      // ====== DATE OF BIRTH AND AGE CALCULATION ======
-      let age = undefined;
-      let dateOfBirth = undefined;
-      if (row['تاريخ الميلاد']) {
-        dateOfBirth = new Date(row['تاريخ الميلاد']);
-        if (!isNaN(dateOfBirth.getTime())) {
-          const diff = Date.now() - dateOfBirth.getTime();
-          age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-        }
-      }
-
-      // ====== HEALTH, ORPHAN, STATUS ======
-      const isHealthy = row['الحالة الصحية']?.trim() === 'سليم';
-      const isOrphan = row['حالة اليتم']?.trim() !== 'غير يتيم';
-      const status = row['حالة الطالب']?.trim() === 'معتمد' ? 'active' : 'inactive';
-
-      const student = {
-        fullName: row['اسم الطالب'].toString().trim(),
-        nationalId: row['هوية الطالب']?.toString(),
-        phoneOfParents: row['رقم الجوال'].toString().trim(),
-        nameOfParent: row['ولي الأمر']?.toString().trim(),
-        nationalIdOfParent: row['هوية ولي الأمر']?.toString(),
-        isHealthy,
-        isOrphan,
-        dateOfBirth,
-        age,
-        gender,
+      studentsToInsert.push({
+        fullName: row['اسم الطالب'].trim(),
+        phoneOfParents: row['رقم الجوال'].trim(),
         schoolId: req.user.schoolId,
         classId,
         sectionId,
-        status,
+        gender,
         createdFrom: 'excel'
-      };
-
-      studentsToInsert.push(student);
+      });
     }
 
-    if (!studentsToInsert.length) {
+    if (!studentsToInsert.length)
       return res.json({ error: "لا يوجد طلاب صالحين للاستيراد" });
-    }
 
-    // ====== INSERT STUDENTS ======
     const insertedStudents = await Student.insertMany(studentsToInsert);
 
-    // ====== CREATE / LINK PARENTS ======
-    for (const student of insertedStudents) {
-      const phone = student.phoneOfParents;
-
-      let parentUser = await User.findOne({ phone, role: 'parent' });
-
-      if (!parentUser) {
-        const parentName = student.nameOfParent || `ولي أمر ${student.fullName}`;
-        parentUser = await User.create({
-          name: parentName,
-          email: `${phone}@parent.school.com`,
-          password: `School@${phone}`,
-          role: 'parent',
-          phone
-        });
-      }
-
-      await ParentProfile.findOneAndUpdate(
-        { userId: parentUser._id, schoolId: req.user.schoolId },
-        { phone, $addToSet: { students: student._id } },
-        { upsert: true, new: true }
-      );
-    }
-
-    // ====== CLEAN UP ======
-    fs.unlinkSync(req.file.path);
+    if (filePath && fs.existsSync(filePath))
+      fs.unlinkSync(filePath);
 
     return res.json({
       success: "تم استيراد الطلاب بنجاح",
@@ -269,7 +268,7 @@ exports.importStudentsExcel = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    if (req.file && req.file.path) fs.unlinkSync(req.file.path);
+    if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath);
     return res.json({ error: "حدث خطأ أثناء استيراد ملف Excel" });
   }
 };
@@ -415,7 +414,6 @@ exports.updateStudent = async (req, res) => {
     // ===== إرجاع JSON دائماً عند AJAX =====
     if (req.xhr || req.headers.accept.includes("json")) {
       return res.json({
-        success: "تم تحديث بيانات الطالب بنجاح",
         redirect: `/school-admin/students/${student._id}`
       });
     }

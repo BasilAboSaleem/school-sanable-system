@@ -20,6 +20,7 @@ router.post("/classes/create", schoolAdminController.Class.createClass);
 router.get("/classes", schoolAdminController.Class.listClasses);
 router.get("/classes/:id/edit", schoolAdminController.Class.renderEditClassForm);
 router.post("/classes/:id/edit", schoolAdminController.Class.updateClass);
+router.delete('/classes/:id',schoolAdminController.Class.deleteClassCascade);
 
 // ==================================================
 // Sections Management

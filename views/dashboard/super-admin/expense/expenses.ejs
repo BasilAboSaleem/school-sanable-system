@@ -8,6 +8,7 @@
 
   <main class="bmd-layout-content">
     <div class="container-fluid">
+      
 
       <!-- Header -->
       <div class="row m-1 pb-4 mb-3">
@@ -43,6 +44,13 @@
           <div class="card shade">
             <div class="card-header">قائمة الصادرات</div>
             <div class="card-body p-0">
+               <!-- Flash messages -->
+                <% if (locals.success && locals.success.length > 0) { %>
+                  <div class="alert alert-success"><%= success %></div>
+                <% } %>
+                <% if (locals.error && locals.error.length > 0) { %>
+                  <div class="alert alert-danger"><%= error %></div>
+                <% } %>
               <div class="table-responsive">
               <table class="table table-bordered table-hover text-center mb-0" id="exportsTable">
                 <thead class="thead-light">

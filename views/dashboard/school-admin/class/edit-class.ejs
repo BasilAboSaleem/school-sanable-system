@@ -13,6 +13,15 @@
   <main class="bmd-layout-content">
     <div class="container-fluid">
 
+       <!-- Flash messages -->
+                <% if (locals.success && locals.success.length > 0) { %>
+                  <div class="alert alert-success"><%= success %></div>
+                <% } %>
+                <% if (locals.error && locals.error.length > 0) { %>
+                  <div class="alert alert-danger"><%= error %></div>
+                <% } %>
+
+
       <!-- Breadcrumb -->
       <div class="row m-1 pb-4 mb-3">
         <div class="col-12 p-2">

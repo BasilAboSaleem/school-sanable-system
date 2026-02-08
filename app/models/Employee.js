@@ -28,12 +28,6 @@ const employeeSchema = new mongoose.Schema({
     default: "-"
   },
 
-  salary: {
-    type: Number,
-    min: 0,
-    default: null
-  },
-
   schoolId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "School",

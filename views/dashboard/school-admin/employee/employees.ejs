@@ -43,7 +43,6 @@
                     <th>الهاتف</th>
                     <th>المسمى الوظيفي</th>
                     <th>العنوان</th>
-                    <th>الراتب</th>
                     <th>العمليات</th>
                   </tr>
                 </thead>
@@ -59,7 +58,6 @@
                       <td><%= emp.phone || '—' %></td>
                       <td><%= emp.jobTitle || '—' %></td>
                       <td><%= emp.address || '—' %></td>
-                      <td><%= emp.salary || '—' %></td>
                       <td>
                         <a href="/school-admin/employees/<%= emp._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
                         <a href="/school-admin/employees/<%= emp._id %>/delete" class="btn btn-sm btn-danger">حذف</a>

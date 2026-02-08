@@ -11,6 +11,8 @@ const Grade = require("../../models/Grade");
 const Exam = require("../../models/Exam");
 const Attendance = require("../../models/Attendance");
 const ParentProfile = require("../../models/ParentProfile");
+const TeacherSubject = require("../../models/TeacherSubject");
+
 
 module.exports = {
     Class,
@@ -25,5 +27,6 @@ module.exports = {
     Grade,
     Exam,
     Attendance,
-    ParentProfile
+    ParentProfile,
+    TeacherSubject
 };

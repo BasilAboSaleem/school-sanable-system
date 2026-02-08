@@ -41,7 +41,7 @@ exports.createSupplier = async (req, res) => {
 
     await supplier.save();
 
-    return res.json({ success: "تم إضافة المورد بنجاح", redirect: "/school-admin/suppliers" });
+    return res.json({ redirect: "/school-admin/suppliers" });
 
   } catch (err) {
     console.error(err);
@@ -106,7 +106,7 @@ exports.updateSupplier = async (req, res) => {
     await supplier.save();
 
     // إرسال JSON response للـ AJAX
-    res.json({ success: "تم تحديث بيانات المورد بنجاح", redirect: "/school-admin/suppliers" });
+    res.json({ redirect: "/school-admin/suppliers" });
 
   } catch (err) {
     console.error(err);

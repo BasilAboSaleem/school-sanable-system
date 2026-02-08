@@ -1,6 +1,13 @@
 const{
     Class,
     Section,
+    Student,
+    ParentProfile,
+    Attendance,
+    Grade,
+    Exam,
+    TeacherSubject,
+    User,
     
 }= require("./utils");
 
@@ -45,8 +52,7 @@ exports.createClass = async (req, res) => {
     await newClass.save();
      req.flash("success", "تم إضافة الفصل بنجاح");
     return res.json({
-  success: "تم إضافة الفصل بنجاح",
-  redirect: "/school-admin/classes"
+  redirect: `/school-admin/sections/create`
 });
 
    
@@ -123,7 +129,6 @@ exports.updateClass = async (req, res) => {
 
     req.flash("success", "تم تعديل الفصل بنجاح");
     return res.json({
-  success: "تم تعديل الفصل بنجاح",
   redirect: "/school-admin/classes"
 });
 
@@ -132,3 +137,56 @@ exports.updateClass = async (req, res) => {
     return res.json({ errors: { general: "حدث خطأ أثناء تعديل الفصل" } });
   }
 };
+
+
+exports.deleteClassCascade = async (req, res) => {
+  const classId = req.params.id;
+
+  try {
+      if (!classId) {
+    return res.status(400).json({
+      success: false,
+      message: "معرف الفصل غير صالح"
+    });
+  }
+    const sections = await Section.find({ classId });
+    const sectionIds = sections.map(s => s._id);
+
+    const students = await Student.find({ classId });
+    const studentIds = students.map(s => s._id);
+
+    await Attendance.deleteMany({ classId });
+    await Grade.deleteMany({ classId });
+    await Exam.deleteMany({ classId });
+    await TeacherSubject.deleteMany({ classId });
+
+    await ParentProfile.updateMany(
+      { students: { $in: studentIds } },
+      { $pull: { students: { $in: studentIds } } }
+    );
+
+    await User.updateMany(
+      { classes: classId },
+      { $pull: { classes: classId } }
+    );
+
+    await Student.deleteMany({ _id: { $in: studentIds } });
+    await Section.deleteMany({ classId });
+    await Class.findByIdAndDelete(classId);
+
+   req.flash("success", "تم حذف الفصل وجميع البيانات المرتبطة به بنجاح");
+    return res.json({
+      redirect: "/school-admin/classes"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "خطأ أثناء حذف الفصل"
+    });
+  }
+};
+
+
+ 

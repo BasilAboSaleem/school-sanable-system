@@ -129,7 +129,7 @@ document.getElementById('addClassForm').addEventListener('submit', async e => {
     if(data.errors.general) alert(data.errors.general);
   } else if(data.success){
     alert(data.success);
-    window.location.href="/school-admin/classes";
+    window.location.href=`/school-admin/sections/create`;
   }
 });
 </script>

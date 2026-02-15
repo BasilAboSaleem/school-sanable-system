@@ -1,7 +1,8 @@
 const{
     User,
     Class,
-    Subject
+    Subject,
+    Section
 } = require("./utils");
 
 
@@ -164,5 +165,51 @@ exports.updateTeacher = async(req,res)=>{
     return res.json({ errors:{ general:"حدث خطأ أثناء تحديث بيانات المدرس" } });
   }
 };
+
+
+
+exports.deleteTeacher = async (req, res) => {
+  try {
+    const teacherId = req.params.id;
+
+    // جلب المعلم
+    const teacher = await User.findById(teacherId);
+
+    if (!teacher) {
+      req.flash("error", "المعلم غير موجود");
+      return res.redirect("/school-admin/teachers");
+    }
+
+    // تأكد أنه فعلاً teacher
+    if (teacher.role !== "teacher") {
+      req.flash("error", "هذا المستخدم ليس معلماً");
+      return res.redirect("/school-admin/teachers");
+    }
+
+    // أمان: تأكد أنه من نفس المدرسة
+    if (teacher.schoolId.toString() !== req.user.schoolId.toString()) {
+      req.flash("error", "غير مصرح لك بحذف هذا المعلم");
+      return res.redirect("/school-admin/teachers");
+    }
+
+    // (اختياري) فك ارتباط المعلم من الشعب
+    await Section.updateMany(
+      { _id: { $in: teacher.sections } },
+      { $pull: { teachers: teacher._id } } // إذا عندك teachers داخل سكيمة Section
+    );
+
+    // حذف المعلم
+    await User.findByIdAndDelete(teacherId);
+
+    req.flash("success", "تم حذف المعلم بنجاح");
+    res.redirect("/school-admin/teachers");
+
+  } catch (error) {
+    console.error(error);
+    req.flash("error", "حدث خطأ أثناء حذف المعلم");
+    res.redirect("/school-admin/teachers");
+  }
+};
+
 
 

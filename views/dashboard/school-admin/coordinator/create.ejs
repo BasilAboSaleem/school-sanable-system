@@ -140,9 +140,9 @@ form.addEventListener('submit', async e => {
         const el=document.getElementById(k+'Error');
         if(el) el.textContent=result.errors[k].msg;
       });
-    } else if(result.success){
-      window.location.href='/school-admin/coordinator';
-    } else if(result.flashError){
+     } else if (result.redirect) {
+  window.location.href = result.redirect;
+} else if(result.flashError){
       alert(result.flashError);
     }
   } catch(err){

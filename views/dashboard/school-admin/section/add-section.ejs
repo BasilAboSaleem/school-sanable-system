@@ -162,10 +162,9 @@ document.getElementById('addSectionForm').addEventListener('submit', async e => 
     if(data.errors.name) nameError.textContent=data.errors.name;
     if(data.errors.classId) classError.textContent=data.errors.classId;
     if(data.errors.general) alert(data.errors.general);
-  } else if(data.success){
-    alert(data.success);
-    window.location.href="/school-admin/classes/"+classId+"/sections";
-  }
+ } else if (data.redirect) {
+  window.location.href = data.redirect;
+}
 });
 </script>
 

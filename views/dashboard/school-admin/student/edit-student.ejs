@@ -226,10 +226,9 @@ document.getElementById('editStudentForm').addEventListener('submit', async e =>
 
     if (data.errors) {
       alert(Object.values(data.errors).join('\n'));
-    } else if (data.success) {
-      alert(data.success);
-      window.location.href = data.redirect;
-    }
+    } else if (data.redirect) {
+  window.location.href = data.redirect;
+}
   } catch(err){
     console.error(err);
     alert("حدث خطأ أثناء الاتصال بالسيرفر.");

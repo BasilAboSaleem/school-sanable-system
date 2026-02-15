@@ -278,10 +278,9 @@
         if(data.errors.email) emailError.textContent=data.errors.email;
         if(data.errors.password) passwordError.textContent=data.errors.password;
         if(data.errors.general) alert(data.errors.general);
-      } else if(data.success){
-        alert(data.success);
-        window.location.href="/school-admin/teachers";
-      }
+       } else if (data.redirect) {
+  window.location.href = data.redirect;
+}
     });
 
     // تهيئة الصفحة

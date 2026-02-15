@@ -127,10 +127,10 @@ document.getElementById('addClassForm').addEventListener('submit', async e => {
   if(data.errors){
     if(data.errors.name) nameError.textContent=data.errors.name;
     if(data.errors.general) alert(data.errors.general);
-  } else if(data.success){
-    alert(data.success);
-    window.location.href=`/school-admin/sections/create`;
-  }
+ } else if (data.redirect) {
+  window.location.href = data.redirect;
+}
+
 });
 </script>
 

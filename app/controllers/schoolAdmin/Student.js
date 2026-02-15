@@ -432,3 +432,80 @@ exports.updateStudent = async (req, res) => {
     res.redirect("/school-admin/students");
   }
 };
+
+exports.deleteStudent = async (req, res) => {
+  try {
+    const studentId = req.params.id;
+
+    // جلب الطالب
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      req.flash("error", "الطالب غير موجود");
+      return res.redirect("/school-admin/students");
+    }
+
+    // أمان: نفس المدرسة
+    if (student.schoolId.toString() !== req.user.schoolId.toString()) {
+      req.flash("error", "غير مصرح لك بحذف هذا الطالب");
+      return res.redirect("/school-admin/students");
+    }
+
+    /* =========================
+       1️⃣ حذف العلامات
+    ========================== */
+    await Grade.deleteMany({ studentId: student._id });
+
+    /* =========================
+       2️⃣ إزالة الطالب من الشعبة
+    ========================== */
+    await Section.updateOne(
+      { _id: student.sectionId },
+      { $pull: { students: student._id } }
+    );
+
+    /* =========================
+       3️⃣ التعامل مع ولي الأمر
+    ========================== */
+    const parentProfiles = await ParentProfile.find({
+      students: student._id
+    });
+
+    for (const profile of parentProfiles) {
+
+      // إزالة الطالب من قائمة الطلاب
+      profile.students.pull(student._id);
+      await profile.save();
+
+      // التحقق إذا بقي له طلاب
+      if (profile.students.length === 0) {
+
+        // حذف ParentProfile
+        await ParentProfile.findByIdAndDelete(profile._id);
+
+        // تحقق هل يوجد له ParentProfile آخر في مدارس أخرى
+        const otherProfiles = await ParentProfile.find({
+          userId: profile.userId
+        });
+
+        if (otherProfiles.length === 0) {
+          // حذف حساب ولي الأمر نفسه
+          await User.findByIdAndDelete(profile.userId);
+        }
+      }
+    }
+
+    /* =========================
+       4️⃣ حذف الطالب
+    ========================== */
+    await Student.findByIdAndDelete(student._id);
+
+    req.flash("success", "تم حذف الطالب بنجاح");
+    res.redirect("/school-admin/students");
+
+  } catch (error) {
+    console.error(error);
+    req.flash("error", "حدث خطأ أثناء حذف الطالب");
+    res.redirect("/school-admin/students");
+  }
+};

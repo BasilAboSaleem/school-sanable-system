@@ -111,13 +111,29 @@
   <%= student.gender === 'Male' ? 'ذكر' : student.gender === 'Female' ? 'أنثى' : '—' %>
 </td>
                       <td>
-                        <a href="/school-admin/students/<%= student._id %>" class="btn btn-sm btn-info">
-                          عرض
-                        </a>
-                        <a href="/school-admin/students/<%= student._id %>/edit" class="btn btn-sm btn-warning">
-                          تعديل
-                        </a>
-                      </td>
+  <div class="d-flex justify-content-center align-items-center" style="gap:6px; flex-wrap: nowrap;">
+    
+    <a href="/school-admin/students/<%= student._id %>" 
+       class="btn btn-sm btn-info">
+      عرض
+    </a>
+
+    <a href="/school-admin/students/<%= student._id %>/edit" 
+       class="btn btn-sm btn-warning">
+      تعديل
+    </a>
+
+    <button 
+      type="button"
+      class="btn btn-sm btn-danger delete-student-btn"
+      data-id="<%= student._id %>"
+      data-name="<%= student.fullName %>">
+      حذف
+    </button>
+
+  </div>
+</td>
+
                     </tr>
                   <% }) %>
                 </tbody>
@@ -133,6 +149,41 @@
   </main>
 
 </div>
+<!-- مودال تأكيد حذف الطالب -->
+<div class="modal fade" id="deleteStudentModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-right">
+      
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">تأكيد حذف الطالب</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        هل أنت متأكد من حذف الطالب:
+        <strong id="studentName"></strong>؟
+      </div>
+
+      <div class="modal-footer">
+        <form id="deleteStudentForm" method="POST">
+          <input type="hidden" name="_method" value="DELETE">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            إلغاء
+          </button>
+          <button type="submit" class="btn btn-danger">
+            نعم، حذف
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 <%- include('../../../partials/scripts.ejs') %>
 
@@ -157,6 +208,25 @@
       row.style.display = match ? '' : 'none';
     });
   });
+  // زر حذف الطالب
+document.querySelectorAll('.delete-student-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+
+    const studentId = this.dataset.id;
+    const studentName = this.dataset.name;
+
+    // وضع الاسم داخل المودال
+    document.getElementById('studentName').textContent = studentName;
+
+    // تعديل مسار الفورم
+    const form = document.getElementById('deleteStudentForm');
+    form.action = `/school-admin/students/${studentId}?_method=DELETE`;
+
+    // فتح المودال
+    $('#deleteStudentModal').modal('show');
+  });
+});
+
 </script>
 
 </body>

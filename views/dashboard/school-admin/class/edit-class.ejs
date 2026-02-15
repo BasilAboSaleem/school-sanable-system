@@ -115,7 +115,7 @@ document.getElementById('editClassForm').addEventListener('submit', async e => {
 
   const res = await fetch(`/school-admin/classes/<%= cls._id %>/edit`, {
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json', 'CSRF-Token': csrfToken},
     body: JSON.stringify(formData)
   });
   const data = await res.json();
@@ -123,10 +123,9 @@ document.getElementById('editClassForm').addEventListener('submit', async e => {
   if(data.errors){
     if(data.errors.name) nameError.textContent = data.errors.name;
     if(data.errors.general) alert(data.errors.general);
-  } else if(data.success){
-    alert("تم تعديل الفصل بنجاح");
-    window.location.href="/school-admin/classes";
-  }
+ } else if (data.redirect) {
+  window.location.href = data.redirect;
+}
 });
 </script>
 

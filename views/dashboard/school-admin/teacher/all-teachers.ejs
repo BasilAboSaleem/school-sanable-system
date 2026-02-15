@@ -42,6 +42,7 @@
         </div>
       </div>
 
+
       <!-- Flash Messages -->
       <% if (locals.error && locals.error.length > 0) { %>
         <div class="alert alert-danger"><%= locals.error %></div>
@@ -95,6 +96,14 @@
                       <td class="d-flex justify-content-center flex-wrap gap-1">
                         <button class="btn btn-sm btn-primary toggle-details">عرض</button>
                         <a href="/school-admin/teachers/<%= teacher._id %>/edit" class="btn btn-sm btn-warning">تعديل</a>
+                         <!-- زر الحذف الجديد -->
+  <button 
+    class="btn btn-sm btn-danger delete-btn"
+    data-id="<%= teacher._id %>"
+    data-name="<%= teacher.name %>"
+  >
+    حذف
+  </button>
                       </td>
                     </tr>
 
@@ -121,6 +130,42 @@
     </div>
   </main>
 </div>
+<!-- مودال تأكيد الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-right">
+      
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">تأكيد الحذف</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        هل أنت متأكد من حذف المدرس:
+        <strong id="teacherName"></strong> ؟
+      </div>
+
+      <div class="modal-footer">
+        <form id="deleteForm" method="POST">
+          <!-- إذا كنت تستخدم method-override -->
+          <input type="hidden" name="_method" value="DELETE">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            إلغاء
+          </button>
+          <button type="submit" class="btn btn-danger">
+            نعم، حذف
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 <%- include('../../../partials/scripts.ejs') %>
 
@@ -163,6 +208,25 @@
       }
     });
   });
+
+  // زر الحذف
+document.querySelectorAll('.delete-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const teacherId = this.dataset.id;
+    const teacherName = this.dataset.name;
+
+    // وضع الاسم داخل المودال
+    document.getElementById('teacherName').textContent = teacherName;
+
+    // تعديل رابط الفورم
+    const form = document.getElementById('deleteForm');
+    form.action = `/school-admin/teachers/${teacherId}?_method=DELETE`;
+
+    // فتح المودال
+    $('#deleteModal').modal('show');
+  });
+});
+
 </script>
 
 </body>

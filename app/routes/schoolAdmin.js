@@ -46,6 +46,7 @@ router.post("/teachers/create", schoolAdminController.Teacher.createTeacher);
 router.get("/teachers", schoolAdminController.Teacher.listTeachers);
 router.get("/teachers/:id/edit", schoolAdminController.Teacher.renderEditTeacherForm);
 router.post("/teachers/:id/edit", schoolAdminController.Teacher.updateTeacher);
+router.delete("/teachers/:id", schoolAdminController.Teacher.deleteTeacher);
 
 // ==================================================
 // Subjects Management
@@ -72,6 +73,7 @@ router.get("/students", schoolAdminController.Student.listStudents);
 router.get("/students/:id", schoolAdminController.Student.viewStudentDetails);
 router.get("/students/:id/edit", schoolAdminController.Student.renderEditStudentForm);
 router.post("/students/:id/edit", schoolAdminController.Student.updateStudent);
+router.delete("/students/:id", schoolAdminController.Student.deleteStudent);
 
 // ==================================================
 // Employees Management

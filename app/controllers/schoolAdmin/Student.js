@@ -11,6 +11,168 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios'); 
 
+function normalizeArabicText(value) {
+  if (value === null || value === undefined) return "";
+
+  return String(value)
+    .trim()
+    .replace(/\u00A0/g, " ")
+    .replace(/[\u0623\u0625\u0622]/g, "\u0627")
+    .replace(/\u0649/g, "\u064A")
+    .replace(/\u0629/g, "\u0647")
+    .replace(/\s+/g, " ");
+}
+
+function cleanCellValue(value) {
+  if (value === null || value === undefined) return "";
+  return String(value).trim();
+}
+
+function getRowValue(row, possibleKeys) {
+  for (const key of possibleKeys) {
+    if (Object.prototype.hasOwnProperty.call(row, key)) {
+      const value = cleanCellValue(row[key]);
+      if (value !== "") return value;
+    }
+  }
+
+  const normalizedEntries = Object.entries(row).map(([key, value]) => [
+    normalizeArabicText(key),
+    cleanCellValue(value)
+  ]);
+
+  for (const key of possibleKeys) {
+    const normalizedKey = normalizeArabicText(key);
+    const found = normalizedEntries.find(([entryKey, entryValue]) =>
+      entryKey === normalizedKey && entryValue !== ""
+    );
+    if (found) return found[1];
+  }
+
+  return "";
+}
+
+function parseGender(value) {
+  const raw = cleanCellValue(value).toLowerCase();
+  const normalized = normalizeArabicText(value).toLowerCase();
+
+  if (!raw && !normalized) return undefined;
+  if (
+    raw.includes("\u0630\u0643\u0631") ||
+    normalized.includes("\u0630\u0643\u0631") ||
+    raw === "male" ||
+    normalized === "male" ||
+    raw === "m" ||
+    normalized === "m"
+  ) return "Male";
+  if (
+    raw.includes("\u0648\u0644\u062F") ||
+    normalized.includes("\u0648\u0644\u062F")
+  ) return "Male";
+  if (
+    /[\u0627\u0623\u0625\u0622]?\u0646\u062B[\u0649\u064A]/.test(raw) ||
+    /[\u0627\u0623\u0625\u0622]?\u0646\u062B[\u0649\u064A]/.test(normalized) ||
+    raw === "female" ||
+    normalized === "female" ||
+    raw === "f" ||
+    normalized === "f"
+  ) return "Female";
+  if (
+    raw.includes("\u0628\u0646\u062A") ||
+    normalized.includes("\u0628\u0646\u062A")
+  ) return "Female";
+
+  return undefined;
+}
+
+function parseHealthStatus(value) {
+  const normalized = normalizeArabicText(value).toLowerCase();
+
+  if (!normalized) return true;
+  if (
+    normalized.includes("غير سليم") ||
+    normalized.includes("غير صحي") ||
+    normalized.includes("مريض") ||
+    normalized.includes("يعاني") ||
+    normalized === "لا"
+  ) {
+    return false;
+  }
+
+  if (
+    normalized.includes("سليم") ||
+    normalized.includes("صحي") ||
+    normalized === "نعم"
+  ) {
+    return true;
+  }
+
+  return true;
+}
+
+function parseOrphanStatus(value) {
+  const normalized = normalizeArabicText(value).toLowerCase();
+
+  if (!normalized) return false;
+  if (
+    normalized.includes("غير يتيم") ||
+    normalized.includes("ليس يتيم") ||
+    normalized === "لا"
+  ) {
+    return false;
+  }
+
+  if (normalized.includes("يتيم") || normalized === "نعم") {
+    return true;
+  }
+
+  return false;
+}
+
+function parseStudentStatus(value) {
+  const normalized = normalizeArabicText(value).toLowerCase();
+
+  if (!normalized) return "active";
+  if (
+    normalized.includes("غير معتمد") ||
+    normalized.includes("غير فعال") ||
+    normalized.includes("موقوف") ||
+    normalized.includes("inactive")
+  ) {
+    return "inactive";
+  }
+
+  return "active";
+}
+
+function parseExcelDate(value) {
+  if (!value && value !== 0) return undefined;
+
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    const parsed = XLSX.SSF.parse_date_code(value);
+    if (!parsed) return undefined;
+    return new Date(parsed.y, parsed.m - 1, parsed.d);
+  }
+
+  const text = cleanCellValue(value);
+  if (!text) return undefined;
+
+  const directDate = new Date(text);
+  if (!Number.isNaN(directDate.getTime())) return directDate;
+
+  const match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (match) {
+    const [, part1, part2, year] = match;
+    return new Date(Number(year), Number(part2) - 1, Number(part1));
+  }
+
+  return undefined;
+}
+
 
 exports.renderCreateStudentForm = async (req, res) => {
   try {
@@ -212,9 +374,9 @@ exports.importStudentsExcel = async (req, res) => {
     }
 
     // ===== قراءة الإكسل =====
-    const workbook = XLSX.readFile(filePath);
+    const workbook = XLSX.readFile(filePath, { cellDates: true });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    let rows = XLSX.utils.sheet_to_json(sheet);
+    let rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
     // ===== تطبيق النطاق =====
     startRow = parseInt(startRow) || 1;
@@ -227,26 +389,45 @@ exports.importStudentsExcel = async (req, res) => {
 
     rows = rows.slice(startRow - 1, endRow);
 
-    let studentsToInsert = [];
+    const studentsToInsert = [];
     let skippedRows = 0;
 
     for (const row of rows) {
-      if (!row['اسم الطالب'] || !row['رقم الجوال']) {
+      const fullName = getRowValue(row, ["اسم الطالب", "اسم الطالبه", "اسم الطالب رباعي"]);
+      const phoneOfParents = getRowValue(row, ["رقم الجوال", "الجوال", "رقم الهاتف", "هاتف ولي الامر"]);
+
+      if (!fullName || !phoneOfParents) {
         skippedRows++;
         continue;
       }
 
-      let gender;
-      if (['انثى','أنثى'].includes(row['الجنس']?.trim())) gender = 'Female';
-      else if (row['الجنس'] === 'ذكر') gender = 'Male';
+      const gender = parseGender(getRowValue(row, ["الجنس"]));
+      const nationalId = getRowValue(row, ["هوية الطالب", "رقم هوية الطالب", "الهوية"]);
+      const nameOfParent = getRowValue(row, ["ولي الأمر", "ولي الامر", "اسم ولي الأمر", "اسم ولي الامر"]);
+      const nationalIdOfParent = getRowValue(row, ["هوية ولي الأمر", "هوية ولي الامر", "رقم هوية ولي الأمر"]);
+      const dateOfBirth = parseExcelDate(getRowValue(row, ["تاريخ الميلاد", "تاريخ ولادة الطالب"]));
+      const healthStatus = getRowValue(row, ["الحالة الصحية", "الحاله الصحيه"]);
+      const orphanStatus = getRowValue(row, ["حالة اليتم", "حاله اليتم"]);
+      const studentStatus = getRowValue(row, ["حالة الطالب", "حاله الطالب"]);
+      const address = getRowValue(row, ["العنوان", "السكن"]);
+      const ageValue = getRowValue(row, ["العمر", "سن الطالب"]);
 
       studentsToInsert.push({
-        fullName: row['اسم الطالب'].trim(),
-        phoneOfParents: row['رقم الجوال'].trim(),
+        fullName,
+        nationalId: nationalId || undefined,
+        phoneOfParents,
+        nameOfParent: nameOfParent || undefined,
+        nationalIdOfParent: nationalIdOfParent || undefined,
+        isHealthy: parseHealthStatus(healthStatus),
+        isOrphan: parseOrphanStatus(orphanStatus),
+        address: address || undefined,
+        dateOfBirth,
+        age: ageValue ? Number(ageValue) || undefined : undefined,
         schoolId: req.user.schoolId,
         classId,
         sectionId,
         gender,
+        status: parseStudentStatus(studentStatus),
         createdFrom: 'excel'
       });
     }

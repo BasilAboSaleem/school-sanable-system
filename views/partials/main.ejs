@@ -54,17 +54,50 @@
     <% if(user.role === 'super-admin' || user.role === 'school-admin' || user.role === 'school-coordinator') { %>
       <div class="row m-1 mb-2">
         <% if(user.role === 'super-admin') { %>
-          <div class="col-md-3 p-2">
-            <div class="box-card mini"><span>عدد المدارس</span><span><%= stats.totalSchools %></span></div>
+          <div class="col-xl-3 col-lg-4 col-md-6 p-2">
+            <div class="super-admin-stat-card stat-schools">
+              <div class="super-admin-stat-icon"><i class="fas fa-school"></i></div>
+              <div class="super-admin-stat-label">عدد المدارس</div>
+              <div class="super-admin-stat-value"><%= stats.totalSchools %></div>
+              <div class="super-admin-stat-meta">إجمالي المدارس المسجلة في النظام</div>
+            </div>
           </div>
-          <div class="col-md-3 p-2">
-            <div class="box-card mini"><span>عدد الموردين</span><span><%= stats.totalSuppliers %></span></div>
+          <div class="col-xl-3 col-lg-4 col-md-6 p-2">
+            <div class="super-admin-stat-card stat-suppliers">
+              <div class="super-admin-stat-icon"><i class="fas fa-truck-loading"></i></div>
+              <div class="super-admin-stat-label">عدد الموردين</div>
+              <div class="super-admin-stat-value"><%= stats.totalSuppliers %></div>
+              <div class="super-admin-stat-meta">الموردون المعتمدون داخل النظام</div>
+            </div>
           </div>
-          <div class="col-md-3 p-2">
-            <div class="box-card mini"><span>إجمالي الواردات</span><span><%= stats.totalIncomes[0]?.total || 0 %></span></div>
+          <div class="col-xl-3 col-lg-4 col-md-6 p-2">
+            <button
+              type="button"
+              class="super-admin-stat-card dashboard-students-card stat-students"
+              data-toggle="modal"
+              data-target="#studentsBySchoolModal"
+            >
+              <div class="super-admin-stat-icon"><i class="fas fa-user-graduate"></i></div>
+              <div class="super-admin-stat-label">إجمالي الطلاب</div>
+              <div class="super-admin-stat-value"><%= stats.totalStudents || 0 %></div>
+              <div class="super-admin-stat-meta">اضغط لعرض التفصيل حسب كل مدرسة</div>
+            </button>
           </div>
-          <div class="col-md-3 p-2">
-            <div class="box-card mini"><span>إجمالي الصادرات</span><span><%= stats.totalExpenses[0]?.total || 0 %></span></div>
+          <div class="col-xl-3 col-lg-6 col-md-6 p-2">
+            <div class="super-admin-stat-card stat-incomes">
+              <div class="super-admin-stat-icon"><i class="fas fa-arrow-down"></i></div>
+              <div class="super-admin-stat-label">إجمالي الواردات</div>
+              <div class="super-admin-stat-value"><%= stats.totalIncomes[0]?.total || 0 %></div>
+              <div class="super-admin-stat-meta">مجموع الواردات على مستوى المؤسسة</div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-6 col-md-6 p-2">
+            <div class="super-admin-stat-card stat-expenses">
+              <div class="super-admin-stat-icon"><i class="fas fa-arrow-up"></i></div>
+              <div class="super-admin-stat-label">إجمالي الصادرات</div>
+              <div class="super-admin-stat-value"><%= stats.totalExpenses[0]?.total || 0 %></div>
+              <div class="super-admin-stat-meta">مجموع الصادرات على مستوى المؤسسة</div>
+            </div>
           </div>
         <% } else if(user.role === 'school-admin' || user.role === 'school-coordinator') { %>
           <div class="col-md-4 p-2">
@@ -76,10 +109,47 @@
           <div class="col-md-4 p-2">
             <div class="box-card mini"><span>عدد المعلمين</span><span><%= stats.totalTeachers %></span></div>
           </div>
-        <% } %> 
-
+        <% } %>
       </div>
     <% } %>
 
+    <% if(user.role === 'super-admin') { %>
+      <div class="modal fade" id="studentsBySchoolModal" tabindex="-1" role="dialog" aria-labelledby="studentsBySchoolModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content students-modal">
+            <div class="modal-header border-0 pb-0">
+              <div>
+                <h5 class="modal-title" id="studentsBySchoolModalLabel">تفصيل الطلاب حسب المدرسة</h5>
+                <p class="students-modal-subtitle mb-0">إجمالي الطلاب المسجلين في جميع المدارس: <strong><%= stats.totalStudents || 0 %></strong></p>
+              </div>
+              <button type="button" class="close ml-0 mr-auto" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body pt-3">
+              <% if (stats.studentsBySchool?.length) { %>
+                <div class="students-school-list">
+                  <% stats.studentsBySchool.forEach((school, index) => { %>
+                    <div class="students-school-item">
+                      <div class="students-school-rank"><%= index + 1 %></div>
+                      <div class="students-school-content">
+                        <h6><%= school.name %></h6>
+                        <p>عدد الطلاب المسجلين</p>
+                      </div>
+                      <div class="students-school-count"><%= school.studentCount %></div>
+                    </div>
+                  <% }) %>
+                </div>
+              <% } else { %>
+                <div class="alert alert-light text-center mb-0">
+                  لا توجد بيانات طلاب مسجلة حالياً.
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
   </div>
 </main>

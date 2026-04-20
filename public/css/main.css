@@ -2558,3 +2558,229 @@ body.dark {
 /* .dark .avam-container .navbar.navbar-light {
   background: linear-gradient(0deg, #7b89a9, #a4b9e3);
 } */
+
+.super-admin-stat-card {
+  position: relative;
+  width: 100%;
+  min-height: 185px;
+  border: 0;
+  border-radius: 24px;
+  padding: 22px 20px 20px;
+  overflow: hidden;
+  text-align: right;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 247, 251, 0.96));
+  box-shadow: 0 20px 40px -28px rgba(31, 41, 55, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.super-admin-stat-card::before {
+  content: "";
+  position: absolute;
+  top: -45px;
+  left: -45px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.super-admin-stat-card::after {
+  content: "";
+  position: absolute;
+  bottom: -35px;
+  right: -25px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.super-admin-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 46px -28px rgba(31, 41, 55, 0.45);
+}
+
+.super-admin-stat-icon,
+.super-admin-stat-label,
+.super-admin-stat-value,
+.super-admin-stat-meta {
+  position: relative;
+  z-index: 1;
+}
+
+.super-admin-stat-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  font-size: 22px;
+}
+
+.super-admin-stat-label {
+  display: block;
+  margin-bottom: 12px;
+  color: #4b5563;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.super-admin-stat-value {
+  display: block;
+  margin-bottom: 12px;
+  color: #111827;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.super-admin-stat-meta {
+  color: #5f6b7c;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.dashboard-students-card {
+  cursor: pointer;
+}
+
+.dashboard-students-card:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18), 0 24px 46px -28px rgba(31, 41, 55, 0.45);
+}
+
+.stat-schools {
+  background: linear-gradient(135deg, #eef7ff, #d8ebff);
+}
+
+.stat-schools .super-admin-stat-icon,
+.stat-schools .super-admin-stat-value {
+  color: #155e75;
+}
+
+.stat-suppliers {
+  background: linear-gradient(135deg, #f3f1ff, #e5dcff);
+}
+
+.stat-suppliers .super-admin-stat-icon,
+.stat-suppliers .super-admin-stat-value {
+  color: #5b21b6;
+}
+
+.stat-students {
+  background: linear-gradient(135deg, #fff8df, #ffe7a8);
+}
+
+.stat-students .super-admin-stat-icon,
+.stat-students .super-admin-stat-value {
+  color: #9a6700;
+}
+
+.stat-incomes {
+  background: linear-gradient(135deg, #eafcf1, #c9f2d7);
+}
+
+.stat-incomes .super-admin-stat-icon,
+.stat-incomes .super-admin-stat-value {
+  color: #166534;
+}
+
+.stat-expenses {
+  background: linear-gradient(135deg, #fff0f1, #ffd9dc);
+}
+
+.stat-expenses .super-admin-stat-icon,
+.stat-expenses .super-admin-stat-value {
+  color: #be123c;
+}
+
+.students-modal {
+  border: 0;
+  border-radius: 22px;
+  padding: 10px;
+  background: linear-gradient(180deg, #fffefb, #fff6df);
+}
+
+.students-modal .modal-header {
+  align-items: flex-start;
+}
+
+.students-modal .modal-title {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.students-modal-subtitle {
+  color: #7a6d55;
+  font-size: 14px;
+}
+
+.students-school-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-left: 2px;
+}
+
+.students-school-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 24px -22px rgba(0, 0, 0, 0.55);
+}
+
+.students-school-rank {
+  min-width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #8c6a13;
+  background: linear-gradient(180deg, #ffe9a9, #ffd36b);
+}
+
+.students-school-content {
+  flex: 1;
+}
+
+.students-school-content h6 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.students-school-content p {
+  margin: 0;
+  color: #7f7f7f;
+  font-size: 13px;
+}
+
+.students-school-count {
+  min-width: 72px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #5e4b1c;
+}
+
+@media only screen and (max-width: 767px) {
+  .students-school-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .students-school-count {
+    width: 100%;
+    text-align: right;
+  }
+}

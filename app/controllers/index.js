@@ -22,6 +22,27 @@ exports.dashboard = async (req, res) => {
     if(user.role === "super-admin") {
       stats.totalSchools = await School.countDocuments();
       stats.totalSuppliers = await Supplier.countDocuments();
+      stats.studentsBySchool = await School.aggregate([
+        {
+          $lookup: {
+            from: "students",
+            localField: "_id",
+            foreignField: "schoolId",
+            as: "students"
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            studentCount: { $size: "$students" }
+          }
+        },
+        { $sort: { studentCount: -1, name: 1 } }
+      ]);
+      stats.totalStudents = stats.studentsBySchool.reduce((total, school) => {
+        return total + school.studentCount;
+      }, 0);
       stats.totalIncomes = await Income.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }]);
       stats.totalExpenses = await Expense.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }]);
       
